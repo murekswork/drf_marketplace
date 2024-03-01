@@ -1,8 +1,8 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.db.models.manager import Manager
-from products.models import Product
 from order.models import Order
+from products.models import Product
 
 
 class ArticleQuerySet(models.QuerySet):

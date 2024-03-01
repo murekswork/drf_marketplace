@@ -1,12 +1,11 @@
-from rest_framework import serializers
-from rest_framework.reverse import reverse
-from rest_framework import validators
-
+from api.serializers import UserSerializer
 from articles.serializers import ArticleInlineSerializer
 from category.models import Category
 from products.models import Product
+from rest_framework import serializers, validators
+from rest_framework.reverse import reverse
+
 from .validators import english_words_validator
-from api.serializers import UserSerializer
 
 product_title_content_validator = validators.UniqueTogetherValidator(
     queryset=Product.objects.all(),
@@ -22,7 +21,8 @@ class ProductInlineSerializer(serializers.Serializer):
 
     def get_url(self, obj):
         request = self.context.get('request', None)
-        if request is None: return None
+        if request is None:
+            return None
         return reverse('product-detail', kwargs={'pk': obj.id}, request=request)
 
 
@@ -100,5 +100,5 @@ class ProductSerializer(serializers.ModelSerializer):
         if request is None:
             return None
         return reverse(
-            "product-update", kwargs={"pk": obj.pk}, request=request
+            'product-update', kwargs={'pk': obj.pk}, request=request
         )

@@ -1,10 +1,9 @@
 import datetime
 
+from category.models import Category
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
-
-from category.models import Category
 
 
 class Sale(models.Model):
@@ -52,7 +51,7 @@ class Product(models.Model):
 
     @property
     def sale_price(self):
-        return "%.2f" % (float(self.price) * 0.8)
+        return '%.2f' % (float(self.price) * 0.8)
 
     def get_discount(self):
         return 'Discount value'

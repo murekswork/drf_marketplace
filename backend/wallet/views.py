@@ -1,12 +1,11 @@
-from rest_framework import generics, status, serializers, permissions
-from rest_framework.reverse import reverse
-from rest_framework.response import Response
-from rest_framework.mixins import RetrieveModelMixin
-from .models import Wallet
-
-from .serializers import WalletSerializer
-
 from api.mixins import UserQuerySetMixin
+from rest_framework import generics, permissions, status
+from rest_framework.mixins import RetrieveModelMixin
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+
+from .models import Wallet
+from .serializers import WalletSerializer
 
 
 class WalletAPIView(UserQuerySetMixin, RetrieveModelMixin, generics.GenericAPIView):

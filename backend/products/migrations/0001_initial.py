@@ -22,7 +22,8 @@ class Migration(migrations.Migration):
                 ('content', models.TextField(blank=True, null=True)),
                 ('price', models.DecimalField(decimal_places=2, default=99.99, max_digits=15)),
                 ('public', models.BooleanField(default=True)),
-                ('user', models.ForeignKey(default=1, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(default=1, null=True,
+                 on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

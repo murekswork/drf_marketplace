@@ -1,23 +1,22 @@
 from abc import ABC, abstractmethod
-from django.contrib.auth import get_user_model
-from django.db import transaction
-from rest_framework.exceptions import ValidationError
 
+from django.conf import settings
+from django.db import transaction
 from order.models import Order
-from order.serialziers import OrderSerializer
 from products.models import Product, Sale
+from rest_framework.exceptions import ValidationError
 from wallet.models import Wallet
 
 
 class AbstractOrderService(ABC):
 
-    def __init__(self, user: get_user_model() = None, order: Order = None) -> None:
-        self._user: get_user_model() = user
+    def __init__(self, user: settings.AUTH_USER_MODEL, order: Order) -> None:
+        self._user = user
         self._product: Product = order.product
         self._order: Order | None = order
         self._order_amount = 50
 
-    def validate_users_wallet(self, user: get_user_model()) -> None:
+    def validate_users_wallet(self, user: settings.AUTH_USER_MODEL) -> None:
         wallet = Wallet.objects.filter(user=user).exists()
         if wallet is True:
             self._user = user
@@ -83,7 +82,7 @@ class SimpleOrderService(AbstractOrderService):
 
 class OrderServiceWithSale(SimpleOrderService):
 
-    def __init__(self, user: get_user_model() = None, order: Order = None, sale: Sale = None):
+    def __init__(self, user: settings.AUTH_USER_MODEL, order: Order, sale: Sale):
         super().__init__(user, order)
         self.sale = sale
 

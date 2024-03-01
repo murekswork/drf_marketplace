@@ -1,7 +1,7 @@
+from api.mixins import StaffEditorPermissionMixin, UserQuerySetMixin
 from rest_framework import generics
 
 from .models import Article
-from api.mixins import StaffEditorPermissionMixin, UserQuerySetMixin
 from .serializers import ArticleSerializer
 
 
@@ -19,5 +19,3 @@ class ArticleDetailView(StaffEditorPermissionMixin, UserQuerySetMixin, generics.
 
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-
-

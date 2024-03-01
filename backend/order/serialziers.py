@@ -1,12 +1,11 @@
+from api.serializers import UserSerializer
+from articles.serializers import ArticleInlineSerializer
+from products.models import Product
+from products.serializers import ProductInlineSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.serializers import UserSerializer
-from products.serializers import ProductInlineSerializer
-from products.models import Product
-from articles.serializers import ArticleInlineSerializer
 from .models import Order
-
 from .validators import positive_integer_validator
 
 

@@ -1,21 +1,22 @@
-from rest_framework import authentication
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import (
-    RetrieveAPIView,
-    ListCreateAPIView,
-    DestroyAPIView,
-    UpdateAPIView,
-
-)
-from rest_framework.permissions import IsAuthenticated
-
-from api.mixins import UserQuerySetMixin, IsObjectOwnerPermission
 # from api.permissions
 from api.authentication import TokenAuthentication
+from api.mixins import (
+    IsObjectOwnerPermission,
+    StaffEditorPermissionMixin,
+    UserQuerySetMixin,
+)
+from rest_framework import authentication
+from rest_framework.generics import (
+    DestroyAPIView,
+    ListCreateAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
+
 from .models import Product
 from .serializers import ProductSerializer
-from api.mixins import StaffEditorPermissionMixin
-
 
 #
 # class ProductListRetrieveAPIView(ListAPIView):
@@ -78,10 +79,7 @@ class ProductListCreateAPIView(
     pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
-        # email = serializer.validated_data.pop('email')
-        # print(email)
-
-        title = serializer.validated_data.get('title')
+        serializer.validated_data.get('title')
         content = serializer.validated_data.get('content', 'blank')
         serializer.save(content=content, user=self.request.user)
 
@@ -120,8 +118,8 @@ class ProductDeleteAPIView(
 
 
 class ProductUpdateAPIView(
-    UserQuerySetMixin,
-    UpdateAPIView):
+        UserQuerySetMixin,
+        UpdateAPIView):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer

@@ -1,12 +1,10 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from django.urls import reverse
-
-from products.models import Product, Sale
-from wallet.models import Wallet
 from order.models import Order
 from order.serialziers import OrderSerializer
-from order.services.order_service import OrderServiceFabric
+from products.models import Product, Sale
+from wallet.models import Wallet
 
 
 class OrderSerializerTestCase(TestCase):
@@ -31,26 +29,26 @@ class OrderSerializerTestCase(TestCase):
 
     def test_serializer_user_field(self):
         # print(serializer.data)
-        self.assertEquals(self.serializer.data['user']['username'], self.user.username)
+        self.assertEqual(self.serializer.data['user']['username'], self.user.username)
 
     def test_serializer_product_field(self):
-        self.assertEquals(self.serializer.data['product']['title'], self.order_product.title)
+        self.assertEqual(self.serializer.data['product']['title'], self.order_product.title)
 
     def test_serializer_payment_url_field(self):
-        self.assertEquals(self.serializer.data['payment_url'], reverse('order-payment', kwargs={'pk': self.order.pk}))
+        self.assertEqual(self.serializer.data['payment_url'], reverse('order-payment', kwargs={'pk': self.order.pk}))
 
     def test_serializer_get_amount_without_product_sale(self):
         self.assertEqual(float(self.serializer.get_amount(self.order)), 0)
 
     def test_creation(self):
-        self.assertEquals(self.order_creation.status_code, 201)
+        self.assertEqual(self.order_creation.status_code, 201)
 
     def test_created_order_get_amount_without_sale(self):
         order = OrderSerializer(self.created_order)
         self.assertEqual(float(order.data['amount']), float(500))
 
     def test_created_order_get_amount_with_sale(self):
-        sale = Sale.objects.create(product=self.created_order.product, size=50)
+        Sale.objects.create(product=self.created_order.product, size=50)
         order = OrderSerializer(self.created_order)
         self.assertEqual(float(order.data['amount']), float(250))
 

@@ -1,11 +1,12 @@
-from .models import Wallet
 from rest_framework import serializers
+
+from .models import Wallet
 
 
 def existing_wallet_validator(value):
 
     if Wallet.objects.filter(user=value).exists():
-        raise serializers.ValidationError("You already have an existing wallet")
+        raise serializers.ValidationError('You already have an existing wallet')
     return value
 
 
@@ -34,5 +35,3 @@ class WalletSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.validate_user(user)
         wallet = super().create(validated_data)
         return wallet
-
-

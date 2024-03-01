@@ -1,9 +1,11 @@
-from rest_framework import validators
-from rest_framework import serializers
-from .models import Product
 import re
 
+from rest_framework import serializers, validators
+
+from .models import Product
+
 product_title_validator = validators.UniqueValidator(queryset=Product.objects.all(), lookup='iexact')
+
 
 def title_validator(value):
 
@@ -11,6 +13,7 @@ def title_validator(value):
     if qs.exists():
         raise serializers.ValidationError(f'Product with name {value} already exists!')
     return value
+
 
 def english_words_validator(value):
     english_letters_pattern = r'^[A-Za-z0-9]+$'

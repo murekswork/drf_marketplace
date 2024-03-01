@@ -1,13 +1,13 @@
 import datetime
 
+from api.mixins import UserQuerySetMixin
 from django.db.models import Q
 from rest_framework import generics, status
 from rest_framework.response import Response
 
+from .mixins import OrderServiceFabricMixin
 from .models import Order
 from .serialziers import OrderSerializer
-from api.mixins import UserQuerySetMixin, StaffEditorPermissionMixin
-from .mixins import OrderServiceFabricMixin
 
 
 class OrderListCreateAPIView(UserQuerySetMixin, generics.ListCreateAPIView):
@@ -17,7 +17,7 @@ class OrderListCreateAPIView(UserQuerySetMixin, generics.ListCreateAPIView):
     allow_staff_view = False
 
     def get_queryset(self):
-        qs = super(OrderListCreateAPIView, self).get_queryset()
+        qs = super().get_queryset()
         qs = qs.filter(Q(lifetime__gte=datetime.datetime.now()) | Q(payment_status=True))
         return qs
 

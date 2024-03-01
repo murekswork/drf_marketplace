@@ -15,7 +15,6 @@ class StaffEditorPermissionMixin:
     permission_classes = [IsObjectOwnerPermission, permissions.IsAdminUser, IsStaffEditorPermission]
 
 
-
 class UserQuerySetMixin:
 
     user_field = 'user'

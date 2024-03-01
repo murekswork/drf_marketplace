@@ -14,4 +14,4 @@ class Category(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
-        super(Category, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

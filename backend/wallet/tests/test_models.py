@@ -1,7 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 from wallet.models import Wallet
-from django.contrib.auth import get_user_model
 
 
 class WalletModelTestCase(TestCase):
@@ -16,18 +16,17 @@ class WalletModelTestCase(TestCase):
         self.wallet2 = Wallet.objects.create(user=self.user2, balance=1000)
 
     def test_wallet_str(self):
-        self.assertEquals(self.wallet1.__str__(), 'user1s wallet')
-        self.assertEquals(self.wallet2.__str__(), 'user2s wallet')
+        self.assertEqual(self.wallet1.__str__(), 'user1s wallet')
+        self.assertEqual(self.wallet2.__str__(), 'user2s wallet')
 
     def test_wallet_balance(self):
-        self.assertEquals(self.wallet1.balance, 0)
-        self.assertEquals(self.wallet2.balance, 1000)
+        self.assertEqual(self.wallet1.balance, 0)
+        self.assertEqual(self.wallet2.balance, 1000)
 
     def test_create_second_wallet_with_same_user_then_raise_error(self):
         with self.assertRaises(IntegrityError):
             Wallet.objects.create(user=self.user1)
 
     def test_wallet_user(self):
-        self.assertEquals(self.wallet1.user, self.user1)
-        self.assertEquals(self.wallet2.user, self.user2)
-
+        self.assertEqual(self.wallet1.user, self.user1)
+        self.assertEqual(self.wallet2.user, self.user2)

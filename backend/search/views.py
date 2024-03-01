@@ -1,9 +1,9 @@
+from api.mixins import UserQuerySetMixin
+from products.models import Product
+from products.serializers import ProductSerializer
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from products.models import Product
-from products.serializers import ProductSerializer
-from api.mixins import UserQuerySetMixin, StaffEditorPermissionMixin
 
 class SearchListView(UserQuerySetMixin, generics.ListAPIView):
 
@@ -12,10 +12,8 @@ class SearchListView(UserQuerySetMixin, generics.ListAPIView):
     allow_staff_view = True
     permission_classes = [IsAuthenticated]
 
-
-
     def get_queryset(self, *args, **kwargs):
-        qs = super().get_queryset(*args, **kwargs)
+        qs = super().get_queryset()
         q = self.request.GET.get('q')
         result = Product.objects.none()
         if q is not None:

@@ -1,7 +1,7 @@
+from order.models import Order
+from products.models import Product
 from rest_framework import serializers
 
-from products.models import Product
-from order.models import Order
 from .models import Article
 
 
@@ -33,18 +33,17 @@ class ArticleSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
 
-
     def get_fields(self):
         fields = super().get_fields()
         fields['review_order'].queryset = Order.objects.get_not_reviewed_orders(self.context.get('request').user)
         return fields
 
-
     def get_orders(self, obj):
         user = self.context.get('request').user
-        orders =  Order.objects.get_not_reviewed_orders(user=user)
+        orders = Order.objects.get_not_reviewed_orders(user=user)
         print(orders)
         return orders
+
 
 class ArticleInlineSerializer(serializers.ModelSerializer):
 

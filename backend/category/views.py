@@ -1,9 +1,8 @@
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.response import Response
-
-from products.serializers import ProductSerializer
-from .models import Category
 from products.models import Product
+from products.serializers import ProductSerializer
+from rest_framework.generics import ListAPIView
+
+from .models import Category
 from .serializers import CategorySerializer
 
 
@@ -22,6 +21,7 @@ class CategoryDetailView(ListAPIView):
 
     def get_queryset(self):
         return Product.objects.filter(category=self.get_object())
+
 
 class CategoryListAPIView(ListAPIView):
 

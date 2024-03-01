@@ -1,10 +1,9 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
-
-from wallet.models import Wallet
+from django.test import TestCase
+from order.models import Order
 from order.services.order_service import OrderServiceFabric
 from products.models import Product
-from order.models import Order
+from wallet.models import Wallet
 
 
 class OrderModelTestCase(TestCase):
@@ -17,24 +16,24 @@ class OrderModelTestCase(TestCase):
         self.order = Order.objects.create(user=self.user, product=self.order_product, count=5)
 
     def test_product_field(self):
-        self.assertEquals(self.order.product, self.order_product)
+        self.assertEqual(self.order.product, self.order_product)
 
     def test_user_field(self):
-        self.assertEquals(self.order.user, self.user)
+        self.assertEqual(self.order.user, self.user)
 
     def test_count_field(self):
-        self.assertEquals(self.order.count, 5)
+        self.assertEqual(self.order.count, 5)
 
     def test_amount_field(self):
-        self.assertEquals(int(self.order.amount), 0)
+        self.assertEqual(int(self.order.amount), 0)
 
     def test_total_amount_property(self):
-        self.assertEquals(float(self.order.total_amount), float(self.order_product.price * self.order.count))
+        self.assertEqual(float(self.order.total_amount), float(self.order_product.price * self.order.count))
 
     def test_payment_status_field(self):
-        self.assertEquals(self.order.payment_status, False)
+        self.assertEqual(self.order.payment_status, False)
 
     def test_payment_status_field_when_payed(self):
         service = OrderServiceFabric.get_order_service(self.order)
         service.pay_order()
-        self.assertEquals(self.order.payment_status, True)
+        self.assertEqual(self.order.payment_status, True)

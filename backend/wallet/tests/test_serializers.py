@@ -1,5 +1,5 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 from wallet.models import Wallet
 from wallet.serializers import WalletSerializer
 
@@ -14,6 +14,6 @@ class TestWalletSerializer(TestCase):
     def test_wallet_serializer(self):
         wallet = Wallet.objects.get(user=self.user)
         serializer = WalletSerializer(wallet)
-        self.assertEquals(serializer.data['id'], str(self.wallet.id))
-        self.assertEquals(serializer.data['user'], self.user.id)
-        self.assertEquals(serializer.data['balance'], '0.00')
+        self.assertEqual(serializer.data['id'], str(self.wallet.id))
+        self.assertEqual(serializer.data['user'], self.user.id)
+        self.assertEqual(serializer.data['balance'], '0.00')

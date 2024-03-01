@@ -1,12 +1,9 @@
 import datetime
 import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
-
 from products.models import Product
-# from articles.models import Article
-
-from django.db.models import manager
 
 
 class OrderQuerySet(models.QuerySet):
@@ -31,7 +28,7 @@ class Order(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(get_user_model(), blank=False, null=True, on_delete=models.SET_NULL)
-    product= models.ForeignKey(Product, blank=False, null=True, related_name='orders', on_delete=models.SET_NULL)
+    product = models.ForeignKey(Product, blank=False, null=True, related_name='orders', on_delete=models.SET_NULL)
     count = models.IntegerField(default=1, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False, null=True, default=0.00)
@@ -48,4 +45,3 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.id}, {self.amount}'
-
