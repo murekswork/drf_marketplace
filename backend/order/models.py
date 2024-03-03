@@ -8,7 +8,9 @@ from products.models import Product
 
 class OrderQuerySet(models.QuerySet):
 
-    pass
+    def paid_orders(self):
+        payed_qs = self.filter(payment_status=True).order_by('-created_at')
+        return payed_qs
 
 
 class OrderManager(models.Manager):
@@ -22,6 +24,11 @@ class OrderManager(models.Manager):
 
     def get_queryset(self, *args, **kwargs):
         return OrderQuerySet(self.model, using=self._db)
+
+    def user_paid_orders(self, user):
+        user_qs = self.user_orders(user=user)
+        paid_qs = user_qs.paid_orders(user)
+        return paid_qs
 
 
 class Order(models.Model):
