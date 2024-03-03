@@ -1,72 +1,36 @@
-# from api.permissions
+import django_filters
 from api.authentication import TokenAuthentication
 from api.mixins import (
     IsObjectOwnerPermission,
     StaffEditorPermissionMixin,
     UserQuerySetMixin,
 )
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import authentication
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     DestroyAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
     UpdateAPIView,
 )
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Product
 from .serializers import ProductSerializer
 
-#
-# class ProductListRetrieveAPIView(ListAPIView):
-#
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
 
-# class ProductMixinView(
-#     ListModelMixin,
-#     GenericAPIView,
-#     RetrieveModelMixin,
-#     CreateModelMixin,
-#     DestroyModelMixin,
-#     UpdateModelMixin,
-#
-# ):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     lookup_field = 'pk'
-#     def get(self, request, *args, **kwargs):
-#         pk = self.kwargs.get('pk', None)
-#         if pk is not None:
-#             return self.retrieve(request, *args, **kwargs)
-#
-#         return self.list(request, *args, **kwargs)
-#
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
-#
-#     def put(self, request, *args, **kwargs):
-#         return self.update(request, *args, **kwargs)
-#
-#     def delete(self, request, *args, **kwargs):
-#         return self.destroy(request, *args, **kwargs)
-#
-#     def perform_update(self, serializer):
-#         content = serializer.validated_data.get('content', None)
-#         if content is None:
-#             content = 'Updated product content'
-#         serializer.save(content=content)
-#
-#
-#     def perform_create(self, serializer):
-#         title = serializer.validated_data.get('title')
-#         content = serializer.validated_data.get('content', None)
-#         if content is None:
-#             content = title
-#         serializer.save(content=content)
+class ProductFilter(django_filters.FilterSet):
+    quantity_lte = django_filters.rest_framework.filters.NumberFilter(field_name='quantity', lookup_expr='lte')
+    quantity_gte = django_filters.rest_framework.filters.NumberFilter(field_name='quantity', lookup_expr='gte')
+
+    class Meta:
+        model = Product
+        fields = ['quantity', 'quantity_lte', 'quantity_gte']
 
 
+@method_decorator(cache_page(30), name='get', )
 class ProductListCreateAPIView(
     # StaffEditorPermissionMixin,
     # UserQuerySetMixin,
@@ -76,7 +40,12 @@ class ProductListCreateAPIView(
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication, TokenAuthentication]
     allow_staff_view = False
-    pagination_class = LimitOffsetPagination
+    filter_backends = [SearchFilter, django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = ProductFilter
+    search_fields = ('title', 'content')
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.validated_data.get('title')
@@ -84,11 +53,11 @@ class ProductListCreateAPIView(
         serializer.save(content=content, user=self.request.user)
 
 
+@method_decorator(cache_page(30), name='get_queryset')
 class ProductListMyAPIView(
     UserQuerySetMixin,
     ListCreateAPIView
 ):
-
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
 
@@ -97,6 +66,7 @@ class ProductListMyAPIView(
         return queryset
 
 
+@method_decorator(cache_page(30), name='get')
 class ProductDetailAPIView(
     UserQuerySetMixin,
     RetrieveAPIView
@@ -120,7 +90,6 @@ class ProductDeleteAPIView(
 class ProductUpdateAPIView(
         UserQuerySetMixin,
         UpdateAPIView):
-
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -130,7 +99,6 @@ class ProductUpdateAPIView(
         instance = serializer.save()
         if not instance.content:
             instance.content = 'blank content'
-
 
 # @api_view(['GET', 'POST'])
 # def alt_product_view(request, pk=None, *args, **kwargs):
