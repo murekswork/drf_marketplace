@@ -34,6 +34,8 @@ class OrderModelTestCase(TestCase):
         self.assertEqual(self.order.payment_status, False)
 
     def test_payment_status_field_when_payed(self):
+        self.order_product.quantity = 50
+        self.order_product.save()
         service = OrderServiceFabric.get_order_service(self.order)
         service.pay_order()
         self.assertEqual(self.order.payment_status, True)
