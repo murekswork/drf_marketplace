@@ -1,10 +1,13 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import ValidationError
-
+from django.test import TestCase
 from order.models import Order
-from order.services.order_service import OrderServiceFabric, SimpleOrderService, SaleOrderService
+from order.services.order_service import (
+    OrderServiceFabric,
+    SaleOrderService,
+    SimpleOrderService,
+)
 from products.models import Product, Sale
+from rest_framework.exceptions import ValidationError
 from wallet.models import Wallet
 
 
@@ -50,12 +53,10 @@ class TestSimpleOrderService(TestCase):
         service = service_factory.get_order_service(order=self.order_without_wallet)
         with self.assertRaises(ValidationError):
             service.validate_users_wallet(self.user_without_wallet)
-        # self.assertEqual(service.__class__, SimpleOrderService)
 
     def test_simple_order_validate_users_wallet_when_wallet(self):
         service_factory = OrderServiceFabric()
         service = service_factory.get_order_service(order=self.order)
-        # with self.assertRaises(ValidationError):
         self.assertEqual(service.validate_users_wallet(self.user_with_wallet), None)
 
     def test_order_service_pay_order_when_user_balance_lt_order_amount(self):
@@ -116,7 +117,7 @@ class TestSaleOrderService(TestCase):
 
     def test_order_sale_service_return_right_amount(self):
         service = SaleOrderService(user=self.user, order=self.order, sale=self.sale)
-        self.assertEquals(float(service.get_order_amount()), float(10))
+        self.assertEqual(float(service.get_order_amount()), float(10))
 
     def test_order_sale_service_charges_right_amount(self):
         user_buyer = get_user_model().objects.create_user(username='buyer', email='buyer@email.com')
