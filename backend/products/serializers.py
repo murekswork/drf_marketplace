@@ -15,7 +15,6 @@ product_title_content_validator = validators.UniqueTogetherValidator(
 
 
 class ProductInlineSerializer(serializers.Serializer):
-
     title = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
 
@@ -27,7 +26,6 @@ class ProductInlineSerializer(serializers.Serializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-
     url = serializers.HyperlinkedIdentityField(view_name='product-detail', read_only=True, lookup_field='pk')
     edit_url = serializers.SerializerMethodField(read_only=True)
     title = serializers.CharField(
@@ -37,8 +35,8 @@ class ProductSerializer(serializers.ModelSerializer):
     owner = UserSerializer(source='user', read_only=True)
     reviews = ArticleInlineSerializer(many=True, read_only=True, source='article_set')
     mark = serializers.SerializerMethodField(read_only=True)
-    category_title = serializers.SerializerMethodField(read_only=True)
-    category = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Category.objects.all())
+    categories = serializers.SerializerMethodField(read_only=True)
+    category = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Category.objects.all(), many=True)
     sale_price = serializers.SerializerMethodField(read_only=True)
 
     def get_sale_price(self, obj):
@@ -47,10 +45,10 @@ class ProductSerializer(serializers.ModelSerializer):
             return str(float(obj.price) - (float(obj.price) * 0.01 * float(obj_sale.first().size)))
         return 'Not sale'
 
-    def get_category_title(self, obj):
-        category = obj.category.prefetch_related().first()
-        if category is not None:
-            return category.title
+    def get_categories(self, obj):
+        categories = obj.category.prefetch_related()
+        if categories is not None:
+            return [category.title for category in categories]
         return 'No Category'
 
     class Meta:
@@ -62,11 +60,12 @@ class ProductSerializer(serializers.ModelSerializer):
             'title',
             'content',
             'price',
+            'quantity',
             'sale_price',
             'public',
             'reviews',
             'mark',
-            'category_title',
+            'categories',
             'category',
 
         )
