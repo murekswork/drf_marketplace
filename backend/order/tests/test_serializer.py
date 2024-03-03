@@ -14,7 +14,12 @@ class OrderSerializerTestCase(TestCase):
         self.user.set_password('0xABAD1DEA')
         self.user.save()
         self.user_wallet = Wallet.objects.create(user=self.user, balance=100000)
-        self.order_product = Product.objects.create(user=self.user, title='product', price=100)
+
+        self.user2 = get_user_model().objects.create(username='test2', email='test2@email.com')
+        self.user2.set_password('0xABAD1DEA')
+        self.user_wallet = Wallet.objects.create(user=self.user2, balance=100000)
+
+        self.order_product = Product.objects.create(user=self.user2, title='product', price=100, quantity=10)
         self.order = Order.objects.create(user=self.user, product=self.order_product, count=5)
         self.serializer = OrderSerializer(self.order)
 
@@ -24,6 +29,7 @@ class OrderSerializerTestCase(TestCase):
 
         self.order_creation = self.client.post(reverse('order-list'), headers={'Authorization': f'Bearer {self.token}'},
                                                data={'product_pk': self.order_product.pk, 'count': 5})
+
         self.created_order = Order.objects.get(id__exact=self.order_creation.json()['id'])
         self.created_order_serializer = OrderSerializer(self.created_order)
 
