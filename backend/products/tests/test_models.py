@@ -25,7 +25,7 @@ class ProductModelTestCase(TestCase):
         self.assertEqual(self.product2.user, self.user)
 
     def test_product_str(self):
-        self.assertEqual(self.product1.__str__(), 'Test Product 1 for 100 from testproduct')
+        self.assertEqual(self.product1.__str__(), 'Test Product 1 for 100')
 
     def test_product_search_with_one_existing_product(self):
         products = Product.objects.search('Product 1')

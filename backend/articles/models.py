@@ -29,12 +29,12 @@ class ArticleManager(Manager):
 class Article(models.Model):
 
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_DEFAULT, default=0)
-    title = models.CharField(max_length=120, blank=False, null=False, unique=True, default='Article title')
+    title = models.CharField(max_length=120, blank=False, null=False, default='Article title')
     article_content = models.TextField(max_length=512, default='Article body', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='articles')
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=False, blank=False)
-    published = models.BooleanField(default=True)
+    published = models.BooleanField(default=False)
 
     mark = models.IntegerField(default=5, choices=(
         (1, 'Awfull'),

@@ -1,7 +1,55 @@
+version: '3.0'
 services:
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - code:/app/backend
+      - task_data:/app/backend/tasks_data
+
   redis:
     image: redis:latest
     container_name: redis_cache
     ports:
       - 6379:6379
     hostname: redis
+
+  worker:
+    build: .
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - code:/app/backend
+      - task_data:/app/backend/tasks_data
+
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
+    hostname: postgres
+
+volumes:
+  code:
+  task_data:

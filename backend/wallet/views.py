@@ -1,3 +1,5 @@
+from rest_framework.generics import get_object_or_404
+
 from api.mixins import UserQuerySetMixin
 from rest_framework import generics, permissions, status
 from rest_framework.mixins import RetrieveModelMixin
@@ -8,25 +10,27 @@ from .models import Wallet
 from .serializers import WalletSerializer
 
 
-class WalletAPIView(UserQuerySetMixin, RetrieveModelMixin, generics.GenericAPIView):
+class WalletAPIView(UserQuerySetMixin, generics.GenericAPIView):
     serializer_class = WalletSerializer
-    queryset = Wallet.objects.all()
+    # queryset = Wallet.objects.all()
     http_method_names = ['get']
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        wallet = Wallet.objects.filter(user=self.request.user)
-        print(wallet)
-        return wallet.first()
+    # def get_object(self):
+    #     wallet = get_object_or_404(Wallet, user=self.request.user)
+    #     self.kwargs['wallet']  = wallet
+    #     return wallet
 
     def get(self, request, *args, **kwargs):
-        wallet = self.get_object()
+        wallet = get_object_or_404(Wallet, user=self.request.user)
+
         if not wallet:
             return Response({
                 'message': 'You dont have wallet yet!',
                 'create url': reverse(viewname='wallet-create', request=self.request)},
                 status=status.HTTP_404_NOT_FOUND)
-        return self.retrieve(request)
+
+        return Response(self.serializer_class(wallet).data, status=status.HTTP_200_OK)
 
     # def get(self, request):
     #     wallet = self.get_queryset()

@@ -20,13 +20,14 @@ class OrderListCreateAPIView(UserQuerySetMixin, generics.ListCreateAPIView):
     filterset_fields = ['payment_status']
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        qs = qs.filter(Q(lifetime__gte=datetime.datetime.now()) | Q(payment_status=True))
+        qs = self.queryset
+        qs = (qs.filter(Q(lifetime__gte=datetime.datetime.now()) | Q(payment_status=True)).
+              select_related('user', 'product').prefetch_related('product__sales'))
         return qs
 
     def perform_create(self, serializer):
-        product = serializer.validated_data['product_pk']
-        if product.user != self.request.user:
+        product_user = serializer.validated_data['product_pk'].user
+        if product_user != self.request.user:
             super().perform_create(serializer)
         else:
             raise APIException('You can not buy your own product!')

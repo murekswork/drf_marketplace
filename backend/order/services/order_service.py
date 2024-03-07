@@ -68,7 +68,8 @@ class SimpleOrderService(AbstractOrderService):
         return {'success': True, 'message': 'order is paid'}
 
     def pay_order(self):
-
+        if self._order.payment_status == True:
+            raise ValidationError('Order already paid')
         self.validate_users_wallet(user=self._user)
         order_amount = self.get_order_amount()
 
@@ -112,5 +113,5 @@ class OrderServiceFabric:
 
     @staticmethod
     def check_sale(product):
-        sale = product.sale.select_related().first()
+        sale = product.sales.select_related().first()
         return sale

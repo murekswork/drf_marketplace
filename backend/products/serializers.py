@@ -1,11 +1,12 @@
 from api.serializers import UserSerializer
 from articles.serializers import ArticleInlineSerializer
-from category.models import Category
 from products.models import Product
 from rest_framework import serializers, validators
 from rest_framework.reverse import reverse
 
 from .validators import english_words_validator
+from celery_app import check_badwords_product
+
 
 product_title_content_validator = validators.UniqueTogetherValidator(
     queryset=Product.objects.all(),
@@ -14,9 +15,15 @@ product_title_content_validator = validators.UniqueTogetherValidator(
 )
 
 
+class SaleInlineSerializer(serializers.Serializer):
+    size = serializers.DecimalField(max_digits=4, decimal_places=2)
+
+
 class ProductInlineSerializer(serializers.Serializer):
     title = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
+    price = serializers.DecimalField(read_only=True, max_digits=15, decimal_places=2)
+    owner = serializers.CharField(source='user.username', read_only=True)
 
     def get_url(self, obj):
         request = self.context.get('request', None)
@@ -26,67 +33,82 @@ class ProductInlineSerializer(serializers.Serializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='product-detail', read_only=True, lookup_field='pk')
+    url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='pk', read_only=True)
+    sales_count = serializers.IntegerField(read_only=True)
+    sale = serializers.SerializerMethodField(read_only=True)
+    sale_price = serializers.SerializerMethodField(read_only=True)
+    owner = serializers.CharField(source='user.username', read_only=True)
+    mark = serializers.DecimalField(max_digits=4, decimal_places=2, read_only=True)
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        if not user:
+            raise serializers.ValidationError('User is not authenticated')
+        obj = super().create(validated_data)
+        check_badwords_product.delay(obj.id)
+        return obj
+
+    def get_sale(self, obj):
+        if obj.sales.exists():
+            return obj.sales.all()[0].size
+        return None
+
+    def get_sale_price(self, obj):
+        sale = self.get_sale(obj)
+        if sale:
+            return obj.price - (obj.price * sale / 100)
+        return None
+
+    class Meta:
+        model = Product
+        fields = ('title', 'content', 'price', 'sale', 'sales_count', 'sale_price', 'url', 'owner', 'mark')
+
+
+class ProductSerializerFull(ProductSerializer):
     edit_url = serializers.SerializerMethodField(read_only=True)
     title = serializers.CharField(
         validators=[english_words_validator],
         max_length=120,
         required=True)
     owner = UserSerializer(source='user', read_only=True)
-    reviews = ArticleInlineSerializer(many=True, read_only=True, source='article_set')
-    mark = serializers.SerializerMethodField(read_only=True)
-    categories = serializers.SerializerMethodField(read_only=True)
-    category = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Category.objects.all(), many=True)
-    sale_price = serializers.SerializerMethodField(read_only=True)
+    # mark = serializers.SerializerMethodField(read_only=True)
+    # categories = serializers.ListField(source='category')
+    category = serializers.SerializerMethodField(read_only=True)
+    # similar_products = serializers.SerializerMethodField()
+    reviews = ArticleInlineSerializer(source='articles', many=True, read_only=True)
 
-    def get_sale_price(self, obj):
-        obj_sale = obj.sale.select_related()
-        if obj_sale.exists():
-            return str(float(obj.price) - (float(obj.price) * 0.01 * float(obj_sale.first().size)))
-        return 'Not sale'
 
-    def get_categories(self, obj):
-        categories = obj.category.prefetch_related()
-        if categories is not None:
-            return [category.title for category in categories]
-        return 'No Category'
+    def get_category(self, obj):
+        category = obj.category.all()
+        if category:
+            return list(cat.title for cat in category)
+        else:
+            return []
+
+
+    # def get_similar_products(self, obj):
+    #     qs = Product.objects.search(obj.title).exclude(id=obj.id)
+    #     return ProductInlineSerializer(qs, many=True, context=self.context).data
+
+    # def get_reviews(self, obj):
+    #     return ArticleInlineSerializer(obj.articles.all(), many=True).data
+
+    # def get_reviews(self, obj):
+    #     return ArticleInlineSerializer(obj.articles.filter(published=True), many=True).data
+
+    # def get_categories(self, obj):
+    #     categories = obj.category.prefetch_related()
+    #     if categories:
+    #         return [category.title for category in categories]
+    #     return []
 
     class Meta:
         model = Product
-        fields = (
-            'url',
-            'owner',
-            'edit_url',
-            'title',
-            'content',
-            'price',
-            'quantity',
-            'sale_price',
-            'public',
-            'reviews',
-            'mark',
-            'categories',
-            'category',
-
-        )
+        fields = ('title', 'content', 'price', 'sale', 'sales_count', 'sale_price', 'url',
+                  'reviews', 'category', 'edit_url', 'mark')
         validators = [
             product_title_content_validator
         ]
-
-    def get_mark(self, product):
-        articles = product.article_set.select_related()
-        mark = 5
-        if articles:
-            mark = (sum(article.mark for article in articles) / len(articles))
-        return mark
-
-    def create(self, validated_data):
-        user = self.context.get('request').user
-        if not user:
-            raise serializers.ValidationError('User is not authenticated')
-
-        obj = super().create(validated_data)
-        return obj
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)

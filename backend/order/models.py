@@ -2,6 +2,7 @@ import datetime
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from products.models import Product
 
@@ -9,8 +10,8 @@ from products.models import Product
 class OrderQuerySet(models.QuerySet):
 
     def paid_orders(self):
-        payed_qs = self.filter(payment_status=True).order_by('-created_at')
-        return payed_qs
+        qs = self.filter(payment_status=True).order_by('-created_at')
+        return qs
 
 
 class OrderManager(models.Manager):
@@ -19,7 +20,8 @@ class OrderManager(models.Manager):
         return self.get_queryset().filter(user=user)
 
     def get_not_reviewed_orders(self, user):
-        qs = self.user_orders(user).filter(article=None)
+        paid_qs = self.user_paid_orders(user)
+        qs = paid_qs.filter(article=None)
         return qs
 
     def get_queryset(self, *args, **kwargs):
@@ -27,7 +29,7 @@ class OrderManager(models.Manager):
 
     def user_paid_orders(self, user):
         user_qs = self.user_orders(user=user)
-        paid_qs = user_qs.paid_orders(user)
+        paid_qs = user_qs.paid_orders()
         return paid_qs
 
 
@@ -36,7 +38,7 @@ class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(get_user_model(), blank=False, null=True, on_delete=models.SET_NULL)
     product = models.ForeignKey(Product, blank=False, null=True, related_name='orders', on_delete=models.SET_NULL)
-    count = models.IntegerField(default=1, blank=True)
+    count = models.IntegerField(default=1, blank=True, validators=[MinValueValidator(1)])
     created_at = models.DateTimeField(auto_now_add=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False, null=True, default=0.00)
     payment_status = models.BooleanField(default=False, editable=True)
@@ -51,4 +53,4 @@ class Order(models.Model):
         return self.amount
 
     def __str__(self):
-        return f'{self.id}, {self.amount}'
+        return f'Order #{self.id}'

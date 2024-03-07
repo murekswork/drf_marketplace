@@ -11,5 +11,5 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
 
-    list_display = ('id', 'product', 'size', 'end_date')
+    list_display = ('id', 'size', 'end_date')
 # Register your models here.

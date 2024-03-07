@@ -1,4 +1,7 @@
 import django_filters
+from django.db.models import Avg, Sum, Count, Q
+from rest_framework.response import Response
+
 from api.authentication import TokenAuthentication
 from api.mixins import (
     IsObjectOwnerPermission,
@@ -7,7 +10,7 @@ from api.mixins import (
 )
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework import authentication
+from rest_framework import authentication, status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
     DestroyAPIView,
@@ -17,8 +20,8 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, Sale
+from .serializers import ProductSerializer, ProductSerializerFull
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -36,7 +39,9 @@ class ProductListCreateAPIView(
     # UserQuerySetMixin,
     ListCreateAPIView
 ):
-    queryset = Product.objects.all()
+    queryset = (Product.objects.prefetch_related('articles', 'sales', 'orders').select_related().
+                annotate(mark=Avg('articles__mark'),
+                         sales_count=Count('orders', filter=Q(orders__payment_status=True))))
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication, TokenAuthentication]
     allow_staff_view = False
@@ -52,8 +57,16 @@ class ProductListCreateAPIView(
         content = serializer.validated_data.get('content', 'blank')
         serializer.save(content=content, user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response('Your product will be published after short check up!',
+                        status=status.HTTP_201_CREATED, headers=headers)
 
-@method_decorator(cache_page(30), name='get_queryset')
+
+# @method_decorator(cache_page(30), name='get_queryset')
 class ProductListMyAPIView(
     UserQuerySetMixin,
     ListCreateAPIView
@@ -66,13 +79,15 @@ class ProductListMyAPIView(
         return queryset
 
 
-@method_decorator(cache_page(30), name='get')
+# @method_decorator(cache_page(30), name='get')
 class ProductDetailAPIView(
     UserQuerySetMixin,
     RetrieveAPIView
 ):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    queryset = Product.objects.prefetch_related('articles', 'sales').annotate(
+        mark=Avg('articles__mark', default=5),
+        sales_count=Count('orders', filter=Q(orders__payment_status=True)))
+    serializer_class = ProductSerializerFull
     allow_staff_view = True
 
 
@@ -88,8 +103,8 @@ class ProductDeleteAPIView(
 
 
 class ProductUpdateAPIView(
-        UserQuerySetMixin,
-        UpdateAPIView):
+    UserQuerySetMixin,
+    UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
