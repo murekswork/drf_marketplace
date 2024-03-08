@@ -12,7 +12,7 @@ class ShopManagerSerializer(serializers.Serializer):
 
 
 class ShopSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(lookup_field='pk', view_name='shop-detail', read_only=True)
+    url = serializers.HyperlinkedIdentityField(lookup_field='slug', view_name='shop-detail', read_only=True)
     managers = serializers.SerializerMethodField(read_only=True)
 
     def get_managers(self, obj):
@@ -21,7 +21,21 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['title', 'description', 'url', 'managers']
+        fields = ('title', 'description', 'url', 'managers')
+
+
+#TODO: Add limit or pagination for products field
+class ShopWithProductsSerializer(ShopSerializer):
+    products = serializers.SerializerMethodField(read_only=True)
+
+    def get_products(self, obj):
+        from products.serializers import ProductSerializer
+        qs = obj.products.filter(public=True)
+        return ProductSerializer(qs, many=True, context=self.context).data
+
+    class Meta:
+        model = Shop
+        fields = ('title', 'description', 'url', 'managers', 'products')
 
 
 class ProductUploadSerializer(serializers.ModelSerializer):
