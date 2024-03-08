@@ -56,13 +56,14 @@ class SimpleOrderService(AbstractOrderService):
     @transaction.atomic()
     def _pay(self, order_amount):
         self._user.wallet.balance = float(self._user.wallet.balance) - order_amount
-        self._order.product.user.wallet.balance = float(self._order.product.user.wallet.balance) + order_amount
+        self._order.product.shop.user.wallet.balance = float(
+            self._order.product.shop.user.wallet.balance) + order_amount
         self._order.product.quantity -= self._order.count
         self._order.payment_status = True
         self._order.amount = order_amount
 
         self._user.wallet.save()
-        self._order.product.user.wallet.save()
+        self._order.product.shop.user.wallet.save()
         self._order.save()
 
         return {'success': True, 'message': 'order is paid'}
