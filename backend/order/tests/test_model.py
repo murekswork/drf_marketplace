@@ -3,6 +3,7 @@ from django.test import TestCase
 from order.models import Order
 from order.services.order_service import OrderServiceFabric
 from products.models import Product
+from shop.models import Shop
 from wallet.models import Wallet
 
 
@@ -12,7 +13,8 @@ class OrderModelTestCase(TestCase):
         self.user = get_user_model().objects.create(username='test', email='test@test.com')
         self.user.set_password('0xABAD1DEA')
         self.user_wallet = Wallet.objects.create(user=self.user, balance=100000)
-        self.order_product = Product.objects.create(user=self.user, title='product', price=100)
+        self.shop = Shop.objects.create(user=self.user, title='shoptitle', description='shopdescription')
+        self.order_product = Product.objects.create(shop=self.shop, title='product', price=100)
         self.order = Order.objects.create(user=self.user, product=self.order_product, count=5)
 
     def test_product_field(self):

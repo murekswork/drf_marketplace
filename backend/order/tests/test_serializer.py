@@ -4,6 +4,7 @@ from django.urls import reverse
 from order.models import Order
 from order.serialziers import OrderSerializer
 from products.models import Product, Sale
+from shop.models import Shop
 from wallet.models import Wallet
 
 
@@ -19,7 +20,9 @@ class OrderSerializerTestCase(TestCase):
         self.user2.set_password('0xABAD1DEA')
         self.user_wallet = Wallet.objects.create(user=self.user2, balance=100000)
 
-        self.order_product = Product.objects.create(user=self.user2, title='product', price=100, quantity=10)
+        self.shop = Shop.objects.create(user=self.user2, title='title', description='decsription')
+
+        self.order_product = Product.objects.create(shop=self.shop, title='product', price=100, quantity=10)
         self.order = Order.objects.create(user=self.user, product=self.order_product, count=5)
         self.serializer = OrderSerializer(self.order)
 
