@@ -1,15 +1,11 @@
 import django_filters
-from django.db.models import Avg, Sum, Count, Q
-from rest_framework.response import Response
-
 from api.authentication import TokenAuthentication
 from api.mixins import (
     IsObjectOwnerPermission,
     StaffEditorPermissionMixin,
     UserQuerySetMixin,
 )
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+from django.db.models import Avg, Count, Q
 from rest_framework import authentication, status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
@@ -19,8 +15,9 @@ from rest_framework.generics import (
     UpdateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from .models import Product, Sale
+from .models import Product
 from .serializers import ProductSerializer, ProductSerializerFull
 
 
@@ -102,8 +99,8 @@ class ProductDeleteAPIView(
 
 
 class ProductUpdateAPIView(
-    UserQuerySetMixin,
-    UpdateAPIView):
+        UserQuerySetMixin,
+        UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'

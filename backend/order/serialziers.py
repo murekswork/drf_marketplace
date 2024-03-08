@@ -1,7 +1,5 @@
 from api.serializers import UserSerializer
-from articles.serializers import ArticleInlineSerializer
 from products.models import Product
-from products.serializers import ProductInlineSerializer
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 

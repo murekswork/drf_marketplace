@@ -1,14 +1,12 @@
 import logging
 
-from rest_framework.reverse import reverse
-
+from celery_app import check_badwords_article
 from order.models import Order
 from products.models import Product
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from .models import Article
-from articles.services.service import ArticleBadWordsValidator
-from celery_app import check_badwords_article
 
 
 class ArticleSerializer(serializers.ModelSerializer):

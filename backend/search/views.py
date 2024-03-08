@@ -1,6 +1,5 @@
-from django.db.models import Avg, Count, Q
-
 from api.mixins import UserQuerySetMixin
+from django.db.models import Avg, Count, Q
 from products.models import Product
 from products.serializers import ProductSerializer
 from rest_framework import generics

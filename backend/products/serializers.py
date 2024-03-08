@@ -1,12 +1,11 @@
-from api.serializers import UserSerializer
 from articles.serializers import ArticleInlineSerializer
+from celery_app import check_badwords_product
 from products.models import Product
 from rest_framework import serializers, validators
 from rest_framework.reverse import reverse
-
 from shop.models import Shop
+
 from .validators import english_words_validator
-from celery_app import check_badwords_product
 
 product_title_content_validator = validators.UniqueTogetherValidator(
     queryset=Product.objects.all(),

@@ -1,14 +1,12 @@
+import csv
 import logging
 from abc import ABC, abstractmethod
 
 from celery.result import AsyncResult
-
 from celery_app import check_badwords_product
 from products.models import Product
-from products.serializers import ProductSerializer, ProductUploadSerializer
+from products.serializers import ProductUploadSerializer
 from products.services.service import ProductBadWordsValidateService
-import csv
-
 from shop.models import ProductUpload
 
 
@@ -29,7 +27,7 @@ class ProductCSVUploader(ProductUploader):
 
     def __init__(self, source, shop):
         super().__init__(source=source, shop=shop)
-        self.serializer: type[ProductUploadSerializer] = ProductUploadSerializer
+        self.serializer = ProductUploadSerializer
         self.tasks = []
 
     def upload(self):
@@ -59,7 +57,7 @@ class ProductCSVUploader(ProductUploader):
 class UploadLogger:
 
     def __init__(self, task_results, upload):
-        self.task_results: list[int, dict] = task_results
+        self.task_results: list[str, dict] = task_results
         self.upload: ProductUpload = upload
 
         self.products_count: int = 0

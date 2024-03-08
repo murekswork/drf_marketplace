@@ -1,6 +1,6 @@
+from products.models import Product
 from utils.validate_service import BadWordsValidator
 
-from products.models import Product
 
 class ProductBadWordsValidateService(BadWordsValidator):
 

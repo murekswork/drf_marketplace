@@ -1,20 +1,23 @@
 import time
 
+from api.authentication import TokenAuthentication
+from api.mixins import UserQuerySetMixin
+from celery_app import get_upload_logs
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
-from api.authentication import TokenAuthentication
-from rest_framework.generics import RetrieveAPIView, ListAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from api.mixins import UserQuerySetMixin
-from shop.models import Shop, ProductUpload
+from shop.models import ProductUpload, Shop
 from shop.permissions import IsShopOwner
-from shop.serializers import ShopSerializer, ProductUploadSerializer, ShopWithProductsSerializer
-from shop.throttles import OncePerHourThrottleForPost
+from shop.serializers import (
+    ProductUploadSerializer,
+    ShopSerializer,
+    ShopWithProductsSerializer,
+)
 from shop.services.service import ProductCSVUploader
-from celery_app import get_upload_logs
+from shop.throttles import OncePerHourThrottleForPost
 
 
 class ShopDetailAPIView(RetrieveAPIView):
@@ -64,7 +67,7 @@ class UploadCSVProductsAPIView(
             return Response('Its not your shop!', status=status.HTTP_403_FORBIDDEN)
         obj = get_object_or_404(ProductUpload, pk=pk)
         try:
-            with open(f'backend/tasks_data/{obj.file_name}.txt', mode='r') as f:
+            with open(f'backend/tasks_data/{obj.file_name}.txt') as f:
                 logs = f.read()
                 return Response(logs, status=200)
         except Exception as e:

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
 from shop.models import Shop
 
 
@@ -15,6 +14,6 @@ class ShopModelTestCase(TestCase):
     def test_create_shop(self):
         shop = Shop.objects.create(user=self.user, title='test_shop', description='test_shop_desciption')
         shop.save()
-        self.assertEquals(shop.title, 'test_shop')
-        self.assertEquals(shop.description, 'test_shop_description')
-        self.assertEquals(shop.user, self.user)
+        self.assertEqual(shop.title, 'test_shop')
+        self.assertEqual(shop.description, 'test_shop_description')
+        self.assertEqual(shop.user, self.user)

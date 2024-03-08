@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.db import connection
 from django.test import TestCase
 from django.urls import reverse
-
 from products.models import Product
 from shop.models import Shop
 
@@ -33,8 +32,8 @@ class ProductListCreateAPIViewTestCase(TestCase):
         self.assertEqual(response, {'count': 0, 'next': None, 'previous': None, 'results': []})
 
     def test_product_list_when_some_products_when_loged_in(self):
-        pr1 = Product.objects.create(shop=self.shop, title='pr1', content='pr1', public=True)
-        pr2 = Product.objects.create(shop=self.shop, title='pr2', content='pr2', public=True)
+        Product.objects.create(shop=self.shop, title='pr1', content='pr1', public=True)
+        Product.objects.create(shop=self.shop, title='pr2', content='pr2', public=True)
         response = self.client.get(reverse('product-list')).json()
         expecting = {'count': 2,
                      'next': None,
@@ -61,11 +60,11 @@ class ProductListCreateAPIViewTestCase(TestCase):
                           'mark': '5.00'}
                      ]
                      }
-        self.assertEquals(response, expecting)
+        self.assertEqual(response, expecting)
 
     def test_product_list_when_some_products_when_not_loged_in(self):
-        pr1 = Product.objects.create(shop=self.shop, title='pr1', content='pr1', public=True)
-        pr2 = Product.objects.create(shop=self.shop, title='pr2', content='pr2', public=True)
+        Product.objects.create(shop=self.shop, title='pr1', content='pr1', public=True)
+        Product.objects.create(shop=self.shop, title='pr2', content='pr2', public=True)
         self.client.logout()
         response = self.client.get(reverse('product-list')).json()
         expecting = {'count': 2,
@@ -93,110 +92,110 @@ class ProductListCreateAPIViewTestCase(TestCase):
                           'mark': '5.00'}
                      ]
                      }
-        self.assertEquals(response, expecting)
+        self.assertEqual(response, expecting)
 
     def test_product_list_search_when_no_product(self):
         response = self.client.get(reverse('product-list'), search='product')
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.json(), {'count': 0, 'next': None, 'previous': None, 'results': []})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'count': 0, 'next': None, 'previous': None, 'results': []})
 
     def test_product_list_search_when_found_in_product_title(self):
-        pr = Product.objects.create(shop=self.shop, title='product X', public=True)
+        Product.objects.create(shop=self.shop, title='product X', public=True)
         response = self.client.get(reverse('product-list'), search='product X')
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.json(), {'count': 1,
-                                            'next': None,
-                                            'previous': None,
-                                            'results': [
-                                                {'title': 'product X',
-                                                 'content': None,
-                                                 'price': '99.99',
-                                                 'seller': 'http://testserver/api/shop/shop/',
-                                                 'sale': None,
-                                                 'sales_count': 0,
-                                                 'sale_price': None,
-                                                 'url': 'http://testserver/api/products/1',
-                                                 'mark': '5.00'}]
-                                            })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'count': 1,
+                                           'next': None,
+                                           'previous': None,
+                                           'results': [
+                                               {'title': 'product X',
+                                                'content': None,
+                                                'price': '99.99',
+                                                'seller': 'http://testserver/api/shop/shop/',
+                                                'sale': None,
+                                                'sales_count': 0,
+                                                'sale_price': None,
+                                                'url': 'http://testserver/api/products/1',
+                                                'mark': '5.00'}]
+                                           })
 
     def test_product_list_search_when_found_in_product_content(self):
-        pr = Product.objects.create(shop=self.shop, title='title', content='product X', public=True)
+        Product.objects.create(shop=self.shop, title='title', content='product X', public=True)
         response = self.client.get(reverse('product-list'), search='product X')
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.json(), {'count': 1,
-                                            'next': None,
-                                            'previous': None,
-                                            'results': [
-                                                {'title': 'title',
-                                                 'content': 'product X',
-                                                 'price': '99.99',
-                                                 'seller': 'http://testserver/api/shop/shop/',
-                                                 'sale': None,
-                                                 'sales_count': 0,
-                                                 'sale_price': None,
-                                                 'url': 'http://testserver/api/products/1',
-                                                 'mark': '5.00'}]
-                                            })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'count': 1,
+                                           'next': None,
+                                           'previous': None,
+                                           'results': [
+                                               {'title': 'title',
+                                                'content': 'product X',
+                                                'price': '99.99',
+                                                'seller': 'http://testserver/api/shop/shop/',
+                                                'sale': None,
+                                                'sales_count': 0,
+                                                'sale_price': None,
+                                                'url': 'http://testserver/api/products/1',
+                                                'mark': '5.00'}]
+                                           })
 
     def test_product_list_search_when_products_are_not_public(self):
-        pr = Product.objects.create(shop=self.shop, title='product X')
+        Product.objects.create(shop=self.shop, title='product X')
         response = self.client.get(reverse('product-list'), search='product X')
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.json(), {'count': 0, 'next': None, 'previous': None, 'results': []})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'count': 0, 'next': None, 'previous': None, 'results': []})
 
     def test_product_list_post_when_not_authenticated(self):
         self.client.logout()
         response = self.client.post(reverse('product-list'), data={'title': 'title', 'content': 'product'})
-        self.assertEquals(response.status_code, 403)
-        self.assertEquals(response.json(), {'detail': 'Authentication credentials were not provided.'})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json(), {'detail': 'Authentication credentials were not provided.'})
 
     def test_product_list_post_when_authenticated_and_no_data_provided(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={})
-        self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.json(), {'title': ['This field is required.'],
-                                            'shop': ['This field is required.']})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {'title': ['This field is required.'],
+                                           'shop': ['This field is required.']})
 
     def test_product_list_post_when_authenticated_and_no_shop_provided_then_400(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={'title': 'sometitle'})
-        self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.json(),
-                          {'shop': ['This field is required.']})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(),
+                         {'shop': ['This field is required.']})
 
     def test_product_list_post_when_authenticated_and_no_title_provided_then_400(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={'shop': 1})
-        self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.json(),
-                          {'title': ['This field is required.']})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(),
+                         {'title': ['This field is required.']})
 
     def test_product_list_post_when_authenticated_and_invalid_shop_pk_provided_then_400(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={'shop': 155, 'title': 'sometitle'})
-        self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.json(),
-                          {'shop': ['Invalid pk "155" - object does not exist.']})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(),
+                         {'shop': ['Invalid pk "155" - object does not exist.']})
 
     def test_product_list_post_when_authenticated_valid_shop_but_not_owned_by_request_user_then_400(self):
         not_shop_owner = get_user_model().objects.create_user(username='shop_owner', email='shop_owner_email@email.com')
         self.client.force_login(not_shop_owner)
         response = self.client.post(reverse('product-list'), data={'shop': self.shop.id, 'title': 'sometitle'})
-        self.assertEquals(response.json(), {'shop': ['Invalid pk "1" - object does not exist.']})
-        self.assertEquals(response.status_code, 400)
+        self.assertEqual(response.json(), {'shop': ['Invalid pk "1" - object does not exist.']})
+        self.assertEqual(response.status_code, 400)
 
     def test_product_list_post_when_authenticated_valid_shop_when_owned_by_request_user_then_201(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={'shop': self.shop.id, 'title': 'sometitle'})
-        self.assertEquals(response.json(), 'Your product will be published after short check up!')
-        self.assertEquals(response.status_code, 201)
+        self.assertEqual(response.json(), 'Your product will be published after short check up!')
+        self.assertEqual(response.status_code, 201)
 
     def test_product_list_post_when_authenticated_valid_shop_when_valid_product_data_then_product_appears_in_shop(self):
         self.client.force_login(self.user)
-        product = Product.objects.create(shop=self.shop, title='product', content='products_desc', public=True)
+        Product.objects.create(shop=self.shop, title='product', content='products_desc', public=True)
         response = self.client.get(reverse('product-list'))
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.json(), {'count': 1, 'next': None, 'previous': None, 'results': [
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'count': 1, 'next': None, 'previous': None, 'results': [
             {'title': 'product', 'content': 'products_desc', 'price': '99.99',
              'seller': 'http://testserver/api/shop/shop/', 'sale': None, 'sales_count': 0, 'sale_price': None,
              'url': 'http://testserver/api/products/1', 'mark': '5.00'}]})
@@ -204,10 +203,10 @@ class ProductListCreateAPIViewTestCase(TestCase):
     def test_product_list_post_when_authenticated_valid_shop_when_not_valid_product_data_then_product_appears_in_shop(
             self):
         self.client.force_login(self.user)
-        product = Product.objects.create(shop=self.shop, title='хуй', content='products_desc', public=True)
+        Product.objects.create(shop=self.shop, title='хуй', content='products_desc', public=True)
         response = self.client.get(reverse('product-list'))
-        self.assertEquals(response.status_code, 200)
-        self.assertNotEquals(response.json(), {'count': 1, 'next': None, 'previous': None, 'results': [
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.json(), {'count': 1, 'next': None, 'previous': None, 'results': [
             {'title': 'product', 'content': 'products_desc', 'price': '99.99',
              'seller': 'http://testserver/api/shop/shop/', 'sale': None, 'sales_count': 0, 'sale_price': None,
              'url': 'http://testserver/api/products/1', 'mark': '5.00'}]})
@@ -242,23 +241,23 @@ class ProductDetailAPIViewTestCase(TestCase):
         product = Product.objects.create(shop=self.shop, title='title', content='content', public=True)
         response = self.client.get(reverse('product-detail', kwargs={'pk': product.pk}))
 
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.json(),
-                          {'title': 'title', 'content': 'content', 'price': '99.99', 'sale': None, 'sales_count': 0,
-                           'sale_price': None, 'url': 'http://testserver/api/products/1', 'reviews': [], 'category': [],
-                           'edit_url': 'http://testserver/api/products/1/update', 'mark': '5.00',
-                           'seller': 'http://testserver/api/shop/shop/'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(),
+                         {'title': 'title', 'content': 'content', 'price': '99.99', 'sale': None, 'sales_count': 0,
+                          'sale_price': None, 'url': 'http://testserver/api/products/1', 'reviews': [], 'category': [],
+                          'edit_url': 'http://testserver/api/products/1/update', 'mark': '5.00',
+                          'seller': 'http://testserver/api/shop/shop/'})
 
     def test_product_detail_when_product_does_not_exist_then_404(self):
         product = Product.objects.create(shop=self.shop, title='title', content='content')
         response = self.client.get(reverse('product-detail', kwargs={'pk': product.pk + 1}))
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(response.json(), {'detail': 'Not found.'})
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json(), {'detail': 'Not found.'})
 
     def test_product_detail_when_product_exist_but_not_public_then_404(self):
         product = Product.objects.create(shop=self.shop, title='title', content='content', public=False)
         response = self.client.get(reverse('product-detail', kwargs={'pk': product.pk}))
         print(response.json())
         print(response)
-        self.assertEquals(response.status_code, 404)
-        self.assertEquals(response.json(), {'detail': 'Not found.'})
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json(), {'detail': 'Not found.'})

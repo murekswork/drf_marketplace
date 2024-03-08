@@ -1,9 +1,6 @@
 from rest_framework import serializers
-from gc import get_stats
-
 from rest_framework.reverse import reverse
-
-from shop.models import Shop, ShopStaffGroup, ShopManager, ProductUpload
+from shop.models import ProductUpload, Shop, ShopManager
 
 
 class ShopManagerSerializer(serializers.Serializer):
@@ -24,7 +21,7 @@ class ShopSerializer(serializers.ModelSerializer):
         fields = ('title', 'description', 'url', 'managers')
 
 
-#TODO: Add limit or pagination for products field
+# TODO: Add limit or pagination for products field
 class ShopWithProductsSerializer(ShopSerializer):
     products = serializers.SerializerMethodField(read_only=True)
 

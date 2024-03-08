@@ -1,7 +1,6 @@
-from rest_framework.response import Response
-
 from api.mixins import StaffEditorPermissionMixin, UserQuerySetMixin
 from rest_framework import generics, status
+from rest_framework.response import Response
 
 from .models import Article
 from .serializers import ArticleSerializer

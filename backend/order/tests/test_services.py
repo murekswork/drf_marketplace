@@ -8,7 +8,6 @@ from order.services.order_service import (
 )
 from products.models import Product, Sale
 from rest_framework.exceptions import ValidationError
-
 from shop.models import Shop
 from wallet.models import Wallet
 

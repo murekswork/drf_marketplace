@@ -1,6 +1,6 @@
+from articles.models import Article
 from utils.validate_service import BadWordsValidator
 
-from articles.models import Article
 
 class ArticleBadWordsValidator(BadWordsValidator):
 
@@ -8,6 +8,7 @@ class ArticleBadWordsValidator(BadWordsValidator):
         self.obj.published = True
         self.obj.save()
         return self.obj
+
 
 class Mock:
 
