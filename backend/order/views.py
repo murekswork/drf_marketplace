@@ -26,7 +26,7 @@ class OrderListCreateAPIView(UserQuerySetMixin, generics.ListCreateAPIView):
         return qs
 
     def perform_create(self, serializer):
-        product_user = serializer.validated_data['product_pk'].user
+        product_user = serializer.validated_data['product_pk'].shop.user
         if product_user != self.request.user:
             super().perform_create(serializer)
         else:
