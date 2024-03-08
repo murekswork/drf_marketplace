@@ -8,6 +8,8 @@ from order.services.order_service import (
 )
 from products.models import Product, Sale
 from rest_framework.exceptions import ValidationError
+
+from shop.models import Shop
 from wallet.models import Wallet
 
 
@@ -17,8 +19,9 @@ class TestOrderServiceFabric(TestCase):
         self.user = get_user_model().objects.create(username='test', email='test@test.com')
         self.user.set_password('0xABAD1DEA')
         self.user.save()
+        self.shop = Shop.objects.create(title='test', user=self.user, description='decsription')
         self.user_wallet = Wallet.objects.create(user=self.user, balance=100000)
-        self.order_product = Product.objects.create(user=self.user, title='product', price=100)
+        self.order_product = Product.objects.create(shop=self.shop, title='product', price=100)
         self.order = Order.objects.create(user=self.user, product=self.order_product, count=1)
 
     def test_order_service_fabric_create_right_service_when_not_sale(self):
@@ -39,8 +42,9 @@ class TestSimpleOrderService(TestCase):
         self.user_with_wallet = get_user_model().objects.create(username='test', email='test@test.com')
         self.user_with_wallet.set_password('0xABAD1DEA')
         self.user_with_wallet.save()
+        self.shop = Shop.objects.create(user=self.user_with_wallet, title='shoptitle', description='shopdescription')
         self.user_wallet = Wallet.objects.create(user=self.user_with_wallet, balance=100000)
-        self.order_product = Product.objects.create(user=self.user_with_wallet, title='product', price=100)
+        self.order_product = Product.objects.create(shop=self.shop, title='product', price=100)
         self.order = Order.objects.create(user=self.user_with_wallet, product=self.order_product, count=5)
         self.user_without_wallet = get_user_model().objects.create(username='test1', email='test1@email.com')
         self.user_without_wallet.set_password('0xABAD1DEA')
@@ -109,8 +113,9 @@ class TestSaleOrderService(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='test3', email='test3@email.com')
         self.user.set_password('0xABAD1DEA')
+        self.shop = Shop.objects.create(user=self.user, title='testshop', description='testshop description')
         self.product = Product.objects.create(title='PRODUCT', content='PRODUCTS CONTENT', price=20, quantity=50,
-                                              user=self.user)
+                                              shop=self.shop)
         self.order = Order.objects.create(product=self.product, user=self.user, count=1)
         self.sale = Sale.objects.create(product=self.product, size=50)
         self.user_wallet = Wallet.objects.create(user=self.user, balance=1000)
