@@ -1,9 +1,10 @@
 import datetime
 
 from category.models import Category
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q, Avg, Count
+
+from shop.models import Shop
 
 
 class ProductQuerySet(models.QuerySet):
@@ -27,17 +28,17 @@ class ProductManager(models.Manager):
 
     def fetch_related(self, *args, **kwargs):
         qs = (self.get_queryset().prefetch_related('articles', 'sales', 'orders').select_related().
-                    annotate(mark=Avg('articles__mark'),
-                             sales_count=Count('orders', filter=Q(orders__payment_status=True))))
+              annotate(mark=Avg('articles__mark'),
+                       sales_count=Count('orders', filter=Q(orders__payment_status=True))))
 
-    def search(self, query, user=None):
-        return self.get_queryset().search(query, user)
+    def search(self, query, shop=None):
+        return self.get_queryset().search(query, shop)
 
     # def get_similar(self, ):
 
 
 class Product(models.Model):
-    # user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='products')
     title = models.CharField(max_length=120)
     content = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=15, decimal_places=2, default=99.99)
@@ -46,10 +47,6 @@ class Product(models.Model):
     category = models.ManyToManyField(Category, null=True, blank=True, related_name='products')
 
     objects = ProductManager()
-
-    # @property
-    # def sale_price(self):
-    #     return '%.2f' % (float(self.price) * 0.8)
 
     def __str__(self):
         return f'{self.title} for {self.price}'
@@ -61,5 +58,4 @@ class Sale(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sales')
 
     def __str__(self):
-        return f'{self.size}'
-# Create your models here.
+        return f'{self.size} till {self.end_date}'
