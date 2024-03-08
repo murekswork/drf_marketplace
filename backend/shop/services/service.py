@@ -1,12 +1,11 @@
 import logging
 from abc import ABC, abstractmethod
-from collections import namedtuple
 
 from celery.result import AsyncResult
 
 from celery_app import check_badwords_product
 from products.models import Product
-from products.serializers import ProductSerializer
+from products.serializers import ProductSerializer, ProductUploadSerializer
 from products.services.service import ProductBadWordsValidateService
 import csv
 
@@ -16,10 +15,10 @@ from shop.models import ProductUpload
 class ProductUploader(ABC):
 
     @abstractmethod
-    def __init__(self, source, user):
+    def __init__(self, source, shop):
         self.source = source
         self.validate_service = ProductBadWordsValidateService
-        self.user = user
+        self.shop = shop
 
     @abstractmethod
     def upload(self):
@@ -28,9 +27,9 @@ class ProductUploader(ABC):
 
 class ProductCSVUploader(ProductUploader):
 
-    def __init__(self, source, user):
-        super().__init__(source=source, user=user)
-        self.serializer: type[ProductSerializer] = ProductSerializer
+    def __init__(self, source, shop):
+        super().__init__(source=source, shop=shop)
+        self.serializer: type[ProductUploadSerializer] = ProductUploadSerializer
         self.tasks = []
 
     def upload(self):
@@ -38,7 +37,7 @@ class ProductCSVUploader(ProductUploader):
         decoded_source = self.source.read().decode('utf-8').splitlines()
         reader = csv.DictReader(decoded_source)
         for row_id, row in enumerate(reader):
-            row['user'] = self.user
+            row['shop_id'] = self.shop.id
             self._upload_row(row, row_id)
 
     def get_tasks(self):
