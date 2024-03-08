@@ -4,9 +4,9 @@ from products.models import Product
 from rest_framework import serializers, validators
 from rest_framework.reverse import reverse
 
+from shop.models import Shop
 from .validators import english_words_validator
 from celery_app import check_badwords_product
-
 
 product_title_content_validator = validators.UniqueTogetherValidator(
     queryset=Product.objects.all(),
@@ -23,7 +23,7 @@ class ProductInlineSerializer(serializers.Serializer):
     title = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     price = serializers.DecimalField(read_only=True, max_digits=15, decimal_places=2)
-    owner = serializers.CharField(source='user.username', read_only=True)
+    shop = serializers.CharField(source='shop.title', read_only=True)
 
     def get_url(self, obj):
         request = self.context.get('request', None)
@@ -37,8 +37,20 @@ class ProductSerializer(serializers.ModelSerializer):
     sales_count = serializers.IntegerField(read_only=True)
     sale = serializers.SerializerMethodField(read_only=True)
     sale_price = serializers.SerializerMethodField(read_only=True)
-    owner = serializers.CharField(source='user.username', read_only=True)
+    seller = serializers.SerializerMethodField(read_only=True)
+    shop = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Shop.objects.none())
     mark = serializers.DecimalField(max_digits=4, decimal_places=2, read_only=True)
+
+    def get_seller(self, obj):
+        return reverse('shop-detail', kwargs={'slug': obj.shop.slug}, request=self.context.get('request'))
+
+    def get_fields(self):
+        fields = super().get_fields()
+        if self.context.get('request', None) is not None:
+            user = self.context.get('request').user
+            if user.is_authenticated:
+                fields['shop'].queryset = Shop.objects.filter(user=self.context.get('request').user)
+        return fields
 
     def create(self, validated_data):
         user = self.context.get('request').user
@@ -61,7 +73,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('title', 'content', 'price', 'sale', 'sales_count', 'sale_price', 'url', 'owner', 'mark')
+        fields = ('title', 'content', 'price', 'seller', 'sale', 'sales_count', 'sale_price', 'url', 'shop', 'mark')
+
+
+class ProductUploadSerializer(ProductSerializer):
+    shop_id = serializers.PrimaryKeyRelatedField(queryset=Shop.objects.all(), write_only=True)
+
+    class Meta:
+        model = Product
+        fields = ('title', 'content', 'price', 'seller', 'sale', 'sales_count', 'sale_price', 'url', 'shop_id', 'mark')
 
 
 class ProductSerializerFull(ProductSerializer):
@@ -70,13 +90,8 @@ class ProductSerializerFull(ProductSerializer):
         validators=[english_words_validator],
         max_length=120,
         required=True)
-    owner = UserSerializer(source='user', read_only=True)
-    # mark = serializers.SerializerMethodField(read_only=True)
-    # categories = serializers.ListField(source='category')
     category = serializers.SerializerMethodField(read_only=True)
-    # similar_products = serializers.SerializerMethodField()
     reviews = ArticleInlineSerializer(source='articles', many=True, read_only=True)
-
 
     def get_category(self, obj):
         category = obj.category.all()
@@ -84,7 +99,6 @@ class ProductSerializerFull(ProductSerializer):
             return list(cat.title for cat in category)
         else:
             return []
-
 
     # def get_similar_products(self, obj):
     #     qs = Product.objects.search(obj.title).exclude(id=obj.id)
@@ -105,7 +119,7 @@ class ProductSerializerFull(ProductSerializer):
     class Meta:
         model = Product
         fields = ('title', 'content', 'price', 'sale', 'sales_count', 'sale_price', 'url',
-                  'reviews', 'category', 'edit_url', 'mark')
+                  'reviews', 'category', 'edit_url', 'mark', 'seller', 'shop')
         validators = [
             product_title_content_validator
         ]
