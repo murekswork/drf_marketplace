@@ -38,6 +38,7 @@ services:
       - task_data:/app/backend/tasks_data
 
   db:
+    container_name: postgres_drf
     image: postgres:15.1-alpine
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
