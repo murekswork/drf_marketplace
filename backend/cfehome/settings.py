@@ -16,6 +16,7 @@ ALLOWED_HOSTS = []  # type: ignore
 
 # Application definition
 
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
@@ -63,7 +64,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 5,
+    'PAGE_SIZE': 20,
 
 }
 
@@ -108,6 +109,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'postgres',
+        # 'PORT': 5432,
     }
 }
 
