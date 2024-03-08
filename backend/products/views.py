@@ -33,14 +33,14 @@ class ProductFilter(django_filters.FilterSet):
         fields = ['quantity', 'quantity_lte', 'quantity_gte']
 
 
-@method_decorator(cache_page(30), name='get', )
+# @method_decorator(cache_page(30), name='get', )
 class ProductListCreateAPIView(
     # StaffEditorPermissionMixin,
     # UserQuerySetMixin,
     ListCreateAPIView
 ):
-    queryset = (Product.objects.prefetch_related('articles', 'sales', 'orders').select_related().
-                annotate(mark=Avg('articles__mark'),
+    queryset = (Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'orders').select_related().
+                annotate(mark=Avg('articles__mark', default=5),
                          sales_count=Count('orders', filter=Q(orders__payment_status=True))))
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication, TokenAuthentication]
@@ -55,7 +55,7 @@ class ProductListCreateAPIView(
     def perform_create(self, serializer):
         serializer.validated_data.get('title')
         content = serializer.validated_data.get('content', 'blank')
-        serializer.save(content=content, user=self.request.user)
+        serializer.save(content=content)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -81,10 +81,9 @@ class ProductListMyAPIView(
 
 # @method_decorator(cache_page(30), name='get')
 class ProductDetailAPIView(
-    UserQuerySetMixin,
     RetrieveAPIView
 ):
-    queryset = Product.objects.prefetch_related('articles', 'sales').annotate(
+    queryset = Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'shop').annotate(
         mark=Avg('articles__mark', default=5),
         sales_count=Count('orders', filter=Q(orders__payment_status=True)))
     serializer_class = ProductSerializerFull
