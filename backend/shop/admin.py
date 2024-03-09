@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Shop, ShopManager, ShopStaffGroup, Permission, ProductUpload
+from .models import Permission, ProductUpload, Shop, ShopManager, ShopStaffGroup
 
 admin.site.register(Shop)
 admin.site.register(ShopManager)
