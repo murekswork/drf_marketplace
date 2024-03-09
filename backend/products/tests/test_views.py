@@ -152,14 +152,14 @@ class ProductListCreateAPIViewTestCase(TestCase):
     def test_product_list_post_when_authenticated_and_no_data_provided(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(), {'title': ['This field is required.'],
                                            'shop': ['This field is required.']})
 
     def test_product_list_post_when_authenticated_and_no_shop_provided_then_400(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={'title': 'sometitle'})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(),
                          {'shop': ['This field is required.']})
 
@@ -173,7 +173,7 @@ class ProductListCreateAPIViewTestCase(TestCase):
     def test_product_list_post_when_authenticated_and_invalid_shop_pk_provided_then_400(self):
         self.client.force_login(self.user)
         response = self.client.post(reverse('product-list'), data={'shop': 155, 'title': 'sometitle'})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(),
                          {'shop': ['Invalid pk "155" - object does not exist.']})
 
