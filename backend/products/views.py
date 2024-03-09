@@ -1,10 +1,6 @@
 import django_filters
 from api.authentication import TokenAuthentication
-from api.mixins import (
-    IsObjectOwnerPermission,
-    StaffEditorPermissionMixin,
-    UserQuerySetMixin,
-)
+from api.mixins import UserQuerySetMixin
 from django.db.models import Avg, Count, Q
 from rest_framework import authentication, status
 from rest_framework.filters import SearchFilter
@@ -13,12 +9,18 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveAPIView,
     UpdateAPIView,
+    get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from shop.models import Shop
+from shop.permissions import ProductShopStaffPermission
 
 from .models import Product
-from .serializers import ProductSerializer, ProductSerializerFull
+from .serializers import (
+    ProductSerializer,
+    ProductSerializerFull,
+    ProductUpdateSerializer,
+)
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -30,10 +32,7 @@ class ProductFilter(django_filters.FilterSet):
         fields = ['quantity', 'quantity_lte', 'quantity_gte']
 
 
-# @method_decorator(cache_page(30), name='get', )
 class ProductListCreateAPIView(
-    # StaffEditorPermissionMixin,
-    # UserQuerySetMixin,
     ListCreateAPIView
 ):
     queryset = (Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'orders').select_related().
@@ -45,6 +44,18 @@ class ProductListCreateAPIView(
     filter_backends = [SearchFilter, django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = ProductFilter
     search_fields = ('title', 'content')
+
+    def post(self, request, *args, **kwargs):
+        # TODO: REWRITE THIS MAYBE
+        shop = get_object_or_404(Shop, id=int(request.data.get('shop', '0')))
+        if request.user.is_authenticated:
+            user_role = shop.managers.through.objects.filter(user=request.user)
+            if user_role.exists():
+                user_role = user_role.all()[0]
+                if user_role.has_permission('create_shop_product'):
+                    return super().post(request, *args, **kwargs)
+
+        return Response({'You dont have permission to upload products in this shop'}, status=status.HTTP_403_FORBIDDEN)
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -63,7 +74,6 @@ class ProductListCreateAPIView(
                         status=status.HTTP_201_CREATED, headers=headers)
 
 
-# @method_decorator(cache_page(30), name='get_queryset')
 class ProductListMyAPIView(
     UserQuerySetMixin,
     ListCreateAPIView
@@ -76,7 +86,6 @@ class ProductListMyAPIView(
         return queryset
 
 
-# @method_decorator(cache_page(30), name='get')
 class ProductDetailAPIView(
     RetrieveAPIView
 ):
@@ -88,23 +97,20 @@ class ProductDetailAPIView(
 
 
 class ProductDeleteAPIView(
-    StaffEditorPermissionMixin,
-    UserQuerySetMixin,
     DestroyAPIView
 ):
     queryset = Product.objects.all()
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
+    permission_classes = [ProductShopStaffPermission]
+    lookup_field = 'pk'
 
 
 class ProductUpdateAPIView(
-        UserQuerySetMixin,
-        UpdateAPIView):
+    UpdateAPIView
+):
     queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    serializer_class = ProductUpdateSerializer
     lookup_field = 'pk'
-    permission_classes = [IsAuthenticated, IsObjectOwnerPermission]
+    permission_classes = [ProductShopStaffPermission]
 
     def perform_update(self, serializer):
         instance = serializer.save()
