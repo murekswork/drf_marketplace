@@ -2,3 +2,4 @@ venv
 db.sqlite3
 **__pycache__**
 py_client/**
+backend/postgres_data/**
