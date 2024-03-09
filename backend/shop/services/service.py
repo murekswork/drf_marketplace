@@ -1,25 +1,23 @@
 import csv
 import json
-import logging
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 from celery.result import AsyncResult
-
 from celery_app import check_badwords_product
 from products.models import Product
-from products.serializers import ProductUploadSerializer
+from products.serializers import ProductCreateSerializer
 from products.services.service import ProductBadWordsValidateService
-from shop.models import ProductUpload
+from shop.models import ProductUpload, Shop
 
 
 @dataclass
 class ProductUploadLog:
     id: int
-    product: str = ''
-    success: str = ''
-    result: str = ''
+    product: str | None = None
+    success: str | None = None
+    result: str | None = None
 
 
 @dataclass
@@ -47,13 +45,13 @@ class ProductUploader(ABC):
 
 class ProductCSVUploader(ProductUploader):
 
-    def __init__(self, source, shop):
+    def __init__(self, source: str, shop: Shop):
         super().__init__(source=source, shop=shop)
-        self.serializer = ProductUploadSerializer
+        self.serializer = ProductCreateSerializer
         self.tasks: list[ProductUploadTaskResult] = []
         self.output_file_name = f'backend/tasks_data/raw/{time.time()}_{shop.slug}.txt'
 
-    def upload(self):
+    def upload(self) -> None:
         # decoded_source = self.source
         """Method reads CSV file and iterates over each row with calling _upload method"""
         decoded_source = self.source.read().decode('utf-8').splitlines()
@@ -75,7 +73,6 @@ class ProductCSVUploader(ProductUploader):
         """Method to generate product upload results log dataclass"""
         log = ProductUploadTaskResult(id=row_id, product=row['title'])
         serialized_row = self.serializer(data=row)
-        logging.warning(f'{row} Its A ROW XDXDXD')
         try:
             if serialized_row.is_valid(raise_exception=True):
                 new_product = Product.objects.create(**row)
@@ -91,7 +88,7 @@ class ProductCSVUploader(ProductUploader):
 
 class UploadLogger:
 
-    def __init__(self, task_results_filename, upload):
+    def __init__(self, task_results_filename: str, upload: ProductUpload):
         self.task_results_filename: str = task_results_filename
         self.task_results: list[ProductUploadTaskResult] = []
         self.upload: ProductUpload = upload
@@ -104,7 +101,7 @@ class UploadLogger:
 
     def read_dataclasses_from_file(self) -> None:
         """Method to fill instance task results with dataclasses from file"""
-        with open(self.task_results_filename, 'r') as file:
+        with open(self.task_results_filename) as file:
             data = json.load(file)
             for item in data:
                 dataclass_instance = ProductUploadTaskResult(**item)
@@ -159,11 +156,11 @@ class UploadLogger:
 
 class CsvOutputLogService:
 
-    def __init__(self, report_result, file_path):
-        self.report_result: list[type[dataclass]] = report_result
-        self.file_path: str = file_path
+    def __init__(self, report_result: list[ProductUploadTaskResult], file_path: str) -> None:
+        self.report_result = report_result
+        self.file_path = file_path
 
-    def export_csv(self):
+    def export_csv(self) -> None:
         """Method to export csv file from list of task result dataclass"""
         with open(f'{self.file_path}', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
