@@ -10,8 +10,6 @@ class BadWordsValidator:
 
     def _validate_obj(self) -> bool:
         fields = (self._validate_field(val) for val in self.obj.__dict__.values() if isinstance(val, str))
-        print(fields)
-        # fields = [self._validate_field(field) for field in (self.article.title, self.article.content)]
         return all(fields)
 
     def validate_bad_words(self) -> bool:
