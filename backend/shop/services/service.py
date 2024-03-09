@@ -1,14 +1,36 @@
 import csv
+import json
 import logging
+import time
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, asdict
 
 from celery.result import AsyncResult
+
 from celery_app import check_badwords_product
 from products.models import Product
 from products.serializers import ProductUploadSerializer
 from products.services.service import ProductBadWordsValidateService
 from shop.models import ProductUpload
 
+
+@dataclass
+class ProductUploadLog:
+    id: int
+    product: str = ''
+    success: str = ''
+    result: str = ''
+
+
+@dataclass
+class ProductUploadTaskResult:
+    id: int
+    product: str | None = None
+    task_id: str | None = None
+    error: str | None = None
+
+
+# ProductUploadLog = namedtuple('ProductUploadLog', ['id', 'success', 'result'])
 
 class ProductUploader(ABC):
 
@@ -28,74 +50,125 @@ class ProductCSVUploader(ProductUploader):
     def __init__(self, source, shop):
         super().__init__(source=source, shop=shop)
         self.serializer = ProductUploadSerializer
-        self.tasks = []
+        self.tasks: list[ProductUploadTaskResult] = []
+        self.output_file_name = f'backend/tasks_data/raw/{time.time()}_{shop.slug}.txt'
 
     def upload(self):
         # decoded_source = self.source
+        """Method reads CSV file and iterates over each row with calling _upload method"""
         decoded_source = self.source.read().decode('utf-8').splitlines()
         reader = csv.DictReader(decoded_source)
         for row_id, row in enumerate(reader):
             row['shop_id'] = self.shop.id
             self._upload_row(row, row_id)
 
-    def get_tasks(self):
-        return self.tasks
+    def get_tasks_filename(self) -> str:
+        return self.output_file_name
 
-    def _upload_row(self, row: dict, row_id: int):
-        log = [row_id, ]
+    def save_tasks(self) -> None:
+        """Method writes list of dataclasses as json to local file"""
+        serialized_tasks = [asdict(task) for task in self.tasks]
+        with open(self.output_file_name, 'w+') as output_file:
+            output_file.write(json.dumps(serialized_tasks))
+
+    def _upload_row(self, row: dict, row_id: int) -> None:
+        """Method to generate product upload results log dataclass"""
+        log = ProductUploadTaskResult(id=row_id, product=row['title'])
         serialized_row = self.serializer(data=row)
-        if serialized_row.is_valid():
-            new_product = Product.objects.create(**row)
-            new_product.save()
-            check_task = check_badwords_product.delay(new_product.id)
-            log.append({'task_id': check_task.id})
-        else:
-            log.append({'error': 'Invalid product data was provided'})
+        logging.warning(f'{row} Its A ROW XDXDXD')
+        try:
+            if serialized_row.is_valid(raise_exception=True):
+                new_product = Product.objects.create(**row)
+                new_product.save()
+                check_task = check_badwords_product.delay(new_product.id)
+                log.task_id = check_task.id
+            else:
+                pass
+        except Exception as serializer_exc:
+            log.error = f'{serializer_exc}'
         self.tasks.append(log)
 
 
 class UploadLogger:
 
-    def __init__(self, task_results, upload):
-        self.task_results: list[str, dict] = task_results
+    def __init__(self, task_results_filename, upload):
+        self.task_results_filename: str = task_results_filename
+        self.task_results: list[ProductUploadTaskResult] = []
         self.upload: ProductUpload = upload
 
         self.products_count: int = 0
         self.success_count: int = 0
         self.error_count: int = 0
 
-    def check_completed(self):
-        for task in self.task_results:
-            logging.warning(f'Checking completion of task {task}')
-            if task[1].get('task_id', None) is not None:
-                logging.warning(f'Task idi is {task[1]}')
-                task_res = AsyncResult(task[1].get('task_id'))
+        # self.output_service = CsvOutputLogService
+
+    def read_dataclasses_from_file(self) -> None:
+        """Method to fill instance task results with dataclasses from file"""
+        with open(self.task_results_filename, 'r') as file:
+            data = json.load(file)
+            for item in data:
+                dataclass_instance = ProductUploadTaskResult(**item)
+                self.task_results.append(dataclass_instance)
+
+    def check_completed(self) -> bool:
+        """Method to check for task completion"""
+        for result in self.task_results:
+            if result.task_id is not None:
+                task_res = AsyncResult(result.task_id)
                 if task_res.ready() is False:
                     return False
         return True
 
-    def make_logs(self):
-        upload_results = {}
-        for task_id, task_data in self.task_results:
-            if task_data.get('task_id') is None:
-                upload_results[task_id] = task_data
+    def make_logs(self) -> list[ProductUploadLog]:
+        """Method to generate list of logs based on task results"""
+        report_result = []
+        for result in self.task_results:
+            upload_log = ProductUploadLog(id=result.id, product=result.product)
+            if result.task_id is None:
                 self.error_count += 1
+                upload_log.result = result.error
+                upload_log.success = 'error'
             else:
-                task_result = AsyncResult(task_data.get('task_id')).result
+                task_result = AsyncResult(result.task_id).result
                 if 'was published' in task_result.get('result', ''):
                     self.success_count += 1
+                    upload_log.success = 'success'
+                    upload_log.result = 'published'
                 else:
+                    upload_log.success = 'error'
+                    upload_log.result = 'not published bad words'
                     self.error_count += 1
-                upload_results[task_id] = task_result
-            self.products_count += 1
-        return upload_results
 
-    def start_work(self):
+            report_result.append(upload_log)
+            self.products_count += 1
+
+        return report_result
+
+    def start_work(self) -> list[ProductUploadLog]:
+        """Method check task completion, updates upload score in db and returns list of logs of dataclasses"""
         if self.check_completed() is True:
             logs = self.make_logs()
+
             self.upload.products_count, self.upload.success_count, self.upload.failed_count = (
                 self.products_count, self.success_count, self.error_count)
             self.upload.save()
             return logs
         else:
             raise Exception('Tasks are not completed yet')
+
+
+class CsvOutputLogService:
+
+    def __init__(self, report_result, file_path):
+        self.report_result: list[type[dataclass]] = report_result
+        self.file_path: str = file_path
+
+    def export_csv(self):
+        """Method to export csv file from list of task result dataclass"""
+        with open(f'{self.file_path}', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+
+            writer.writerow(self.report_result[0].__annotations__.keys())
+
+            for report in self.report_result:
+                writer.writerow(report.__dict__.values())
