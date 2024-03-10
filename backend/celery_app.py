@@ -3,6 +3,7 @@ import os
 import time
 
 from celery import Celery, shared_task
+
 from cfehome.settings import CELERY_BROKER_URL
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cfehome.settings')
@@ -45,7 +46,7 @@ def check_badwords_product(product_id):
 
 
 @shared_task(bind=True, default_retry_delay=30, max_retries=5)
-def get_upload_logs(self, tasks_file_name: list, upload_id: str):
+def create_product_upload_report(self, tasks_file_name: str, upload_id: str):
     from shop.models import ProductUpload
     from shop.services.service import CsvOutputLogService, UploadLogger
     upload = ProductUpload.objects.get(id=upload_id)
