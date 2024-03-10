@@ -2,8 +2,7 @@ import datetime
 
 from category.models import Category
 from django.db import models
-from django.db.models import Q, Avg, Count
-
+from django.db.models import Avg, Count, Q
 from shop.models import Shop
 
 
@@ -30,6 +29,7 @@ class ProductManager(models.Manager):
         qs = (self.get_queryset().prefetch_related('articles', 'sales', 'orders').select_related().
               annotate(mark=Avg('articles__mark'),
                        sales_count=Count('orders', filter=Q(orders__payment_status=True))))
+        return qs
 
     def search(self, query, shop=None):
         return self.get_queryset().search(query, shop)
