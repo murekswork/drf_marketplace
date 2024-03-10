@@ -45,7 +45,7 @@ class SimpleOrderService(AbstractOrderService):
         self._order_amount = float(self._product.price) * self._order.count
         return self._order_amount
 
-    def create_order(self, count):
+    def create_order(self, count) -> Order:
         order = Order.objects.create(
             user=self._user,
             product=self._product,
@@ -54,7 +54,7 @@ class SimpleOrderService(AbstractOrderService):
         return order
 
     @transaction.atomic()
-    def _pay(self, order_amount):
+    def _pay(self, order_amount) -> dict[str, bool | str]:
         self._user.wallet.balance = float(self._user.wallet.balance) - order_amount
         self._order.product.shop.user.wallet.balance = float(
             self._order.product.shop.user.wallet.balance) + order_amount
@@ -68,8 +68,8 @@ class SimpleOrderService(AbstractOrderService):
 
         return {'success': True, 'message': 'order is paid'}
 
-    def pay_order(self):
-        if self._order.payment_status == True:
+    def pay_order(self) -> dict[str, str | bool]:
+        if self._order.payment_status is True:
             raise ValidationError('Order already paid')
         self.validate_users_wallet(user=self._user)
         order_amount = self.get_order_amount()
@@ -93,9 +93,9 @@ class SaleOrderService(SimpleOrderService):
         super().__init__(user, order)
         self.sale = sale
 
-    def get_order_amount(self):
+    def get_order_amount(self) -> float:
         product_price_with_sale = self._product.price - (self._product.price * self.sale.size / 100)
-        self._order_amount = float(product_price_with_sale * self._order.count)
+        self._order_amount = float(product_price_with_sale) * float(self._order.count)
         return self._order_amount
 
 
