@@ -10,5 +10,5 @@ stop:
 
 start-local:
 	sed -i "s/'HOST': 'postgres',/'HOST': 'localhost',/g" $(cfehome)/settings.py
-	docker-compose up db redis
+	docker-compose up -d db redis
 	python manage.py runserver
