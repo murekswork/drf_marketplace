@@ -2,7 +2,7 @@ import time
 
 from api.authentication import TokenAuthentication
 from api.mixins import UserQuerySetMixin
-from celery_app import get_upload_logs
+from celery_app import create_product_upload_report
 from django.http import FileResponse
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
@@ -60,7 +60,7 @@ class UploadCSVProductsAPIView(
             service.upload()
             service.save_tasks()
             tasks_filename = service.get_tasks_filename()
-            get_upload_logs.delay(tasks_file_name=tasks_filename, upload_id=str(upload.id))
+            create_product_upload_report.delay(tasks_file_name=tasks_filename, upload_id=str(upload.id))
             msg = 'Started to uploading provided csv file'
         else:
             msg = 'No file provided'
