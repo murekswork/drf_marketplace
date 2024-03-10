@@ -1,37 +1,138 @@
+import datetime
 from abc import ABC, abstractmethod
 
 from django.conf import settings
 from django.db import transaction
+from rest_framework.exceptions import ValidationError
+
 from order.models import Order
 from products.models import Product, Sale
-from rest_framework.exceptions import ValidationError
 from wallet.models import Wallet
 
 
-class AbstractOrderService(ABC):
+class OrderValidationService:
 
-    def __init__(self, user: settings.AUTH_USER_MODEL, order: Order) -> None:
-        self._user = user
-        self._product: Product = order.product
-        self._order: Order = order
-        self._order_amount = 50
+    def __init__(self, order: Order) -> None:
+        self.order = order
 
-    def validate_users_wallet(self, user: settings.AUTH_USER_MODEL) -> None:
-        wallet = Wallet.objects.filter(user=user).exists()
-        if wallet is True:
-            self._user = user
-        else:
-            raise ValidationError('User does not have wallet!')
-
-    def validate_product_quantity(self):
-        product = Product.objects.get(pk=self._product.pk)
-        if product.quantity >= self._order.count:
+    def _validate_product_quantity(self) -> dict[str, bool | str]:
+        product = self.order.product
+        if product.quantity >= self.order.count:
             return {'success': True}
         else:
             return {'success': False, 'message': 'Product does not have enough quantity now!'}
 
+    def _validate_users_wallet(self) -> dict[str, bool]:
+        wallet_exist = Wallet.objects.filter(user=self.order.user).exists()
+        if wallet_exist is True:
+            return {'success': True}
+        else:
+            return {'success': False, 'message': 'Customer does not have wallet!'}
+
+    def _validate_user_has_enough_money(self):
+        if self.order.user.wallet.balance >= self.order.amount:
+            return {'success': True}
+        else:
+            return {'success': False, 'message': 'Customer does not have enough money!'}
+
+    def _validate_order_positive_amount(self):
+        if self.order.amount > 0:
+            return {'success': True}
+        else:
+            return {'success': False, 'message': 'Order amount could not be less than 0!'}
+
+    def _validate_order_is_not_paid(self):
+        if self.order.payment_status is True:
+            return {'success': False, 'message': 'Order is already paid!'}
+        return {'success': True}
+
+    def validate_order(self) -> dict[str, bool | str]:
+        quantity_validation = self._validate_product_quantity()
+
+        if quantity_validation != {'success': True}:
+            raise ValidationError(quantity_validation.get('message'))
+
+        customer_wallet_validation = self._validate_users_wallet()
+        if customer_wallet_validation != {'success': True}:
+            raise ValidationError(customer_wallet_validation.get('message'))
+
+        customer_balance_validation = self._validate_user_has_enough_money()
+        if customer_balance_validation != {'success': True}:
+            raise ValidationError(customer_wallet_validation.get('message'))
+
+        order_positive_amount_validation = self._validate_order_positive_amount()
+        if order_positive_amount_validation != {'success': True}:
+            raise ValidationError(order_positive_amount_validation.get('message'))
+
+        return {'success': True}
+
+
+class SaleValidationService:
+
+    def __init__(self, sale: Sale):
+        self.sale = sale
+
+    def validate_sale_expired(self) -> dict[str, bool | str]:
+        if self.sale.end_date > datetime.datetime.now():
+            return {'success': True}
+        return {'success': False, 'message': 'Sale is expired!'}
+
+
+class OrderPaymentService:
+
+    def __init__(self, order: Order) -> None:
+        self.order = order
+
+    @transaction.atomic()
+    def _make_payment_transaction(self, order_amount) -> dict[str, bool | str]:
+        self.order.user.wallet.balance = float(self.order.user.wallet.balance) - order_amount
+        self.order.product.shop.user.wallet.balance = float(
+            self.order.product.shop.user.wallet.balance) + order_amount
+        self.order.product.quantity -= self.order.count
+        self.order.payment_status = True
+        self.order.amount = order_amount
+
+        self.order.user.wallet.save()
+        self.order.product.shop.user.wallet.save()
+        self.order.save()
+
+        return {'success': True}
+
+    def pay_order(self) -> dict[str, str | bool]:
+        # self.validate_users_wallet(user=self._user)
+        # order_amount = self.get_order_amount()
+
+        # if self._user.wallet.balance < order_amount:
+        #     return {'success': False, 'message': 'user does not have enough money'}
+
+        # quantity_validation = self.validate_product_quantity()
+
+        # if quantity_validation['success'] is False:
+        #     return quantity_validation
+        try:
+            return self._make_payment_transaction(float(self.order.amount))
+        except Exception as e:
+            return {'success': False, 'message': f'some troubles with transaction! {e}'}
+
+
+class AbstractOrderService(ABC):
+
+    def __init__(
+            self,
+            user: settings.AUTH_USER_MODEL,
+            order: Order,
+            # payment_service: OrderPaymentService,
+            # validation_service: OrderValidationService
+    ) -> None:
+        self.user = user
+        self.order: Order = order
+        self._product: Product = order.product
+        self._order_amount = None
+        self.payment_service = OrderPaymentService(self.order)
+        self.validation_service = OrderValidationService(self.order)
+
     @abstractmethod
-    def create_order(self, count: int):
+    def get_order_amount(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -41,50 +142,20 @@ class AbstractOrderService(ABC):
 
 class SimpleOrderService(AbstractOrderService):
 
-    def get_order_amount(self):
-        self._order_amount = float(self._product.price) * self._order.count
-        return self._order_amount
+    def pay_order(self):
+        self.get_order_amount()
+        validation = self.validation_service.validate_order()
 
-    def create_order(self, count) -> Order:
-        order = Order.objects.create(
-            user=self._user,
-            product=self._product,
-            count=count
-        )
-        return order
+        if validation != {'success': True}:
+            return ValidationError()
 
-    @transaction.atomic()
-    def _pay(self, order_amount) -> dict[str, bool | str]:
-        self._user.wallet.balance = float(self._user.wallet.balance) - order_amount
-        self._order.product.shop.user.wallet.balance = float(
-            self._order.product.shop.user.wallet.balance) + order_amount
-        self._order.product.quantity -= self._order.count
-        self._order.payment_status = True
-        self._order.amount = order_amount
+        payment = self.payment_service.pay_order()
+        return payment
 
-        self._user.wallet.save()
-        self._order.product.shop.user.wallet.save()
-        self._order.save()
-
-        return {'success': True, 'message': 'order is paid'}
-
-    def pay_order(self) -> dict[str, str | bool]:
-        if self._order.payment_status is True:
-            raise ValidationError('Order already paid')
-        self.validate_users_wallet(user=self._user)
-        order_amount = self.get_order_amount()
-
-        if self._user.wallet.balance < order_amount:
-            return {'success': False, 'message': 'user does not have enough money'}
-
-        quantity_validation = self.validate_product_quantity()
-
-        if quantity_validation['success'] is False:
-            return quantity_validation
-        try:
-            return self._pay(order_amount)
-        except Exception as e:
-            return {'success': False, 'message': f'some troubles with transaction! {e}'}
+    def get_order_amount(self) -> None:
+        self.order.amount = float(self.order.product.price) * self.order.count
+        self.order.save()
+        self.order.refresh_from_db()
 
 
 class SaleOrderService(SimpleOrderService):
@@ -92,19 +163,24 @@ class SaleOrderService(SimpleOrderService):
     def __init__(self, user: settings.AUTH_USER_MODEL, order: Order, sale: Sale):
         super().__init__(user, order)
         self.sale = sale
+        self.sale_validation_service = SaleValidationService(sale=self.sale)
 
-    def get_order_amount(self) -> float:
-        product_price_with_sale = self._product.price - (self._product.price * self.sale.size / 100)
-        self._order_amount = float(product_price_with_sale) * float(self._order.count)
-        return self._order_amount
+    def get_order_amount(self) -> None:
+        sale_validation = self.sale_validation_service.validate_sale_expired()
+        if sale_validation != {'success': True}:
+            return super().get_order_amount()
+
+        product_price_with_sale = self.order.product.price - (self.order.product.price * self.sale.size / 100)
+        self.order.amount = float(product_price_with_sale) * float(self.order.count)
+        self.order.save()
+        self.order.refresh_from_db()
 
 
-class OrderServiceFabric:
+class OrderServiceFactory:
 
     @staticmethod
     def get_order_service(order):
-        sale = OrderServiceFabric.check_sale(order.product)
-        # order = Order.objects.create(product=product, user=user, count=count)
+        sale = OrderServiceFactory.check_sale(order.product)
         if sale:
             order_service = SaleOrderService(user=order.user, order=order, sale=sale)
         else:
@@ -114,5 +190,6 @@ class OrderServiceFabric:
 
     @staticmethod
     def check_sale(product):
-        sale = product.sales.select_related().first()
-        return sale
+        sale: Sale = product.sales.filter(end_date__gte=datetime.datetime.now()).first()
+        if sale:
+            return sale
