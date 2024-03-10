@@ -1,6 +1,6 @@
-from order.services.order_service import OrderServiceFabric
+from order.services.order_service import OrderServiceFactory
 
 
 class OrderServiceFabricMixin:
 
-    order_fabric = OrderServiceFabric
+    order_fabric = OrderServiceFactory
