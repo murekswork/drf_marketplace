@@ -1,9 +1,10 @@
 from articles.serializers import ArticleInlineSerializer
 from celery_app import check_badwords_product
+from django.db.models import Q
 from products.models import Product
 from rest_framework import serializers, validators
 from rest_framework.reverse import reverse
-from shop.models import Shop, ShopManager
+from shop.models import Shop, ShopPermissions
 
 from .validators import english_words_validator
 
@@ -43,17 +44,16 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_seller(self, obj):
         return reverse('shop-detail', kwargs={'slug': obj.shop.slug}, request=self.context.get('request'))
 
-    #TODO : REMAKE THIS LOGIC IT MAKES TO MUCH SQL QUERIES (ABOUT 30!)
     def get_fields(self):
         fields = super().get_fields()
         if self.context.get('request', None) is not None:
             user = self.context.get('request').user
             if user.is_authenticated:
-                fields['shop'].queryset = Shop.objects.filter(user=self.context.get('request').user)
-                user_manager_roles = ShopManager.objects.filter(user=user).select_related('user')
-                for manager in user_manager_roles:
-                    if manager.has_permission('create_shop_product'):
-                        fields['shop'].queryset |= Shop.objects.filter(id=manager.shop.id)
+                shops = Shop.objects.filter(
+                    Q(user=user) | Q(shopmanager__user=user,
+                                     shopmanager__group__permissions=ShopPermissions.CREATE_PRODUCT)
+                ).distinct()
+                fields['shop'].queryset = shops
 
         return fields
 
@@ -78,7 +78,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('title', 'content', 'price', 'seller', 'sale', 'sales_count', 'sale_price', 'url', 'shop', 'mark')
+        fields = ('title', 'content', 'price', 'seller', 'quantity', 'sale',
+                  'sales_count', 'sale_price', 'url', 'shop', 'mark')
 
 
 class ProductCreateSerializer(ProductSerializer):
