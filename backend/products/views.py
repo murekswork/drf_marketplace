@@ -1,7 +1,6 @@
 import django_filters
 from api.authentication import TokenAuthentication
 from api.mixins import UserQuerySetMixin
-from django.db.models import Avg, Count, Q
 from rest_framework import authentication, status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import (
@@ -35,9 +34,7 @@ class ProductFilter(django_filters.FilterSet):
 class ProductListCreateAPIView(
     ListCreateAPIView
 ):
-    queryset = (Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'orders').select_related().
-                annotate(mark=Avg('articles__mark', default=5),
-                         sales_count=Count('orders', filter=Q(orders__payment_status=True))))
+    queryset = (Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'orders').select_related())
     serializer_class = ProductSerializer
     authentication_classes = [authentication.SessionAuthentication, TokenAuthentication]
     allow_staff_view = False
@@ -89,9 +86,7 @@ class ProductListMyAPIView(
 class ProductDetailAPIView(
     RetrieveAPIView
 ):
-    queryset = Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'shop').annotate(
-        mark=Avg('articles__mark', default=5),
-        sales_count=Count('orders', filter=Q(orders__payment_status=True)))
+    queryset = Product.objects.filter(public=True).prefetch_related('articles', 'sales', 'shop')
     serializer_class = ProductSerializerFull
     allow_staff_view = True
 
