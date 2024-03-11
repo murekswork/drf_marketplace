@@ -3,11 +3,14 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from rest_framework.exceptions import ValidationError
-
 from order.models import Order
-from order.services.order_service import OrderValidationService, SimpleOrderService, SaleOrderService
+from order.services.order_service import (
+    OrderValidationService,
+    SaleOrderService,
+    SimpleOrderService,
+)
 from products.models import Product, Sale
+from rest_framework.exceptions import ValidationError
 from shop.models import Shop
 from wallet.models import Wallet
 
@@ -32,7 +35,6 @@ class OrderValidationServiceTestCase(TestCase):
         self.product = Product.objects.create(
             title='Product', content='Product description', shop=self.shop
         )
-
 
         self.order = Order.objects.create(
             product=self.product, user=self.user_buyer, count=5
@@ -71,49 +73,49 @@ class OrderValidationServiceTestCase(TestCase):
         self.assertEqual(result, {'success': False, 'message': 'Customer does not have wallet!'})
 
     def test_order_validation_service_validate_users_wallet_when_wallet_exist(self):
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=0)
+        Wallet.objects.create(user=self.user_buyer, balance=0)
         service = OrderValidationService(order=self.order)
         result = service._validate_users_wallet()
         self.assertEqual(result, {'success': True})
 
     def test_order_validation_service__validate_user_has_enough_money_when_does_not_have_enough_money(self):
         self.order.amount = 100
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=0)
+        Wallet.objects.create(user=self.user_buyer, balance=0)
         service = OrderValidationService(order=self.order)
         result = service._validate_user_has_enough_money()
         self.assertEqual(result, {'success': False, 'message': 'Customer does not have enough money!'})
 
     def test_order_validation_service__validate_user_has_enough_money_when_have_enough_money(self):
         self.order.amount = 100
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=101)
+        Wallet.objects.create(user=self.user_buyer, balance=101)
         service = OrderValidationService(order=self.order)
         result = service._validate_user_has_enough_money()
         self.assertEqual(result, {'success': True})
 
     def test_order_validation_service__validate_user_has_enough_money_when_have_equal_money(self):
         self.order.amount = 100
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=100)
+        Wallet.objects.create(user=self.user_buyer, balance=100)
         service = OrderValidationService(order=self.order)
         result = service._validate_user_has_enough_money()
         self.assertEqual(result, {'success': True})
 
     def test_order_validation_service__validate_order_positive_amount_when_order_amount_is_positive(self):
         self.order.amount = 100
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=100)
+        Wallet.objects.create(user=self.user_buyer, balance=100)
         service = OrderValidationService(order=self.order)
         result = service._validate_order_positive_amount()
         self.assertEqual(result, {'success': True})
 
     def test_order_validation_service__validate_order_positive_amount_when_order_amount_is_negative(self):
         self.order.amount = -100
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=100)
+        Wallet.objects.create(user=self.user_buyer, balance=100)
         service = OrderValidationService(order=self.order)
         result = service._validate_order_positive_amount()
         self.assertEqual(result, {'success': False, 'message': 'Order amount could not be less than 0!'})
 
     def test_order_validation_service_validate_order_when_all_ok(self):
         self.product.quantity = 2
-        customer_wallet = Wallet.objects.create(user=self.user_buyer, balance=101)
+        Wallet.objects.create(user=self.user_buyer, balance=101)
         self.order.count = 1
         self.order.amount = 100
         service = OrderValidationService(order=self.order)
@@ -162,7 +164,7 @@ class SimpleOrderServiceTestCase(TestCase):
         self.order.count = 5
         self.product.price = 100
         service = SimpleOrderService(order=self.order, user=self.user_buyer)
-        result = service.get_order_amount()
+        service.get_order_amount()
         self.assertEqual(self.order.amount, 500)
 
     def test_simple_order_service_pay_order_when_raise_some_error(self):
@@ -177,7 +179,7 @@ class SimpleOrderServiceTestCase(TestCase):
         self.product.quantity = 6
         self.product.save()
         self.product.price = 1
-        wallet = Wallet.objects.create(user=self.user_buyer, balance=500)
+        Wallet.objects.create(user=self.user_buyer, balance=500)
         service = SimpleOrderService(order=self.order, user=self.user_buyer)
         result = service.pay_order()
         self.assertTrue(result, 'payment completed')
@@ -213,15 +215,16 @@ class SaleOrderServiceTestCase(TestCase):
         self.order.count = 5
         self.product.price = 100
         service = SaleOrderService(order=self.order, user=self.user_buyer, sale=sale)
-        result = service.get_order_amount()
+        service.get_order_amount()
         self.assertEqual(self.order.amount, 250)
 
     def test_sale_order_service_get_order_amount_when_sale_is_expired(self):
-        sale = Sale.objects.create(product=self.product, size=50, end_date=datetime.datetime.now() - datetime.timedelta(days=10))
+        sale = Sale.objects.create(product=self.product, size=50,
+                                   end_date=datetime.datetime.now() - datetime.timedelta(days=10))
         self.order.count = 5
         self.product.price = 100
         service = SaleOrderService(order=self.order, user=self.user_buyer, sale=sale)
-        result = service.get_order_amount()
+        service.get_order_amount()
         logging.warning(f'{sale.end_date}, {datetime.datetime.now() - datetime.timedelta(days=10)}')
         self.assertEqual(self.order.amount, 500)
 
@@ -231,8 +234,8 @@ class SaleOrderServiceTestCase(TestCase):
         self.product.price = 100
         service = SaleOrderService(order=self.order, user=self.user_buyer, sale=sale)
         sale.end_date = datetime.datetime.now() - datetime.timedelta(days=10)
-        result = service.get_order_amount()
+        service.get_order_amount()
         logging.warning(f'{sale.end_date}, {datetime.datetime.now() - datetime.timedelta(days=10)}')
         self.assertEqual(self.order.amount, 500)
 
-    #TODO: Write test case for OrderServiceFactory
+    # TODO: Write test case for OrderServiceFactory
