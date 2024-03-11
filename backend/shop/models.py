@@ -17,7 +17,7 @@ class ShopPermissions:
     DELETE_SALE = Permission.objects.get(codename='delete_shop_sales')
 
     MANAGE_SHOP_DATA = Permission.objects.get(codename='manage_shop_data')
-    MANAGE_MANAGERS = Permission.objects.get(codename='can_manage_shop_managers')
+    MANAGE_MANAGERS = Permission.objects.get(codename='manage_shop_managers')
 
     CREATE_PRODUCT_UPLOAD = Permission.objects.get(codename='create_product_upload')
     DELETE_PRODUCT_UPLOAD = Permission.objects.get(codename='delete_product_upload')
@@ -47,7 +47,7 @@ class ShopStaffGroup(models.Model):
             'delete_shop_sales',
 
             'manage_shop_data',
-            'can_manage_shop_managers',
+            'manage_shop_managers',
 
             'create_product_upload',
             'delete_product_upload',
@@ -68,7 +68,7 @@ class ShopStaffGroup(models.Model):
 class ShopManager(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, related_name='manager_roles')
     shop = models.ForeignKey('Shop', on_delete=models.CASCADE, null=True)
-    title = models.CharField(max_length=120, null='Role title')
+    title = models.CharField(max_length=120, default='Shop manager title')
     group = models.ForeignKey('ShopStaffGroup', on_delete=models.SET_NULL, null=True)
 
     def has_permission(self, permission):
@@ -93,7 +93,7 @@ class ProductUpload(models.Model):
 
 
 class Shop(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, related_name='shop_owned')
+    user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, related_name='shops_owned')
     title = models.CharField(max_length=120, default='Shop Title')
     description = models.TextField(max_length=500, default='Shop Description')
     active = models.BooleanField(default=True)
@@ -114,7 +114,7 @@ class Shop(models.Model):
             ('delete_shop_sales', 'Can delete shop sales'),
 
             ('manage_shop_data', 'Can manage shop data'),
-            ('can_manage_shop_managers', 'Can grant shop permission to other users'),
+            ('manage_shop_managers', 'Can grant shop permission to other users'),
 
             ('create_product_upload', 'Can create product uploads'),
             ('delete_product_upload', 'Can delete product uploads'),

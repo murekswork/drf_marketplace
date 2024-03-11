@@ -25,6 +25,7 @@ class TestManagerPermissions(TestCase):
                                                                                            'delete_shop_product']))
         self.shop_product_manager_role = ShopManager(shop=self.shop, user=self.product_manager,
                                                      group=self.product_manager_group)
+        self.product_manager_group.save()
         self.shop_product_manager_role.save()
 
         # Set sales manager group and role
@@ -37,6 +38,8 @@ class TestManagerPermissions(TestCase):
 
         self.product = Product.objects.create(shop=self.shop, title='product', content='content', price=12000,
                                               public=True)
+
+        self.product_manager.refresh_from_db()
 
     def test_user_owner_access_permission_can_upload_product(self):
         self.client.force_login(self.user_owner)
