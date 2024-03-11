@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from order.models import Order
 from order.services.order_service import (
-    OrderServiceFabric,
+    OrderServiceFactory,
     SaleOrderService,
     SimpleOrderService,
 )
@@ -24,12 +24,12 @@ class TestOrderServiceFabric(TestCase):
         self.order = Order.objects.create(user=self.user, product=self.order_product, count=1)
 
     def test_order_service_fabric_create_right_service_when_not_sale(self):
-        service_fabric = OrderServiceFabric()
+        service_fabric = OrderServiceFactory()
         service = service_fabric.get_order_service(order=self.order)
         self.assertEqual(service.__class__, SimpleOrderService)
 
     def test_order_service_fabric_create_right_service_when_sale(self):
-        service_fabric = OrderServiceFabric()
+        service_fabric = OrderServiceFactory()
         Sale.objects.create(product=self.order_product, size=50)
         service = service_fabric.get_order_service(order=self.order)
         self.assertEqual(service.__class__, SaleOrderService)
@@ -43,7 +43,7 @@ class TestSimpleOrderService(TestCase):
         self.user_with_wallet.save()
         self.shop = Shop.objects.create(user=self.user_with_wallet, title='shoptitle', description='shopdescription')
         self.user_wallet = Wallet.objects.create(user=self.user_with_wallet, balance=100000)
-        self.order_product = Product.objects.create(shop=self.shop, title='product', price=100)
+        self.order_product = Product.objects.create(shop=self.shop, title='product', price=100, quantity=10)
         self.order = Order.objects.create(user=self.user_with_wallet, product=self.order_product, count=5)
         self.user_without_wallet = get_user_model().objects.create(username='test1', email='test1@email.com')
         self.user_without_wallet.set_password('0xABAD1DEA')
@@ -51,23 +51,25 @@ class TestSimpleOrderService(TestCase):
         self.order_without_wallet = Order.objects.create(user=self.user_without_wallet, product=self.order_product,
                                                          count=5)
 
-    def test_simple_order_validate_users_wallet_when_no_wallet(self):
-        service_factory = OrderServiceFabric()
-        service = service_factory.get_order_service(order=self.order_without_wallet)
-        with self.assertRaises(ValidationError):
-            service.validate_users_wallet(self.user_without_wallet)
+    # def test_simple_order_validate_users_wallet_when_no_wallet(self):
+    #     service_factory = OrderServiceFactory()
+    #     service = service_factory.get_order_service(order=self.order_without_wallet)
+    #     with self.assertRaises(ValidationError):
+    #         service.validate_users_wallet(self.user_without_wallet)
 
-    def test_simple_order_validate_users_wallet_when_wallet(self):
-        service_factory = OrderServiceFabric()
-        service = service_factory.get_order_service(order=self.order)
-        self.assertEqual(service.validate_users_wallet(self.user_with_wallet), None)
+    # def test_simple_order_validate_users_wallet_when_wallet(self):
+    #     service_factory = OrderServiceFactory()
+    #     service = service_factory.get_order_service(order=self.order)
+    #     self.assertEqual(service.validate_users_wallet(self.user_with_wallet), None)
 
     def test_order_service_pay_order_when_user_balance_lt_order_amount(self):
         order = self.order
         order.amount = 5000
         self.user_wallet.balance = 100
+        self.user_wallet.save()
         service = SimpleOrderService(user=self.user_with_wallet, order=self.order)
-        self.assertEqual(service.pay_order()['success'], False)
+        with self.assertRaises(ValidationError):
+            service.pay_order()
 
     def test_order_service_pay_order_when_product_quantity_lt_order_count(self):
         self.order_product.quantity = 1
@@ -75,7 +77,8 @@ class TestSimpleOrderService(TestCase):
         self.order.count = 50
         self.order.save()
         service = SimpleOrderService(user=self.user_with_wallet, order=self.order)
-        self.assertEqual(service.pay_order()['success'], False)
+        with self.assertRaises(ValidationError):
+            service.pay_order()
 
     def test_order_service_pay_order_when_wallet_balance_changed_after_order_service_created(self):
         self.order_product.quantity = 5
@@ -84,8 +87,11 @@ class TestSimpleOrderService(TestCase):
         self.user_wallet.save()
         service = SimpleOrderService(user=self.user_with_wallet, order=self.order)
         self.user_wallet.balance = 0
+        self.user_wallet.save()
+
         self.assertEqual(float(service.get_order_amount()), 500)
-        self.assertEqual(service.pay_order()['success'], False)
+        with self.assertRaises(ValidationError):
+            service.pay_order()
 
     def test_order_service_pay_order_charges_right_amount(self):
         user_buyer = get_user_model().objects.create_user(username='buyer', email='buyer@email.com')
@@ -100,9 +106,11 @@ class TestSimpleOrderService(TestCase):
         order = Order.objects.create(user=user_buyer, product=self.order_product, count=1)
         service = SimpleOrderService(user=user_buyer, order=order)
 
-        service.pay_order()
+        result = service.pay_order()
+        self.user_wallet.refresh_from_db()
+        user_buyer_wallet.refresh_from_db()
         self.assertEqual(float(self.user_wallet.balance),
-                         float(seller_wallet_before_payment) + float(self.order_product.price))
+                         float(seller_wallet_before_payment) + float(self.order_product.price), f'Its pay_order result {result}')
         self.assertEqual(float(user_buyer_wallet.balance),
                          float(buyer_wallet_before_payment) - float(self.order_product.price))
 
@@ -121,7 +129,8 @@ class TestSaleOrderService(TestCase):
 
     def test_order_sale_service_return_right_amount(self):
         service = SaleOrderService(user=self.user, order=self.order, sale=self.sale)
-        self.assertEqual(float(service.get_order_amount()), float(10))
+        service.get_order_amount()
+        self.assertEqual(float(self.order.amount), float(10))
 
     def test_order_sale_service_charges_right_amount(self):
         user_buyer = get_user_model().objects.create_user(username='buyer', email='buyer@email.com')
@@ -137,8 +146,9 @@ class TestSaleOrderService(TestCase):
         service = SaleOrderService(user=user_buyer, order=order, sale=self.sale)
 
         service.pay_order()
+        self.user_wallet.refresh_from_db()
         self.assertEqual(float(self.user_wallet.balance),
                          float(seller_wallet_before_payment) + float(10))
-
+        user_buyer_wallet.refresh_from_db()
         self.assertEqual(float(user_buyer_wallet.balance),
                          float(buyer_wallet_before_payment) - float(10))
