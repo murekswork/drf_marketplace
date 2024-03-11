@@ -46,6 +46,9 @@ class Product(models.Model):
     quantity = models.IntegerField(default=0)
     category = models.ManyToManyField(Category, null=True, blank=True, related_name='products')
 
+    mark = models.DecimalField(max_digits=4, decimal_places=2, default=5)
+    sales_count = models.IntegerField(default=0)
+
     objects = ProductManager()
 
     def __str__(self):
