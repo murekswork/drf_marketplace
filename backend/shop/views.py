@@ -4,7 +4,7 @@ from api.authentication import TokenAuthentication
 from api.mixins import UserQuerySetMixin
 from celery_app import create_product_upload_report
 from django.http import FileResponse
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -71,9 +71,9 @@ class UploadCSVProductsAPIView(
         if shop.user != request.user:
             return Response('Its not your shop!', status=status.HTTP_403_FORBIDDEN)
         obj = get_object_or_404(ProductUpload, pk=pk)
+        file = f'backend/tasks_data/{obj.file_name}.csv'
         try:
-            response = FileResponse(open(f'backend/tasks_data/{obj.file_name}.csv', 'rb'), as_attachment=True,
-                                    filename='upload_results.csv')
+            response = FileResponse(open(file, mode='rb'), as_attachment=True, filename='upload_results.csv')
             return response
         except Exception as e:
             return Response(f'Your products are not uploaded yet! {e}', status=status.HTTP_425_TOO_EARLY)
