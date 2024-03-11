@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Avg
 from django.db.models.manager import Manager
 from order.models import Order
 from products.models import Product
@@ -52,4 +53,12 @@ class Article(models.Model):
 
     def __str__(self):
         return f'Article {self.pk} with name: {self.title}'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        product_mark = Article.objects.filter(product=self.product).aggregate(Avg('mark', default=5))['mark__avg']
+        self.product.mark = product_mark
+        self.product.save()
+
 # Create your models here.
