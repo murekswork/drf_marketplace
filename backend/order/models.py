@@ -4,6 +4,8 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from products.models import Product
 
 
@@ -34,7 +36,6 @@ class OrderManager(models.Manager):
 
 
 class Order(models.Model):
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(get_user_model(), blank=False, null=True, on_delete=models.SET_NULL)
     product = models.ForeignKey(Product, blank=False, null=True, related_name='orders', on_delete=models.SET_NULL)
@@ -54,3 +55,15 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Order #{self.id}'
+
+
+@receiver(pre_save, sender=Order)
+def increase_product_sales_count(sender, instance, **kwargs):
+    try:
+        obj_before_save = sender.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        pass
+    else:
+        if obj_before_save.payment_status is False and instance.payment_status is True:
+            obj_before_save.product.sales_count += 1
+            obj_before_save.product.save()
