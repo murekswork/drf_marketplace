@@ -51,6 +51,9 @@ class Product(models.Model):
 
     objects = ProductManager()
 
+    class Meta:
+        unique_together = ('shop', 'title', 'content',)
+
     def __str__(self):
         return f'{self.title} for {self.price}'
 
