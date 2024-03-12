@@ -26,8 +26,8 @@ services:
   worker:
     build: .
     hostname: worker
-    entrypoint: celery
-    command: -A celery_app.app worker --loglevel=info
+#    entrypoint: celery
+    command: sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker7@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker1@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
     links:
       - redis
     depends_on:
@@ -36,6 +36,23 @@ services:
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
+
+  flower:
+    build: .
+    hostname: flower
+    entrypoint: celery
+    command: -A celery_app.app flower
+    volumes:
+      - code:/app/backend
+      - task_data:/app/backend/tasks_data
+    links:
+      - redis
+    depends_on:
+      - redis
+      - db
+    ports:
+      - 5555:5555
+
 
   db:
     container_name: postgres_drf
