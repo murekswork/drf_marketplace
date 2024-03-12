@@ -55,10 +55,13 @@ class ShopStaffGroup(models.Model):
         ],
     })
 
-    def has_permission(self, permission):
-        permission_instance = Permission.objects.filter(codename=permission)
-        if permission_instance.exists():
-            return permission_instance[0] in self.permissions.prefetch_related()
+    def has_permission(self, permission: str | Permission = None):
+        if not isinstance(permission, Permission):
+            permission_instance = Permission.objects.filter(codename=permission)
+            if permission_instance.exists():
+                return permission_instance[0] in self.permissions.prefetch_related()
+        else:
+            return permission in self.permissions.prefetch_related()
         return False
 
     def __str__(self):
@@ -78,6 +81,9 @@ class ShopManager(models.Model):
         if self.group:
             return self.group.has_permission(permission)
         return False
+
+    def __str__(self):
+        return f'{self.title} - {self.shop}'
 
 
 class ProductUpload(models.Model):
