@@ -1,4 +1,5 @@
-class BadWordsValidator:
+class EntityBadWordsValidationService:
+
     BANNED_WORDS = open('articles/services/banwords.txt', encoding='utf-8').read()
 
     def __init__(self, obj) -> None:
@@ -12,6 +13,6 @@ class BadWordsValidator:
         fields = (self._validate_field(val) for val in self.obj.__dict__.values() if isinstance(val, str))
         return all(fields)
 
-    def validate_bad_words(self) -> bool:
+    def validate(self) -> bool:
         validation = self._validate_obj()
         return validation
