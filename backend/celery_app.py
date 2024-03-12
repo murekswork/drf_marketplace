@@ -3,7 +3,6 @@ import os
 import time
 
 from celery import Celery, shared_task
-
 from cfehome.settings import CELERY_BROKER_URL
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cfehome.settings')
@@ -21,7 +20,9 @@ app.autodiscover_tasks()
 @shared_task()
 def check_badwords_article(article_id):
     from articles.models import Article
-    from articles.services.validation.service import ArticleEntityBadWordsValidationService
+    from articles.services.validation.service import (
+        ArticleEntityBadWordsValidationService,
+    )
     time.sleep(5)
     article = Article.objects.get(id=article_id)
     service = ArticleEntityBadWordsValidationService(article)
@@ -36,7 +37,9 @@ def check_badwords_article(article_id):
 @shared_task(bind=True, default_retry_delay=10, max_retries=5)
 def check_badwords_product(self, product_id, _retry_count=0):
     from products.models import Product
-    from products.services.validation.product_validation import ProductEntityBadWordsValidateService
+    from products.services.validation.product_validation import (
+        ProductEntityBadWordsValidateService,
+    )
     try:
         product = Product.objects.get(id=product_id)
         service = ProductEntityBadWordsValidateService(product)
@@ -58,8 +61,12 @@ def check_badwords_product(self, product_id, _retry_count=0):
 @shared_task(bind=True, default_retry_delay=30, max_retries=5)
 def create_product_upload_report(self, tasks_file_name: str, upload_id: str, _retry_count=0):
     from shop.models import ProductUpload
-    from shop.services.product_upload_services.upload_log_exporter_service import CsvUploadResultExporter
-    from shop.services.product_upload_services.upload_log_maker_service import UploadLogMaker
+    from shop.services.product_upload_services.upload_log_exporter_service import (
+        CsvUploadResultExporter,
+    )
+    from shop.services.product_upload_services.upload_log_maker_service import (
+        UploadLogMaker,
+    )
     try:
         upload = ProductUpload.objects.get(id=upload_id)
         logger = UploadLogMaker(task_results_filename=tasks_file_name, upload=upload)
@@ -78,8 +85,8 @@ def create_product_upload_report(self, tasks_file_name: str, upload_id: str, _re
 
 @shared_task(bind=True, default_retry_delay=30, max_retries=5)
 def upload_products_task(self, file, shop_id):
-    from shop.services.product_upload_services.product_upload import ProductCSVUploader
     from shop.models import Shop
+    from shop.services.product_upload_services.product_upload import ProductCSVUploader
     shop = Shop.objects.get(id=shop_id)
     upload_service = ProductCSVUploader(source=file, shop=shop)
     upload_service.upload()
