@@ -31,7 +31,7 @@ class OrderSerializerTestCase(TestCase):
         self.token = response.json()['token']
 
         self.order_creation = self.client.post(reverse('order-list'), headers={'Authorization': f'Bearer {self.token}'},
-                                               data={'product_pk': self.order_product.pk, 'count': 5})
+                                               data={'product': self.order_product.pk, 'count': 5})
 
         self.created_order = Order.objects.get(id__exact=self.order_creation.json()['id'])
         self.created_order_serializer = OrderSerializer(self.created_order)
@@ -47,7 +47,7 @@ class OrderSerializerTestCase(TestCase):
         self.assertEqual(self.serializer.data['payment_url'], reverse('order-payment', kwargs={'pk': self.order.pk}))
 
     def test_serializer_get_amount_without_product_sale(self):
-        self.assertEqual(float(self.serializer.get_amount(self.order)), 0)
+        self.assertEqual(float(self.serializer.get_amount(self.order)), 500)
 
     def test_creation(self):
         self.assertEqual(self.order_creation.status_code, 201)

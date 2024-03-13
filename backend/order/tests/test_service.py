@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -225,7 +224,6 @@ class SaleOrderServiceTestCase(TestCase):
         self.product.price = 100
         service = SaleOrderService(order=self.order, user=self.user_buyer, sale=sale)
         service.get_order_amount()
-        logging.warning(f'{sale.end_date}, {datetime.datetime.now() - datetime.timedelta(days=10)}')
         self.assertEqual(self.order.amount, 500)
 
     def test_sale_order_service_get_order_amount_when_sale_is_expired_after_order_created(self):
@@ -235,7 +233,6 @@ class SaleOrderServiceTestCase(TestCase):
         service = SaleOrderService(order=self.order, user=self.user_buyer, sale=sale)
         sale.end_date = datetime.datetime.now() - datetime.timedelta(days=10)
         service.get_order_amount()
-        logging.warning(f'{sale.end_date}, {datetime.datetime.now() - datetime.timedelta(days=10)}')
         self.assertEqual(self.order.amount, 500)
 
     # TODO: Write test case for OrderServiceFactory
