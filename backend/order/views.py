@@ -1,18 +1,20 @@
 import datetime
 
 import django_filters
+from api.mixins import UserQuerySetMixin
 from django.db.models import Q
 from rest_framework import generics, status
-from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
-from api.mixins import UserQuerySetMixin
 from .mixins import OrderServiceFabricMixin
 from .models import Order
-from .serialziers import OrderSerializer
+from .serialziers import OrderCreateSerializer, OrderSerializer
 
 
-class OrderListCreateAPIView(UserQuerySetMixin, generics.ListCreateAPIView):
+class OrderListCreateAPIView(
+    UserQuerySetMixin,
+    generics.ListCreateAPIView
+):
     serializer_class = OrderSerializer
     queryset = Order.objects.filter(Q(lifetime__gte=datetime.datetime.now()) | Q(payment_status=True)).select_related(
         'user', 'product').prefetch_related('product__sales').order_by('-created_at')
@@ -20,15 +22,17 @@ class OrderListCreateAPIView(UserQuerySetMixin, generics.ListCreateAPIView):
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['payment_status']
 
-    def perform_create(self, serializer):
-        product_user = serializer.validated_data['choose_product'].shop.user
-        if product_user != self.request.user:
-            super().perform_create(serializer)
-        else:
-            raise APIException('You can not buy your own product!')
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return OrderCreateSerializer
+        return super().get_serializer_class()
 
 
-class OrderPayAPIView(UserQuerySetMixin, OrderServiceFabricMixin, generics.RetrieveAPIView):
+class OrderPayAPIView(
+    UserQuerySetMixin,
+    OrderServiceFabricMixin,
+    generics.RetrieveAPIView
+):
     lookup_field = 'pk'
     lookup_url_kwarg = 'pk'
     serializer_class = OrderSerializer

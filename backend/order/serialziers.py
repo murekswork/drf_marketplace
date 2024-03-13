@@ -5,12 +5,33 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from .models import Order
+from .services.order_service import OrderAmountCalculator
 from .validators import positive_integer_validator
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderCreateSerializer(OrderAmountCalculator, serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    shop = serializers.CharField(source='product.shop', read_only=True)
+    count = serializers.IntegerField(validators=[positive_integer_validator])
+    amount = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ('product', 'count', 'shop', 'amount', 'id')
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        if validated_data['product'].shop.user == user:
+            raise serializers.ValidationError('Invalid product!')
+
+        validated_data['user'] = user
+        validated_data['amount'] = self._create_amount(product=validated_data['product'], count=validated_data['count'])
+        return super().create(validated_data)
+
+
+class OrderSerializer(serializers.ModelSerializer, OrderAmountCalculator):
     user = UserSerializer(read_only=True)
-    choose_product = serializers.PrimaryKeyRelatedField(write_only=True, queryset=Product.objects.filter(public=True))
     product = ProductInlineSerializer(read_only=True)
     amount = serializers.SerializerMethodField()
     count = serializers.IntegerField(validators=[positive_integer_validator])
@@ -32,12 +53,6 @@ class OrderSerializer(serializers.ModelSerializer):
         return reverse(
             viewname='product-detail', request=request, kwargs={'pk': obj.product.pk}
         )
-
-    def get_amount(self, obj):
-        sale = obj.product.sales.all()
-        if sale and obj.payment_status is not True:
-            return (float(obj.product.price) - (float(obj.product.price) * 0.01 * float(sale[0].size))) * obj.count
-        return obj.amount
 
     def create(self, validated_data):
         request = self.context.get('request')
