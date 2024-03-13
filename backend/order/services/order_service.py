@@ -6,6 +6,7 @@ from order.models import Order
 from order.services.payment.order_payment import OrderPaymentService
 from order.services.validation.order_validation import OrderValidationService
 from products.models import Product, Sale
+from products.services.sale_service import SaleService
 from products.services.validation.sale_validation import SaleValidationService
 from rest_framework.exceptions import ValidationError
 
@@ -67,6 +68,23 @@ class SaleOrderService(SimpleOrderService):
         self.order.save()
         self.order.refresh_from_db()
         return self.order.amount
+
+
+class OrderAmountCalculator:
+    def _create_amount(self, product: Product, count: int):
+        sale = product.sales.filter(end_date__gte=timezone.now()).first()
+        amount = product.price * count
+        if sale:
+            service = SaleService(sale=sale)
+            if service.validate_sale_expired()['success'] is True:
+                amount = service.apply_sale(sale_size=float(sale.size), amount=float(amount))
+        return amount
+
+    def get_amount(self, order: Order):
+        if order.payment_status != 'paid':
+            return self._create_amount(product=order.product, count=order.count)
+
+        return order.amount
 
 
 class OrderServiceFactory:
