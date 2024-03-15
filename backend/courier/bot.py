@@ -102,13 +102,13 @@ async def courier_start_carrying(update: Update, context: CallbackContext):
         )
 
         # Orm connection
-        service = CourierOrmService()
+        orm_service = CourierOrmService()
         c = await service.get_or_create_courier(c_tg)
         c_tg = await service.adapter.orm_to_tg(c)
         #
-
-        service = DeliveryLogic()
-        await service.add_courier(c_tg)
+        
+        d_service = DeliveryLogic()
+        await d_service.add_courier(c_tg)
         # couriers[user.username] = c
         await msg.reply_text(f'\nSuccessfully added you to line! Send your location cast now! \n{c_tg}')
     # else:
@@ -120,20 +120,15 @@ async def courier_start_carrying(update: Update, context: CallbackContext):
 async def courier_stop_carrying(update: Update, context: CallbackContext):
     msg = update.message
     user = msg.chat
-    # Add validation if user has active deliveries!
-    # if user.username not in couriers:
-    #     await msg.reply_text('You are not on line stop doing this!')
-    # else:
     try:
-
         c = couriers.pop(user.id)
 
         # Orm logic
-
-        service = CourierOrmService()
-        c = await service.update_courier(c)
-        c_tg = await service.adapter.orm_to_tg(c)
-
+        orm_service = CourierOrmService()
+        c = await orm_service.update_courier(c)
+        c_tg = await orm_service.adapter.orm_to_tg(c)
+        #
+        
         await msg.reply_text(f'Your smena successfully is done. Thanks!\n{c_tg.__dict__}')
         logger.info(f'Courier {user} successfully done his work')
     except Exception as e:
@@ -145,16 +140,10 @@ async def track_location(update: Update, context: CallbackContext):
     msg = update.edited_message
     user = msg.chat
     try:
-        # if user.username in couriers:
         couriers[user.id].location = Location(lat=msg.location.latitude,
                                               lon=msg.location.longitude)
         logger.info(f'{user.first_name} {user.last_name} is moving')
-        #
-        #     await msg.reply_text(f'Your location refreshed')
-        # else:
-        #     await msg.reply_text('You are not on line stop doing dis!')
     except Exception as e:
-
         logger.warning(e)
 
 
@@ -167,9 +156,9 @@ async def distribute_deliveries_periodic_task(context: CallbackContext):
     service = DeliveryLogic()
     deliveries = service.start_delivering()
     logging.warning('Starting deliveries')
+    
     if deliveries is not None:
         async for i in deliveries:
-            logger.warning(f'{i} IS DELIVERY')
             logger.info(f'Got delivery {i} for delivering')
             if i:
                 await send_delivery_info_msg(context, chat_id=i['courier'].id, delivery=i['delivery'])
@@ -186,11 +175,9 @@ async def job_check_deliveries(update, context: CallbackContext):
 
 async def show_couriers_delivery(update: Update, context: CallbackContext):
     cour_id = update.message.chat.id
-    # if cour is None:
-    #     update.message.reply_text('You are not courier')
     service = DeliveryLogic()
     d = await service.get_couriers_delivery(cour_id)
-    if d is not None:
+    if d:
         await update.message.reply_text(f'You delivery is {d}')
     else:
         await update.message.reply_text('You dont have any active deliveries!')
@@ -200,7 +187,7 @@ async def close_delivery(update: Update, context: CallbackContext):
     cour_id = update.message.chat.id
     service = DeliveryLogic()
     delivery = await service.get_couriers_delivery(courier_id=cour_id)
-    if delivery is not None:
+    if delivery:
         await service.close_delivery(delivery_id=delivery.id)
         await update.message.reply_text('Delivery closed! Хорошая работа парниша')
         await update.message.reply_text(f'Your current delivery score is {couriers.get(cour_id, None)}')
@@ -256,8 +243,3 @@ def main() -> None:
     application.add_handler(CommandHandler(command='deliveries', callback=show_all_deliveries))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
-
-    # await asyncio.create_task(lambda: job_check_deliveries(context))
-
-    # if __name__ == "__main__":
-    #     main()
