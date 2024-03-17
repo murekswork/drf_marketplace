@@ -1,7 +1,7 @@
 import math
 from abc import ABC, abstractmethod
 
-from courier.schemas import Courier, Location
+from schemas import Courier, Location
 
 
 class CourierService(ABC):
@@ -36,7 +36,6 @@ class CourierService(ABC):
 
 
 class CourierServiceImpl(CourierService):
-    MAX_WORKING_RANGE = 10000
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -45,16 +44,16 @@ class CourierServiceImpl(CourierService):
         return cls._instance
 
     async def get_courier(self, id: int) -> Courier | None:
-        from courier.src.service import couriers
+        from schemas import couriers
         c = couriers.get(id, None)
         return c
 
     async def get_all_couriers(self) -> list[Courier]:
-        from courier.src.service import couriers
+        from schemas import couriers
         return list(couriers.values())
 
     async def get_free_couriers(self) -> list[Courier | None]:
-        from courier.src.service import couriers
+        from schemas import couriers
         cs = [c for c in couriers.values() if c.busy is False and c.location is not None]
         return cs
 
@@ -95,7 +94,7 @@ class CourierServiceImpl(CourierService):
             c.done_deliveries += 1
 
     async def add_courier(self, courier: Courier) -> None:
-        from courier.src.service import couriers
+        from schemas import couriers
         couriers[courier.id] = courier
 
 
@@ -118,9 +117,6 @@ class DistanceCalculator:
                 nearest_distance = c_distance
                 cour = c
         return cour
-        # if cour:
-        #     return {'success': True, 'courier': cour}
-        # else
 
     async def haversine(self, lat1, lon1, lat2, lon2):
         # Convert latitude and longitude from degrees to radians
