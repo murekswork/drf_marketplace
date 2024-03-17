@@ -5,7 +5,7 @@ from telegram.ext.filters import MessageFilter, _Location
 class _CouriersFilter(MessageFilter):
 
     def filter(self, message: Message) -> bool:
-        from courier.bot import couriers
+        from schemas import couriers
         return message.chat.id in couriers
 
 
@@ -20,21 +20,21 @@ class _OnlineCouriersLocationFilter(_Location, _CouriersFilter):
 class _OnlineCourierMessageFilter(MessageFilter):
 
     def filter(self, message: Message) -> bool:
-        from courier.bot import couriers
-        return message.chat.id in couriers.keys()
+        from schemas import couriers
+        return message.chat.id in couriers
 
 
 class _OnlineNotLocationCourierMessageFilter(_OnlineCourierMessageFilter):
 
     def filter(self, message: Message):
-        from courier.bot import couriers
+        from schemas import couriers
         return message.chat.username in couriers and couriers[message.chat.username].location is None
 
 
 class _NoActiveDeliveryFilter(_CouriersFilter):
 
     def filter(self, message: Message) -> bool:
-        from courier.bot import couriers
+        from schemas import couriers
         active_delivery = couriers.get(message.chat.username).busy
         return super().filter(message) and not active_delivery
 
@@ -42,7 +42,7 @@ class _NoActiveDeliveryFilter(_CouriersFilter):
 class _ActiveDeliveryFilter(_CouriersFilter):
 
     def filter(self, message: Message) -> bool:
-        from courier.bot import couriers
+        from schemas import couriers
         is_courier = super().filter(message)
         # active_delivery = couriers.get(message.chat.username).busy
         if is_courier:
@@ -53,6 +53,7 @@ class _ActiveDeliveryFilter(_CouriersFilter):
 class _NotOnlineCourierFilter(_CouriersFilter):
 
     def filter(self, message: Message) -> bool:
+        # return True
         return not super().filter(message)
 
 
