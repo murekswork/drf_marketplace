@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generator
 
-from courier.schemas import Delivery
+from schemas import Delivery
 
 
 class DeliveryService(ABC):
@@ -48,14 +48,14 @@ class DeliveryServiceImpl(DeliveryService):
         return cls._instance
 
     async def get_undelivered_deliveries(self) -> Generator[Delivery, Any, None]:
-        from courier.src.service import deliveries
+        from schemas import deliveries
 
         # Method to get all undelivered deliveries.
-        d = (deliveries[k] for k in deliveries if deliveries[k].status == 'searching')
+        d = (deliveries[k] for k in deliveries if deliveries[k].status == 1)
         return d
 
     async def get_delivery(self, id: str) -> Delivery | None:
-        from courier.src.service import deliveries
+        from schemas import deliveries
 
         d = deliveries.get(id, None)
         return d
@@ -85,10 +85,10 @@ class DeliveryServiceImpl(DeliveryService):
     async def finish_delivery(self, id: str) -> Delivery | None:
         d = await self.get_delivery(id)
         if d:
-            d.status = 'delivered'
+            d.status = 4
         return d
 
     async def add_delivery(self, delivery: Delivery):
-        from courier.src.service import deliveries
+        from schemas import deliveries
 
         deliveries[delivery.id] = delivery
