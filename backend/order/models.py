@@ -44,7 +44,6 @@ class Order(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False, null=True, default=0.00)
     payment_status = models.BooleanField(default=False, editable=True)
     lifetime = models.DateTimeField(default=datetime.datetime.now() + datetime.timedelta(minutes=2))
-    # review = models.ForeignKey(Article, on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     objects = OrderManager()
 

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import Permission
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
-
 from shop.models import Shop, ShopPermissions
 
 
