@@ -1,11 +1,9 @@
 import logging
 
-from courier.schemas import Courier, Delivery
-from courier.src.courier import CourierServiceImpl
-from courier.src.delivery import DeliveryServiceImpl
-
-couriers: dict = dict()
-deliveries: dict = dict()
+from courier import CourierServiceImpl
+from delivery import DeliveryServiceImpl
+from kafka_tg.sender import TgDeliverySender
+from schemas import Courier, Delivery, Location
 
 
 class DeliveryLogic:
@@ -16,6 +14,7 @@ class DeliveryLogic:
     def __init__(self):
         self._delivery_service = DeliveryServiceImpl()
         self._courier_service = CourierServiceImpl()
+        self._kafka_delivery_service: TgDeliverySender = TgDeliverySender()
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -46,12 +45,17 @@ class DeliveryLogic:
             retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
 
-        search_cour_res = await self._courier_service.get_nearest_free_courier(delivery.delivery_address, k)
+        # TODO : CONSIDER HOW TO GET POINT, OR MAYBE CHANGE FUNCTION AND MAKE IT TAKE (PURE LATIT AND LONGIT)
+        del_point = Location(delivery.latitude, delivery.longitude)
+        search_cour_res = await self._courier_service.get_nearest_free_courier(del_point, k)
 
         if search_cour_res['success'] is True:
             c: Courier = search_cour_res['courier']
             await self._delivery_service.accept_delivery(id=delivery.id, courier_id=c.id)
             await self._courier_service.set_delivery(c.id, delivery.id)
+
+            self._kafka_delivery_service.send_delivery_to_django(delivery=delivery)
+
             return {'success': True, 'courier': c, 'delivery': delivery}
 
         else:
@@ -64,12 +68,11 @@ class DeliveryLogic:
 
     async def get_couriers_delivery(self, courier_id: int) -> Delivery | None:
         c = await self._courier_service.get_courier(courier_id)
+        d = None
         if c:
             d_id = c.current_delivery_id
             d = await self._delivery_service.get_delivery(d_id)
-            if d is not None:
-                return d
-        return None
+        return d
 
     async def close_delivery(self, delivery_id: int) -> None:
 

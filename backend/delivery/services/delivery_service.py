@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 
 from delivery.models import Delivery
@@ -18,10 +19,18 @@ class DeliveryFabricServiceABC(ABC):
         raise NotImplementedError
 
 
-class DeliveryService(ABC):
+class DeliveryFromTgAdapter:
 
-    def create_delivery(self, delivery_data):
-        ...
-
-    def send_delivery_to_distribution(self):
-        ...
+    def update_delivery_status_from_telegram(self, delivery_dict: dict) -> Delivery:
+        try:
+            cour_id = delivery_dict.pop('courier')
+            delivery_dict['courier_id'] = cour_id
+            d = Delivery.objects.filter(id=delivery_dict['id']).first()
+            if d:
+                for key, value in delivery_dict.items():
+                    setattr(d, key, value)
+                logging.info('(SUCCESS) Updated delivery in database!')
+                d.save()
+            return d
+        except Exception as e:
+            logging.error(f'Could not update delivery in db coz of {e}', exc_info=True)

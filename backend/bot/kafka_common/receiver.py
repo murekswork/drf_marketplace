@@ -1,5 +1,6 @@
 import threading
 from abc import abstractmethod
+from os import getenv
 
 from confluent_kafka import Consumer
 
@@ -10,7 +11,7 @@ class KafkaReceiver:
 
     def __init__(self):
         self.consumer = Consumer({
-            'bootstrap.servers': 'kafka:9092',
+            'bootstrap.servers': f'{getenv("KAFKA_HOST")}:{getenv("KAFKA_PORT")}',
             'group.id': 'my-consumer-group',
             'auto.offset.reset': 'earliest'
         })
