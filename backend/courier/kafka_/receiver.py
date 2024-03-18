@@ -66,10 +66,3 @@ class CourierProfileAskReceiver(KafkaReceiver):
             send_courier_profile(request)
 
         self.consumer.close()
-
-    #
-    # def start_listening(self):
-    #     if self._thread is None or not self._thread.is_alive():
-    #         self._thread = threading.Thread(target=self._consume, args=(self._topic,), daemon=True)
-    #         self._thread.start()
-    #         threading.get_ident()
