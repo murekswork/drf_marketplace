@@ -1,18 +1,21 @@
+import json
 import logging
+import threading
+import time
 from collections import defaultdict
+from dataclasses import asdict
 from typing import DefaultDict
 
-from courier.config import telegram_token
-from courier.filters.filter import (
+from courier import DistanceCalculator
+from filter import (
     NOT_ONLINE_COURIER_MESSAGE_FILTER,
     ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
     ONLINE_COURIER_LOCATION_FILTER,
     ONLINE_COURIER_MESSAGE_FILTER,
 )
-from courier.schemas import Courier, Delivery, Location
-from courier.service.courier_orm_service import CourierOrmService
-from courier.src.courier import DistanceCalculator
-from courier.src.service import DeliveryLogic, couriers, deliveries
+from kafka_tg.sender import CourierLocationSender, CourierProfileAsker, TgDeliverySender
+from schemas import Delivery, Location, couriers, deliveries
+from service import DeliveryLogic
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -94,23 +97,16 @@ async def courier_start_carrying(update: Update, context: CallbackContext):
     msg = update.message
     user = msg.chat
     try:
-        c_tg = Courier(
-            id=user.id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            username=user.username,
-        )
 
-        # Orm connection
-        orm_service = CourierOrmService()
-        c = await service.get_or_create_courier(c_tg)
-        c_tg = await service.adapter.orm_to_tg(c)
-        #
-        
-        d_service = DeliveryLogic()
-        await d_service.add_courier(c_tg)
+        c_id = {'id': user.id, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name}
+
+        kafka_ = CourierProfileAsker()
+        kafka_.send(json.dumps(c_id))
+
+        # d_service = DeliveryLogic()
+        # await d_service.add_courier(c_tg)
         # couriers[user.username] = c
-        await msg.reply_text(f'\nSuccessfully added you to line! Send your location cast now! \n{c_tg}')
+        await msg.reply_text('Successfully added you to line! Send your location cast now!')
     # else:
     except Exception as e:
         logger.warning(f'{e}')
@@ -123,13 +119,12 @@ async def courier_stop_carrying(update: Update, context: CallbackContext):
     try:
         c = couriers.pop(user.id)
 
-        # Orm logic
-        orm_service = CourierOrmService()
-        c = await orm_service.update_courier(c)
-        c_tg = await orm_service.adapter.orm_to_tg(c)
-        #
-        
-        await msg.reply_text(f'Your smena successfully is done. Thanks!\n{c_tg.__dict__}')
+        # # Orm logic
+        # orm_service = CourierOrmService()
+        # c = await orm_service.update_courier(c)
+        # c_tg = await orm_service.adapter.orm_to_tg(c)
+
+        await msg.reply_text(f'Your smena successfully is done. Thanks!\n{c.__dict__}')
         logger.info(f'Courier {user} successfully done his work')
     except Exception as e:
         logger.warning(e)
@@ -140,27 +135,35 @@ async def track_location(update: Update, context: CallbackContext):
     msg = update.edited_message
     user = msg.chat
     try:
-        couriers[user.id].location = Location(lat=msg.location.latitude,
-                                              lon=msg.location.longitude)
+
+        # TODO: Return writing in couriers
+        loc = Location(lat=msg.location.latitude, lon=msg.location.longitude)
+
+        couriers[user.id].location = loc
+
+        msg = {'courier_id': user.id, 'location': asdict(loc)}
+        kafka_ = CourierLocationSender()
+        kafka_.send(json.dumps(msg))
+
         logger.info(f'{user.first_name} {user.last_name} is moving')
-    except Exception as e:
-        logger.warning(e)
+    except Exception as exc:
+        logger.warning(exc)
 
 
 async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: Delivery):
     await context.bot.send_message(chat_id=chat_id, text=f'{delivery}')
-    await context.bot.send_location(chat_id=chat_id, latitude=45.313346, longitude=43.562793)
+    await context.bot.send_location(chat_id=chat_id, latitude=delivery.latitude, longitude=delivery.longitude)
 
 
 async def distribute_deliveries_periodic_task(context: CallbackContext):
     service = DeliveryLogic()
     deliveries = service.start_delivering()
     logging.warning('Starting deliveries')
-    
+
     if deliveries is not None:
         async for i in deliveries:
             logger.info(f'Got delivery {i} for delivering')
-            if i:
+            if i['success'] is True:
                 await send_delivery_info_msg(context, chat_id=i['courier'].id, delivery=i['delivery'])
             else:
                 logger.warning('No free couriers!')
@@ -189,6 +192,10 @@ async def close_delivery(update: Update, context: CallbackContext):
     delivery = await service.get_couriers_delivery(courier_id=cour_id)
     if delivery:
         await service.close_delivery(delivery_id=delivery.id)
+
+        kafka_ = TgDeliverySender()
+        kafka_.send_delivery_to_django(delivery)
+
         await update.message.reply_text('Delivery closed! Хорошая работа парниша')
         await update.message.reply_text(f'Your current delivery score is {couriers.get(cour_id, None)}')
     else:
@@ -217,7 +224,8 @@ def main() -> None:
     """Run the bot."""
     context_types = ContextTypes(context=CustomContext, chat_data=ChatData)
 
-    application = Application.builder().token(telegram_token).context_types(context_types).build()
+    application = Application.builder().token('7005144331:AAHD0BONlR1TUDQvAGrNH1-RADd3-l9_qcI').context_types(
+        context_types).build()
 
     application.add_handler(MessageHandler(callback=track_location, filters=ONLINE_COURIER_LOCATION_FILTER))
 
@@ -243,3 +251,29 @@ def main() -> None:
     application.add_handler(CommandHandler(command='deliveries', callback=show_all_deliveries))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+
+def listen_for_courier_profile():
+    threading.get_ident()
+    receiver = CourierProfileReceiver()
+    receiver.start_listening()
+
+
+def listen_for_delivery():
+    threading.get_ident()
+    listener = TgDeliveryReceiver()
+    listener.start_listening()
+
+
+if __name__ == '__main__':
+    from kafka_tg.receiver import CourierProfileReceiver, TgDeliveryReceiver
+
+    time.sleep(10)
+    try:
+        # listener_thread = threading.Thread(target=run_consumer, daemon=True)
+        # listener_thread.start()
+        listen_for_courier_profile()
+        listen_for_delivery()
+        main()
+    except Exception as e:
+        logging.error(f'Could not start bot or tg listener! {e}, {e.args}')

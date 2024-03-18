@@ -7,14 +7,64 @@ services:
       - "8000:8000"
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
-    links:
-      - redis
     depends_on:
       - redis
       - db
+      - kafka
+
+    environment:
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9092
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
+    networks:
+      - kafkanet
+      - net
+
+  kafka:
+    image: "confluentinc/cp-kafka:6.2.1"
+    hostname: "kafka"
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=1
+    depends_on:
+      zookeeper:
+        condition: service_started
+    networks:
+      - kafkanet
+
+  zookeeper:
+    image: "bitnami/zookeeper:3.4.14"
+    hostname: "zookeeper"
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - kafkanet
+
+  bot:
+    build:
+      dockerfile: Dockerfile_bot
+    ports:
+      - "8001:8001"
+    command: >
+      sh -c "python bot/bot__.py"
+    environment:
+      - TELEGRAM_BOT_TOKEN=YOUR_BOT_TOKEN
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9092
+    depends_on:
+      - web
+      - redis
+      - kafka
+    networks:
+      - kafkanet
 
   redis:
     image: redis:latest
@@ -22,20 +72,25 @@ services:
     ports:
       - 6379:6379
     hostname: redis
+    networks:
+      - net
 
   worker:
     build: .
     hostname: worker
-#    entrypoint: celery
-    command: sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker7@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker1@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
-    links:
-      - redis
+    entrypoint: celery
+    command: >
+      sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker7@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker1@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
+    networks:
+      - net
     depends_on:
       - redis
       - db
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
+
+
 
   flower:
     build: .
@@ -45,8 +100,8 @@ services:
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
-    links:
-      - redis
+    networks:
+      - net
     depends_on:
       - redis
       - db
@@ -66,8 +121,17 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - 5432:5432
+    networks:
+      - net
     hostname: postgres
 
 volumes:
   code:
+  bot:
   task_data:
+
+networks:
+  kafkanet:
+    driver: bridge
+  net:
+    driver: bridge
