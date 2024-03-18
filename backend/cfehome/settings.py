@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -12,10 +13,14 @@ SECRET_KEY = 'django-insecure-#!%ku9d9bg9q$m-w*3q0@m=_9+^7stx39!4awm=edyi%3r$0hp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []  # type: ignore
+if DEBUG:
+    # `debug` is only True in templates if the vistor IP is in INTERNAL_IPS.
+    INTERNAL_IPS = type('c', (), {'__contains__': lambda *a: True})()
 
 # Application definition
 
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
 
 CACHES = {
     'default': {
@@ -36,6 +41,7 @@ INSTALLED_APPS = [
 
     'django_filters',
     'debug_toolbar',
+    'drf_yasg',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -49,6 +55,9 @@ INSTALLED_APPS = [
     'wallet',
     'category',
     'shop',
+    'shop_reports',
+    'courier',
+    'delivery',
 
 ]
 
@@ -113,10 +122,6 @@ DATABASES = {
     }
 }
 
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -144,7 +149,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
