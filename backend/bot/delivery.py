@@ -80,7 +80,7 @@ class DeliveryServiceImpl(DeliveryService):
         d = await self.get_delivery(id)
         if d is not None:
             d.courier = courier_id
-            d.status = 'in-process'
+            d.status = 2
 
     async def finish_delivery(self, id: str) -> Delivery | None:
         d = await self.get_delivery(id)
