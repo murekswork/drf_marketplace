@@ -33,7 +33,7 @@ class DjangoDeliveryReceiver(KafkaReceiver):
 
             logging.info(f'(SUCCESS) Got incoming delivery {msg} from django !')
             try:
-
+                
                 d = msg['delivery']
 
                 # Updates delivery status in database
