@@ -23,15 +23,9 @@ def send_delivery_to_tg(delivery_orm: Delivery):
 
 class DjangoDeliverySender(KafkaSender):
     _instance = None
+    _topic = 'to_deliver'
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
+            cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
-
-    def send(self, msg: str):
-        # msg here shud be jsonified !!!
-        try:
-            self.send_message(msg, topic='to_deliver')
-        except Exception as e:
-            logging.error(f'Could not send delivery info from Django to TG coz of {e}')
