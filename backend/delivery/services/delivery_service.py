@@ -19,9 +19,9 @@ class DeliveryFabricServiceABC(ABC):
         raise NotImplementedError
 
 
-class DeliveryFromTgAdapter:
+class DeliveryUtils:
 
-    def update_delivery_status_from_telegram(self, delivery_dict: dict) -> Delivery:
+    def update_delivery_in_db_from_telegrma(self, delivery_dict: dict) -> Delivery:
         try:
             cour_id = delivery_dict.pop('courier')
             delivery_dict['courier_id'] = cour_id

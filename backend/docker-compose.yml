@@ -49,7 +49,7 @@ services:
 
   bot:
     build:
-      dockerfile: Dockerfile_bot
+      dockerfile: ./Dockerfile_bot
     ports:
       - "8001:8001"
     command: >
