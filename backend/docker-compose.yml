@@ -13,7 +13,6 @@ services:
         condition: service_started
       kafka:
         condition: service_started
-
     environment:
       - KAFKA_HOST=kafka
       - KAFKA_PORT=9092
@@ -53,7 +52,7 @@ services:
     ports:
       - "8001:8001"
     command: >
-      sh -c "python bot/bot__.py"
+      sh -c "python bot/bot.py"
     env_file:
       - bot/bot.env
     depends_on:
@@ -75,9 +74,7 @@ services:
   worker:
     build: .
     hostname: worker
-    entrypoint: celery
-    command: >
-      sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker7@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker1@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
+    command: sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
     networks:
       - net
     depends_on:
@@ -86,8 +83,6 @@ services:
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
-
-
 
   flower:
     build: .
