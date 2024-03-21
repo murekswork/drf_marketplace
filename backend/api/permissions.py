@@ -19,14 +19,3 @@ class IsStaffEditorPermission(permissions.DjangoModelPermissions):
             return False
 
         return super().has_permission(request, view)
-
-    # def has_permission(self, request, view):
-    #     user = request.user
-    #     if user.is_staff:
-    #
-    #         if user.has_perm('products.view_product'):
-    #             return True
-    #
-    #         return False
-    #
-    #     return False
