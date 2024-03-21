@@ -1,19 +1,21 @@
 import logging
+import math
 
-from courier import CourierServiceImpl
-from delivery import DeliveryServiceImpl
+from kafka_common.receiver import SingletonMixin
 from kafka_tg.sender import TgDeliverySender
-from schemas import Courier, Delivery, Location
+from managers.courier import CourierManagerImpl
+from managers.delivery import DeliveryManagerImpl
+from schemas.schemas import Courier, Delivery, Location
 
 
-class DeliveryLogic:
+class DeliveryService:
     _instance = None
     __service_lock: bool = True
     __lock_counter: int = 0
 
     def __init__(self):
-        self._delivery_service = DeliveryServiceImpl()
-        self._courier_service = CourierServiceImpl()
+        self._delivery_service = DeliveryManagerImpl()
+        self._courier_service = CourierManagerImpl()
         self._kafka_delivery_service: TgDeliverySender = TgDeliverySender()
 
     def __new__(cls, *args, **kwargs):
@@ -28,8 +30,8 @@ class DeliveryLogic:
         self.__service_lock = False
 
     async def __verify_service(self):
-        verification = await self._courier_service.get_free_couriers()
-        if verification:
+        free_couriers = await self._courier_service.get_free_couriers()
+        if free_couriers:
             self.__service_lock = False
 
         self.__lock_counter = 0
@@ -74,12 +76,9 @@ class DeliveryLogic:
             d = await self._delivery_service.get_delivery(d_id)
         return d
 
-    async def close_delivery(self, delivery_id: int) -> None:
-
-        delivery = await self._delivery_service.get_delivery(delivery_id)
-        await self._delivery_service.finish_delivery(delivery_id)
-        await self._courier_service.unlock_courier(delivery.courier)
-        await self._courier_service.pay_courier(delivery.courier, delivery.amount)
+    async def close_delivery(self, delivery_id: int, status: int) -> None:
+        closing_service = DeliveryClosingService()
+        await closing_service.close_delivery(delivery_id, status=status)
         await self.__unlock_service()
 
     async def start_delivering(self):
@@ -103,14 +102,64 @@ class DeliveryLogic:
             else:
                 yield None
 
-# print(couriers)
-# print(deliveries)
-# print('\n\n\nBefore open deliveryw')
-# print(service.open_delivery(d1))
-# print(couriers)
-# print(deliveries)
-# print('\n\n\nAfter opened deliveryw')
-# print(service.close_delivery(d1))
-# print(couriers)
-# print(deliveries)
-# print('\n\n\nAfter closed deliveryw')
+    async def change_delivery_distance(self, distance: int) -> None:
+        calculate_service = DistanceCalculator()
+        calculate_service.working_range += distance
+
+
+class DeliveryClosingService:
+
+    def __init__(self):
+        self.courier_service = CourierManagerImpl()
+        self.delivery_service = DeliveryManagerImpl()
+
+    async def close_success_delivery(self, delivery: Delivery):
+        await self.delivery_service.finish_delivery(delivery.id, status=4)
+        await self.courier_service.unlock_courier(delivery.courier)
+
+    async def close_not_success_delivery(self, delivery: Delivery):
+        await self.delivery_service.finish_delivery(delivery.id, status=0)
+
+    async def close_delivery(self, delivery_id: int, status: int):
+        d: Delivery = await self.delivery_service.get_delivery(delivery_id)
+        if status == 4:
+            await self.close_success_delivery(d)
+        else:
+            await self.close_not_success_delivery(d)
+
+
+class DistanceCalculator(SingletonMixin):
+    earth_radius = 6371
+    working_range = 5
+
+    async def search_courier_by_distance(self, point: Location, couriers) -> Courier | None:
+        """Method to search courier depending on his distance from passed point"""
+        nearest_distance = float('inf')
+        cour = None
+        for c in couriers:
+            c_distance = await self._haversine(lat1=c.location.lat, lon1=c.location.lon, lat2=point.lat, lon2=point.lon)
+            if c_distance <= self.working_range and c_distance <= nearest_distance:
+                nearest_distance = c_distance
+                cour = c
+        return cour
+
+    async def _haversine(self, lat1, lon1, lat2, lon2):
+        """Calculate distance between two points"""
+        # Convert latitude and longitude from degrees to radians
+        lat1 = math.radians(lat1)
+        lon1 = math.radians(lon1)
+        lat2 = math.radians(lat2)
+        lon2 = math.radians(lon2)
+
+        # Calculate differences
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        # Haversine formula
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        # Calculate distance
+        distance = self.earth_radius * c
+
+        return distance

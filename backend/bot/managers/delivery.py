@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generator
 
-from schemas import Delivery
+from schemas.schemas import Delivery
 
 
-class DeliveryService(ABC):
+class DeliveryManagerAbc(ABC):
 
     @abstractmethod
     async def get_delivery(self, id):
@@ -31,7 +31,7 @@ class DeliveryService(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def finish_delivery(self, id) -> Delivery:
+    async def finish_delivery(self, id: int, status: int) -> Delivery | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -39,7 +39,7 @@ class DeliveryService(ABC):
         raise NotImplementedError
 
 
-class DeliveryServiceImpl(DeliveryService):
+class DeliveryManagerImpl(DeliveryManagerAbc):
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -48,25 +48,24 @@ class DeliveryServiceImpl(DeliveryService):
         return cls._instance
 
     async def get_undelivered_deliveries(self) -> Generator[Delivery, Any, None]:
-        from schemas import deliveries
+        from schemas.schemas import deliveries
 
         # Method to get all undelivered deliveries.
         d = (deliveries[k] for k in deliveries if deliveries[k].status == 1)
         return d
 
-    async def get_delivery(self, id: str) -> Delivery | None:
-        from schemas import deliveries
-
+    async def get_delivery(self, id: int) -> Delivery | None:
+        from schemas.schemas import deliveries
         d = deliveries.get(id, None)
         return d
 
-    async def get_delivery_status(self, id: str) -> str | None:
+    async def get_delivery_status(self, id: int) -> int | None:
         d = await self.get_delivery(id)
         if d is not None:
             return d.status
         return None
 
-    async def get_delivery_courier(self, id) -> str | None:
+    async def get_delivery_courier(self, id) -> int | None:
         d = await self.get_delivery(id)
         if d is not None:
             return d.courier
@@ -76,19 +75,18 @@ class DeliveryServiceImpl(DeliveryService):
         d = await self.get_delivery(id)
         d.status = 'cancelled'
 
-    async def accept_delivery(self, id, courier_id: str) -> None:
+    async def accept_delivery(self, id, courier_id: int) -> None:
         d = await self.get_delivery(id)
         if d is not None:
             d.courier = courier_id
-            d.status = 2
+            d.status = 3
 
-    async def finish_delivery(self, id: str) -> Delivery | None:
+    async def finish_delivery(self, id: int, status: int) -> Delivery | None:
         d = await self.get_delivery(id)
         if d:
-            d.status = 4
+            d.status = status
         return d
 
     async def add_delivery(self, delivery: Delivery):
-        from schemas import deliveries
-
+        from schemas.schemas import deliveries
         deliveries[delivery.id] = delivery

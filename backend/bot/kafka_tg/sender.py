@@ -3,7 +3,7 @@ from dataclasses import asdict
 
 from kafka_common.receiver import SingletonMixin
 from kafka_common.sender import KafkaSender
-from schemas import Delivery
+from schemas.schemas import Delivery
 
 
 class CourierLocationSender(KafkaSender, SingletonMixin):
