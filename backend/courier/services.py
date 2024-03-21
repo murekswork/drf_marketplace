@@ -14,14 +14,14 @@ class CourierDeliveryService:
     def _cancel_delivery(self, delivery: Delivery):
         c = delivery.courier
         c.balance = float(c.balance) - delivery.amount
-        c.rank -= 3
+        c.rank -= 0.3
         return c
 
     def close_delivery(self, delivery: Delivery) -> Courier:
         c = None
         if delivery.status == 4:
             c = self._confirm_delivery(delivery)
-        elif delivery.status == 5:
+        elif delivery.status == 0:
             c = self._cancel_delivery(delivery)
         if c:
             c.save()
