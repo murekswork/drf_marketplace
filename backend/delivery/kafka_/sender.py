@@ -1,6 +1,7 @@
 import json
 import logging
 
+from bot.kafka_common.receiver import SingletonMixin
 from bot.kafka_common.sender import KafkaSender
 from delivery.models import Delivery
 from django.core.serializers import serialize
@@ -20,11 +21,5 @@ def send_delivery_to_tg(delivery_orm: Delivery):
         logging.error(f'Could not send delivery to tg coz of {e}')
 
 
-class DjangoDeliverySender(KafkaSender):
-    _instance = None
+class DjangoDeliverySender(KafkaSender, SingletonMixin):
     _topic = 'to_deliver'
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
