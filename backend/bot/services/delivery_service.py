@@ -1,11 +1,10 @@
 import logging
-import math
 
-from kafka_common.receiver import SingletonMixin
 from kafka_tg.sender import TgDeliverySender
 from managers.courier import CourierManagerImpl
 from managers.delivery import DeliveryManagerImpl
-from schemas.schemas import Courier, Delivery, Location
+from schemas.schemas import Courier, Delivery
+from utils import DistanceCalculator
 
 
 class DeliveryService:
@@ -48,8 +47,7 @@ class DeliveryService:
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
 
         # TODO : CONSIDER HOW TO GET POINT, OR MAYBE CHANGE FUNCTION AND MAKE IT TAKE (PURE LATIT AND LONGIT)
-        del_point = Location(delivery.latitude, delivery.longitude)
-        search_cour_res = await self._courier_service.get_nearest_free_courier(del_point, k)
+        search_cour_res = await self._courier_service.get_nearest_free_courier(delivery)
 
         if search_cour_res['success'] is True:
             c: Courier = search_cour_res['courier']
@@ -67,6 +65,14 @@ class DeliveryService:
                 await self.__lock_service()
                 return {'success': False, 'msg': 'Too many retries to find courier!'}
         # return {'success': False, 'msg': 'No courier found'}
+
+    async def picked_up_delivery(self, courier_id: int) -> Delivery:
+        delivery = await self.get_couriers_delivery(courier_id)
+        if delivery:
+            delivery.status = 4
+        kafka_ = self._kafka_delivery_service
+        kafka_.send_delivery_to_django(delivery)
+        return delivery
 
     async def get_couriers_delivery(self, courier_id: int) -> Delivery | None:
         c = await self._courier_service.get_courier(courier_id)
@@ -94,7 +100,7 @@ class DeliveryService:
             await self.__verify_service()
             return
 
-        undelivered = await self._delivery_service.get_undelivered_deliveries()
+        undelivered = await self._delivery_service.get_not_started_deliveries()
         for u in undelivered:
             if u is not None:
                 res = await self.open_delivery(u)
@@ -114,7 +120,7 @@ class DeliveryClosingService:
         self.delivery_service = DeliveryManagerImpl()
 
     async def close_success_delivery(self, delivery: Delivery):
-        await self.delivery_service.finish_delivery(delivery.id, status=4)
+        await self.delivery_service.finish_delivery(delivery.id, status=5)
         await self.courier_service.unlock_courier(delivery.courier)
 
     async def close_not_success_delivery(self, delivery: Delivery):
@@ -122,44 +128,7 @@ class DeliveryClosingService:
 
     async def close_delivery(self, delivery_id: int, status: int):
         d: Delivery = await self.delivery_service.get_delivery(delivery_id)
-        if status == 4:
+        if status == 5:
             await self.close_success_delivery(d)
         else:
             await self.close_not_success_delivery(d)
-
-
-class DistanceCalculator(SingletonMixin):
-    earth_radius = 6371
-    working_range = 5
-
-    async def search_courier_by_distance(self, point: Location, couriers) -> Courier | None:
-        """Method to search courier depending on his distance from passed point"""
-        nearest_distance = float('inf')
-        cour = None
-        for c in couriers:
-            c_distance = await self._haversine(lat1=c.location.lat, lon1=c.location.lon, lat2=point.lat, lon2=point.lon)
-            if c_distance <= self.working_range and c_distance <= nearest_distance:
-                nearest_distance = c_distance
-                cour = c
-        return cour
-
-    async def _haversine(self, lat1, lon1, lat2, lon2):
-        """Calculate distance between two points"""
-        # Convert latitude and longitude from degrees to radians
-        lat1 = math.radians(lat1)
-        lon1 = math.radians(lon1)
-        lat2 = math.radians(lat2)
-        lon2 = math.radians(lon2)
-
-        # Calculate differences
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-
-        # Haversine formula
-        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-        # Calculate distance
-        distance = self.earth_radius * c
-
-        return distance
