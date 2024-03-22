@@ -10,11 +10,12 @@ from handlers.handlers import (
     courier_start_carrying_handler,
     courier_stop_carrying,
     get_couriers_on_line,
-    job_check_deliveries,
+    picked_up_delivery_handler,
     show_all_deliveries,
     show_couriers_delivery,
     track_location_handler,
 )
+from tasks import job_check_deliveries
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler
 
@@ -60,7 +61,7 @@ def main() -> None:
     application.add_handler(
         CommandHandler(
             command='close_delivery',
-            callback=lambda update, context: close_delivery(update, context, 4),
+            callback=lambda update, context: close_delivery(update, context, 5),
             filters=CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
     )
 
@@ -68,6 +69,13 @@ def main() -> None:
         CommandHandler(
             command='cancel_delivery',
             callback=lambda update, context: close_delivery(update, context, 0),
+            filters=CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
+    )
+
+    application.add_handler(
+        CommandHandler(
+            command='picked_up',
+            callback=picked_up_delivery_handler,
             filters=CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
     )
 
