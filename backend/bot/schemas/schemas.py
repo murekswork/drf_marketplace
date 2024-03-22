@@ -1,9 +1,6 @@
 import datetime
 from dataclasses import dataclass
 
-couriers: dict = dict()
-deliveries: dict = dict()
-
 
 @dataclass
 class Location:
@@ -30,9 +27,18 @@ class Delivery:
     id: int
     latitude: float
     longitude: float
+    consumer_latitude: Location | None = None
+    consumer_longitude: Location | None = None
     courier: int | None = None
     amount: float = 0
     status: int = 1
     started_at: datetime.datetime | str = datetime.datetime.now()
     completed_at: datetime.datetime | None = None
     address: str = ''
+    priority: int = 0
+    estimated_time: datetime.datetime | None = None
+
+
+deliveries: dict[Delivery, None] = {}
+delivering: dict[Delivery, None] = {}
+couriers: dict[Courier, None] = {}
