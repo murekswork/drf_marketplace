@@ -1,7 +1,8 @@
+import datetime
 from abc import ABC, abstractmethod
 
-from schemas.schemas import Courier, Location
-from services.delivery_service import DistanceCalculator
+from schemas.schemas import Courier, Delivery, Location, couriers
+from utils import DistanceCalculator
 
 
 class CourierManagerAbc(ABC):
@@ -19,7 +20,7 @@ class CourierManagerAbc(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_nearest_free_courier(self, point: Location, k: int = 5) -> Courier | None:
+    async def get_nearest_free_courier(self, delivery: Delivery) -> Courier | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -38,30 +39,33 @@ class CourierManagerAbc(ABC):
 class CourierManagerImpl(CourierManagerAbc):
 
     async def get_courier(self, id: int) -> Courier | None:
-        from schemas.schemas import couriers
         c = couriers.get(id, None)
         return c
 
     async def get_all_couriers(self) -> list[Courier]:
-        from schemas.schemas import couriers
         return list(couriers.values())
 
     async def get_free_couriers(self) -> list[Courier | None]:
-        from schemas.schemas import couriers
         cs = [c for c in couriers.values() if c.busy is False and c.location is not None]
         return cs
 
-    async def get_nearest_free_courier(self, point: Location, k: int = 5) -> dict[str, bool | Courier]:
+    async def get_nearest_free_courier(self, delivery: Delivery) -> dict[str, bool | Courier]:
         free_couriers = await self.get_free_couriers()
 
         if not free_couriers:
             return {'success': False, 'msg': 'No free couriers available now '}
 
         service = DistanceCalculator()
-        courier = await service.search_courier_by_distance(point=point, couriers=free_couriers)
+        courier = await service.search_courier_by_distance(
+            pickup_point=Location(lat=delivery.latitude, lon=delivery.longitude),
+            consumer_point=Location(lat=delivery.consumer_latitude, lon=delivery.consumer_longitude),
+            couriers=free_couriers,
+            priority=delivery.priority
+        )
         if courier:
-            return {'success': True, 'courier': courier}
-
+            delivery.estimated_time = datetime.datetime.now() + datetime.timedelta(minutes=courier[1])
+            return {'success': True, 'courier': courier[0]}
+        delivery.priority += 1
         return {'success': False, 'msg': 'There are no couriers available in current max-range radius'}
 
     async def lock_courier(self, id: int) -> None:
@@ -82,5 +86,4 @@ class CourierManagerImpl(CourierManagerAbc):
             c.current_delivery_id = None
 
     async def add_courier(self, courier: Courier) -> None:
-        from schemas.schemas import couriers
         couriers[courier.id] = courier
