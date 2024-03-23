@@ -6,7 +6,6 @@ from utils.location_tracker import LocationTracker
 
 
 class CourierLocationReceiver(KafkaReceiver):
-    _thread = None
     _topic = 'courier_location'
 
     def __init__(self):
@@ -19,7 +18,6 @@ class CourierLocationReceiver(KafkaReceiver):
 
 
 class CourierProfileAskReceiver(KafkaReceiver):
-    _thread = None
     _topic = 'ask_courier_profile'
 
     def post_consume_action(self, msg: str):
