@@ -13,9 +13,8 @@ services:
         condition: service_started
       kafka:
         condition: service_started
-    environment:
-      - KAFKA_HOST=kafka
-      - KAFKA_PORT=9092
+    env_file:
+      - .env
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
@@ -75,6 +74,8 @@ services:
     build: .
     hostname: worker
     command: sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
+    env_file:
+      - .env
     networks:
       - net
     depends_on:
@@ -89,6 +90,8 @@ services:
     hostname: flower
     entrypoint: celery
     command: -A celery_app.app flower
+    env_file:
+      - .env
     volumes:
       - code:/app/backend
       - task_data:/app/backend/tasks_data
@@ -106,11 +109,8 @@ services:
     image: postgres:15.1-alpine
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
+    env_file:
+      - .env
     ports:
       - 5432:5432
     networks:
