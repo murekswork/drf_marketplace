@@ -31,7 +31,7 @@ class KafkaReceiver(SingletonMixin):
     def _consume(self):
         """
         Method to run infinity loop which consumes messages with selected _topic, decode it and then calls custom
-        post_consume_action
+        post_consume_action which must be overwritten
         """
         self.consumer.subscribe([self._topic])
         while True:
@@ -42,12 +42,12 @@ class KafkaReceiver(SingletonMixin):
                 logging.error(message.error())
                 continue
             msg = message.value().decode('utf-8')
-            self.logger.info(f'Got incoming delivery {msg} from django !')
+            self.logger.info(f'Got incoming message {msg} with topic: {self._topic}!')
 
             try:
                 self.post_consume_action(msg)
-            except Exception:
-                self.logger.error('Could not complete post consume action!', exc_info=True)
+            except Exception as e:
+                self.logger.error(f'Could not complete post consume action! {e}', exc_info=True)
 
         self.consumer.close()
 
