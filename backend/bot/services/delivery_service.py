@@ -1,8 +1,8 @@
 import logging
 
 from kafka_tg.sender import TgDeliverySender
-from managers.courier import CourierManagerImpl
-from managers.delivery import DeliveryManagerImpl
+from repository.courier_repository import CourierRepository
+from repository.delivery_repository import DeliveryRepository
 from schemas.schemas import Courier, Delivery
 from utils import DistanceCalculator
 
@@ -13,8 +13,9 @@ class DeliveryService:
     __lock_counter: int = 0
 
     def __init__(self):
-        self._delivery_service = DeliveryManagerImpl()
-        self._courier_service = CourierManagerImpl()
+        self.delivery_repository = DeliveryRepository()
+        self.courier_repository = CourierRepository()
+
         self._kafka_delivery_service: TgDeliverySender = TgDeliverySender()
 
     def __new__(cls, *args, **kwargs):
@@ -29,14 +30,14 @@ class DeliveryService:
         self.__service_lock = False
 
     async def __verify_service(self):
-        free_couriers = await self._courier_service.get_free_couriers()
+        free_couriers = await self.courier_repository.get_by_kwargs(busy=False)
         if free_couriers:
             self.__service_lock = False
 
         self.__lock_counter = 0
 
-    async def add_courier(self, courier: Courier):
-        await self._courier_service.add_courier(courier)
+    async def add_courier_to_line(self, courier: Courier):
+        await self.courier_repository.add(courier)
         await self.__unlock_service()
 
     async def open_delivery(
@@ -45,18 +46,17 @@ class DeliveryService:
             k: int = 5,
             retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
+        service = DistanceCalculator()
+        search_courier_result = await service.get_nearest_free_courier(delivery, await self.courier_repository.get_all())
 
-        # TODO : CONSIDER HOW TO GET POINT, OR MAYBE CHANGE FUNCTION AND MAKE IT TAKE (PURE LATIT AND LONGIT)
-        search_cour_res = await self._courier_service.get_nearest_free_courier(delivery)
-
-        if search_cour_res['success'] is True:
-            c: Courier = search_cour_res['courier']
-            await self._delivery_service.accept_delivery(id=delivery.id, courier_id=c.id)
-            await self._courier_service.set_delivery(c.id, delivery.id)
+        if search_courier_result['success'] is True:
+            courier: Courier = search_courier_result['courier']
+            await self.delivery_repository.update(id=delivery.id, courier=courier.id, status=3)
+            await self.courier_repository.update(id=courier.id, current_delivery_id=delivery.id, busy=True)
 
             self._kafka_delivery_service.send_delivery_to_django(delivery=delivery)
 
-            return {'success': True, 'courier': c, 'delivery': delivery}
+            return {'success': True, 'courier': courier, 'delivery': delivery}
 
         else:
             if retries < 5:
@@ -64,7 +64,6 @@ class DeliveryService:
             else:
                 await self.__lock_service()
                 return {'success': False, 'msg': 'Too many retries to find courier!'}
-        # return {'success': False, 'msg': 'No courier found'}
 
     async def picked_up_delivery(self, courier_id: int) -> Delivery:
         delivery = await self.get_couriers_delivery(courier_id)
@@ -75,17 +74,19 @@ class DeliveryService:
         return delivery
 
     async def get_couriers_delivery(self, courier_id: int) -> Delivery | None:
-        c = await self._courier_service.get_courier(courier_id)
+        c = await self.courier_repository.get(courier_id)
         d = None
         if c:
             d_id = c.current_delivery_id
-            d = await self._delivery_service.get_delivery(d_id)
+            d = await self.delivery_repository.get(d_id)
         return d
 
     async def close_delivery(self, delivery_id: int, status: int) -> None:
-        closing_service = DeliveryClosingService()
-        await closing_service.close_delivery(delivery_id, status=status)
-        await self.__unlock_service()
+        delivery = await self.delivery_repository.get(delivery_id)
+        courier = await self.courier_repository.get(delivery.courier)
+        await self.delivery_repository.update(delivery_id, status=status)
+        busy = status == 0
+        await self.courier_repository.update(courier.id, busy=busy)
 
     async def start_delivering(self):
         # Firstly check if service is locked then ++ counterer and return if it is and lock_counterer < 5
@@ -100,7 +101,7 @@ class DeliveryService:
             await self.__verify_service()
             return
 
-        undelivered = await self._delivery_service.get_not_started_deliveries()
+        undelivered = await self.delivery_repository.get_by_kwargs(status=1)
         for u in undelivered:
             if u is not None:
                 res = await self.open_delivery(u)
@@ -116,8 +117,8 @@ class DeliveryService:
 class DeliveryClosingService:
 
     def __init__(self):
-        self.courier_service = CourierManagerImpl()
-        self.delivery_service = DeliveryManagerImpl()
+        self.courier_service = CourierRepository()
+        self.delivery_service = DeliveryRepository()
 
     async def close_success_delivery(self, delivery: Delivery):
         await self.delivery_service.finish_delivery(delivery.id, status=5)
