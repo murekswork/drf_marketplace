@@ -21,7 +21,15 @@ class CourierProfileReceiver(KafkaReceiver):
         deserialized_msg = json.loads(msg)[0]
         courier = deserialized_msg['fields']
         courier['id'] = deserialized_msg['pk']
-        couriers[courier['id']] = dict_to_dataclass(courier, Courier)
+        courier_dict = dict_to_dataclass(courier, Courier)
+
+        if courier['id'] in couriers:
+            c_dict = courier_dict.__dict__
+            for field in c_dict:
+                if c_dict[field]:
+                    couriers[courier['id']].__dict__.update(field=c_dict[field])
+        else:
+            couriers[courier['id']] = dict_to_dataclass(courier, Courier)
 
 
 class TgDeliveryReceiver(KafkaReceiver):
