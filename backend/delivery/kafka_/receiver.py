@@ -7,7 +7,6 @@ from delivery.services.delivery_service import DeliveryUtils
 
 
 class DjangoDeliveryReceiver(KafkaReceiver):
-    _thread = None
     _topic = 'delivered'
 
     def post_consume_action(self, msg: str):
