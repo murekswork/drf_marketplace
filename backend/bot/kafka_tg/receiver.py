@@ -18,17 +18,16 @@ class CourierProfileReceiver(KafkaReceiver):
     def post_consume_action(self, msg: str):
         """Method deserializes incoming message to courier and adds courier profile to line"""
         deserialized_msg = json.loads(msg)[0]
-        courier = deserialized_msg['fields']
-        courier['id'] = deserialized_msg['pk']
-        courier_dict = dict_to_dataclass(courier, Courier)
+        courier_dict = deserialized_msg['fields']
+        courier_dict['id'] = deserialized_msg.pop('pk')
+        courier_dataclass = dict_to_dataclass(courier_dict, Courier)
 
-        if courier['id'] in couriers:
-            c_dict = courier_dict.__dict__
-            for field in c_dict:
-                if c_dict[field]:
-                    couriers[courier['id']].__dict__.update(field=c_dict[field])
+        if courier_dict['id'] not in couriers:
+            couriers[courier_dict['id']] = courier_dataclass
         else:
-            couriers[courier['id']] = dict_to_dataclass(courier, Courier)
+            for field in courier_dict:
+                if courier_dict.get(field, None):
+                    couriers[courier_dict['id']].__dict__[field] = courier_dict[field]
 
 
 class TgDeliveryReceiver(KafkaReceiver):
