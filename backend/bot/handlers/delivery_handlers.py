@@ -70,9 +70,9 @@ async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: De
         delivery.consumer_longitude
     )
     # TODO: TO REFACTOR!
-    await context.bot.send_message(chat_id=chat_id,
-                                   text=Replies.DELIVERY_INFO.format(
-                                       delivery.__dict__),
-                                   parse_mode=ParseMode.HTML,
-                                   reply_markup=CourierReplyMarkups.GOT_DELIVERY_MARKUP
-                                   )
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=Replies.DELIVERY_INFO.format(delivery.__dict__),
+        parse_mode=ParseMode.HTML,
+        reply_markup=CourierReplyMarkups.GOT_DELIVERY_MARKUP
+    )
