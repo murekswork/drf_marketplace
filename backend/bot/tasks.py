@@ -1,8 +1,6 @@
-import logging
-
-from handlers.handlers import logger, send_delivery_info_msg
+from handlers.delivery_handlers import send_delivery_info_msg
 from keyboards import CourierReplyMarkups
-from schemas.schemas import deliveries
+from logging_.logger import logger
 from services.delivery_service import DeliveryService
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -10,14 +8,14 @@ from telegram.ext import CallbackContext
 
 async def distribute_deliveries_periodic_task(context: CallbackContext):
     service = DeliveryService()
-    deliveries_ = service.start_delivering()
-    logging.warning('Starting deliveries')
+    deliveries_ = await service.start_delivering()
+    logger.warning('Starting deliveries')
 
-    if deliveries is not None:
-        async for i in deliveries_:
-            logger.info(f'Got delivery {i} for delivering')
-            if i['success'] is True:
-                await send_delivery_info_msg(context, chat_id=i['courier'].id, delivery=i['delivery'])
+    if deliveries_ is not None:
+        async for delivery in deliveries_:
+            logger.info(f'Got delivery {delivery} for delivering')
+            if delivery['success']:
+                await send_delivery_info_msg(context, chat_id=delivery['courier'].id, delivery=delivery['delivery'])
             else:
                 logger.warning('No free couriers!')
     else:
