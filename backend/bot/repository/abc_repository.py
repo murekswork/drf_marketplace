@@ -32,10 +32,6 @@ class CourierRepositoryAbc(RepositoryAbc):
     async def get_free_couriers(self) -> list[Courier]:
         raise NotImplementedError
 
-    # @abstractmethod
-    # async def get_nearest_free_courier(self, delivery: Delivery) -> Courier | None:
-    #     raise NotImplementedError
-
     @abstractmethod
     async def lock_courier(self, id: int):
         raise NotImplementedError
@@ -57,8 +53,8 @@ class DictRepositoryImpl(RepositoryAbc):
         return None
 
     async def get_by_kwargs(self, **kwargs):
-        return [obj for obj in self.source.values() if
-                all(hasattr(obj, kwarg) and getattr(obj, kwarg) == value for kwarg, value in kwargs.items())]
+        return [obj for obj in self.source.values() if all(hasattr(obj, kwarg) and getattr(obj, kwarg) == value
+                                                           for kwarg, value in kwargs.items())]
 
     async def add(self, obj):
         self.source[obj.id] = obj
