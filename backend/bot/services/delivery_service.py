@@ -1,5 +1,6 @@
-import logging
+from typing import AsyncGenerator
 
+from kafka_common.receiver import SingletonMixin
 from kafka_tg.sender import TgDeliverySender
 from repository.courier_repository import CourierRepository
 from repository.delivery_repository import DeliveryRepository
@@ -7,8 +8,7 @@ from schemas.schemas import Courier, Delivery
 from utils import DistanceCalculator
 
 
-class DeliveryService:
-    _instance = None
+class DeliveryService(SingletonMixin):
     __service_lock: bool = True
     __lock_counter: int = 0
 
@@ -16,12 +16,7 @@ class DeliveryService:
         self.delivery_repository = DeliveryRepository()
         self.courier_repository = CourierRepository()
 
-        self._kafka_delivery_service: TgDeliverySender = TgDeliverySender()
-
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+        self._kafka_delivery_service = TgDeliverySender()
 
     async def __lock_service(self):
         self.__service_lock = True
@@ -33,7 +28,6 @@ class DeliveryService:
         free_couriers = await self.courier_repository.get_by_kwargs(busy=False)
         if free_couriers:
             self.__service_lock = False
-
         self.__lock_counter = 0
 
     async def add_courier_to_line(self, courier: Courier):
@@ -47,9 +41,10 @@ class DeliveryService:
             retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
         service = DistanceCalculator()
-        search_courier_result = await service.get_nearest_free_courier(delivery, await self.courier_repository.get_all())
+        search_courier_result = await service.get_nearest_free_courier(delivery,
+                                                                       await self.courier_repository.get_all())
 
-        if search_courier_result['success'] is True:
+        if search_courier_result['success']:
             courier: Courier = search_courier_result['courier']
             await self.delivery_repository.update(id=delivery.id, courier=courier.id, status=3)
             await self.courier_repository.update(id=courier.id, current_delivery_id=delivery.id, busy=True)
@@ -88,23 +83,29 @@ class DeliveryService:
         busy = status == 0
         await self.courier_repository.update(courier.id, busy=busy)
 
-    async def start_delivering(self):
-        # Firstly check if service is locked then ++ counterer and return if it is and lock_counterer < 5
+    async def _check_service_lock_status(self) -> bool:
+        # Firstly check if service is locked then ++ counterer and return True if it is and lock_counterer < 5
         if self.__service_lock is True and self.__lock_counter < 5:
-            logging.warning('Service is locked now because no free couriers!')
             self.__lock_counter += 1
-            return
-
-        # Check if service is locked then if lock counterer > 5 then verify couriers busy status and unlock if
-        # any couriers is free
+        # Check if service is locked then if lock counterer return True > 5 then verify couriers busy
+        # status and unlock if any couriers is free
         elif self.__service_lock is True and self.__lock_counter > 5:
             await self.__verify_service()
-            return
+        else:
+            return False
+        return True
 
-        undelivered = await self.delivery_repository.get_by_kwargs(status=1)
-        for u in undelivered:
-            if u is not None:
-                res = await self.open_delivery(u)
+    async def start_delivering(self) -> AsyncGenerator | None:
+        lock_status = await self._check_service_lock_status()
+        if lock_status is False:
+            return self._distribute_deliveries()
+        return None
+
+    async def _distribute_deliveries(self) -> AsyncGenerator[Delivery, None]:
+        undelivered_deliveries = await self.delivery_repository.get_by_kwargs(status=1)
+        for delivery in undelivered_deliveries:
+            if delivery is not None:
+                res = await self.open_delivery(delivery)
                 yield res
             else:
                 yield None
