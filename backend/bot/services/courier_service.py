@@ -10,7 +10,7 @@ from telegram._message import Message
 class CourierService:
 
     async def courier_start_carrying(self, user: Chat):
-        c = {
+        courier = {
             'id': user.id,
             'username': user.username,
             'first_name': user.first_name,
@@ -18,10 +18,10 @@ class CourierService:
         }
 
         kafka_ = CourierProfileAsker()
-        kafka_.send(json.dumps(c))
+        kafka_.send(json.dumps(courier))
 
     async def track_location(self, msg: Message, user: Chat):
-        loc = Location(lat=msg.location.latitude, lon=msg.location.longitude)
+        loc = Location(msg.location.latitude, msg.location.longitude)
 
         couriers[user.id].location = loc
 
@@ -32,10 +32,10 @@ class CourierService:
     async def close_delivery(self, cour_id: int, status: int) -> Delivery:
         from services.delivery_service import DeliveryService
         service = DeliveryService()
-        delivery = await service.get_couriers_delivery(courier_id=cour_id)
+        delivery = await service.get_couriers_delivery(cour_id)
         delivery.status = status
         if delivery:
-            await service.close_delivery(delivery_id=delivery.id, status=status)
+            await service.close_delivery(delivery.id, status)
 
             kafka_ = TgDeliverySender()
             kafka_.send_delivery_to_django(delivery)
