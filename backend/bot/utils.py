@@ -9,7 +9,7 @@ class DistanceCalculator:
     earth_radius = 6371
     working_range = 5
     avg_courier_speed = 10
-    waiting_time = 0.1
+    waiting_time = 0.05
 
     async def get_free_courier_and_estimated_delivery_time(
             self,
@@ -75,6 +75,15 @@ class DistanceCalculator:
         # Calculate distance
         distance = self.earth_radius * c
 
+        return distance
+
+    async def get_left_distance_between_many_points(self, courier_point: Location, *points: Location) -> float:
+        distance = 0.0
+        calculator = DistanceCalculator()
+        for point in points:
+            distance_between_points = await calculator.calculate_distance(courier_point, point)
+            distance += distance_between_points
+            courier_point = point
         return distance
 
 
