@@ -29,8 +29,8 @@ class Delivery(models.Model):
 
     def save(self, *args, **kwargs):
         from .kafka_.sender import send_delivery_to_tg
-        super().save(*args, **kwargs)
         if self.status == 1:
             send_delivery_to_tg(self)
         elif self.status == 5:
             self.completed_at = timezone.now()
+        super().save(*args, **kwargs)
