@@ -69,7 +69,7 @@ async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: De
         delivery.consumer_latitude,
         delivery.consumer_longitude
     )
-    # TODO: TO REFACTOR!
+    #TODO: BUG HERE IN DELIVERY_INFO.format
     await context.bot.send_message(chat_id=chat_id,
                                    text=Replies.DELIVERY_INFO.format(
                                        delivery.__dict__),

@@ -51,7 +51,6 @@ class ProductCSVUploader(ProductUploader):
         self.output_file_name = f'backend/tasks_data/raw/{time.time()}_{shop.slug}.txt'
 
     def upload(self) -> None:
-        # decoded_source = self.source
         """Method reads CSV file and iterates over each row with calling _upload method"""
         decoded_source = self.source.read().decode('utf-8').splitlines()
         reader = csv.DictReader(decoded_source)
@@ -78,8 +77,6 @@ class ProductCSVUploader(ProductUploader):
                 new_product.save()
                 check_task = check_badwords_product.delay(new_product.id)
                 log.task_id = check_task.id
-            else:
-                pass
         except Exception as serializer_exc:
             log.error = f'{serializer_exc}'
         self.tasks.append(log)
@@ -96,8 +93,6 @@ class UploadLogMaker:
         self.products_count: int = 0
         self.success_count: int = 0
         self.error_count: int = 0
-
-        # self.output_service = CsvOutputLogService
 
     def _read_tasks_dataclasses_from_file(self) -> None:
         """Method to fill instance task results with dataclasses from file"""
@@ -135,7 +130,7 @@ class UploadLogMaker:
 
     def create_report(self) -> list[ProductUploadLog]:
         """Method check task completion, updates upload score in db and returns list of logs of dataclasses"""
-        if self._check_task_completion() is True:
+        if self._check_task_completion():
             self._read_tasks_dataclasses_from_file()
 
             logs = self._make_logs()
@@ -169,9 +164,7 @@ class CsvUploadResultExporter(UploadResultsExporter):
         """Method to export csv file from list of task result dataclass"""
         with open(f'{self.output_file_path}', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-
             writer.writerow(self.report_result[0].__annotations__.keys())
-
             for report in self.report_result:
                 writer.writerow(report.__dict__.values())
 
