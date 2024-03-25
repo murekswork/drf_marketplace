@@ -41,8 +41,10 @@ class DeliveryService(SingletonMixin):
             retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
         service = DistanceCalculator()
-        search_courier_result = await service.get_nearest_free_courier(delivery,
-                                                                       await self.courier_repository.get_all())
+        search_courier_result = await service.get_nearest_free_courier(
+            delivery,
+            await self.courier_repository.get_by_kwargs(busy=False)
+        )
 
         if search_courier_result['success']:
             courier: Courier = search_courier_result['courier']

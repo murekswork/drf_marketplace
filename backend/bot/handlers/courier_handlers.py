@@ -1,8 +1,7 @@
 from decorators import exception_logging
+from handlers.common_handlers import profile_handler
 from keyboards import CourierReplyMarkups
-from logging_.logger import logger
 from replies import Replies
-from schemas.schemas import couriers
 from services.courier_service import CourierService
 from telegram import Update
 from telegram.constants import ParseMode
@@ -34,13 +33,11 @@ async def courier_start_carrying_handler(update: Update, context: CallbackContex
 
 
 @exception_logging
-async def courier_stop_carrying(update: Update, context: CallbackContext):
-    # TODO: VIEW LAYER SHOULD NOT HAVE DIRECT ACCESS TO REPO! FIX IT
+async def courier_stop_carrying_handler(update: Update, context: CallbackContext):
     msg = update.message
     user = msg.chat
     service = CourierService()
-    service.courier_stop_carrying()
-    couriers.pop(user.id)
+    service.courier_stop_carrying(user)
     await msg.reply_text(Replies.STOP_CARRYING_INFO,
                          reply_markup=CourierReplyMarkups.NOT_CARRYING_MARKUP)
-    logger.info(f'Courier {user} successfully done his work')
+    await profile_handler(update, context)

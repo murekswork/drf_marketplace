@@ -27,8 +27,8 @@ class Delivery:
     id: int
     latitude: float
     longitude: float
-    consumer_latitude: Location | None = None
-    consumer_longitude: Location | None = None
+    consumer_latitude: float | None = None
+    consumer_longitude: float | None = None
     courier: int | None = None
     amount: float = 0
     status: int = 1
@@ -37,6 +37,7 @@ class Delivery:
     address: str = ''
     priority: int = 0
     estimated_time: datetime.datetime | None = None
+    last_notification_ts: datetime.datetime | None = None
 
 
 deliveries: dict[Delivery, None] = {}

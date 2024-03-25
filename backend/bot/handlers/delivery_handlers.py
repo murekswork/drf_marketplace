@@ -69,10 +69,16 @@ async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: De
         delivery.consumer_latitude,
         delivery.consumer_longitude
     )
-    # TODO: TO REFACTOR!
-    await context.bot.send_message(
-        chat_id=chat_id,
-        text=Replies.DELIVERY_INFO.format(delivery.__dict__),
-        parse_mode=ParseMode.HTML,
-        reply_markup=CourierReplyMarkups.GOT_DELIVERY_MARKUP
-    )
+    #TODO: BUG HERE IN DELIVERY_INFO.format
+    await context.bot.send_message(chat_id=chat_id,
+                                   text=Replies.DELIVERY_INFO.format(
+                                       delivery.__dict__),
+                                   parse_mode=ParseMode.HTML,
+                                   reply_markup=CourierReplyMarkups.GOT_DELIVERY_MARKUP
+                                   )
+
+
+@exception_logging
+async def delivery_taking_late_notification(context: CallbackContext, delivery: Delivery):
+    await context.bot.send_message(chat_id=delivery.courier,
+                                   text=Replies.DELIVERY_TAKING_LATE_NOTIFICATION.format(delivery.id, delivery.estimated_time))

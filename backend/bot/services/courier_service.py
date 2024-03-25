@@ -20,6 +20,10 @@ class CourierService:
         kafka_ = CourierProfileAsker()
         kafka_.send(json.dumps(courier))
 
+    async def courier_stop_carrying(self, user: Chat):
+        courier = couriers.pop(user.id)
+        return courier
+
     async def track_location(self, msg: Message, user: Chat):
         loc = Location(msg.location.latitude, msg.location.longitude)
 
