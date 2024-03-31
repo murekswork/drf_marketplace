@@ -14,20 +14,26 @@ class NotificationService(SingletonMixin):
         self.delivery_repository = DeliveryRepository()
         self.courier_repository = CourierRepository()
 
-    async def distribute_notifications(self) -> list[Delivery]:
+    async def distribute_notifications(self) -> tuple[list[Delivery], list[Delivery]]:
         not_picked_up_deliveries = await self.delivery_repository.get_by_kwargs(status=3)
         picked_up_deliveries = await self.delivery_repository.get_by_kwargs(status=4)
 
         to_notify_list = []
+        time_out_list = []
         for delivery in not_picked_up_deliveries + picked_up_deliveries:
             in_time = await self.check_delivery_timing(delivery)
             if not in_time:
+
+                if delivery.estimated_time < datetime.datetime.now():
+                    time_out_list.append(delivery)
+                    continue
+
                 if not delivery.last_notification_ts or (
                         datetime.datetime.now() - delivery.last_notification_ts) >= datetime.timedelta(minutes=2):
                     delivery.last_notification_ts = datetime.datetime.now()
                     to_notify_list.append(delivery)
 
-        return to_notify_list
+        return to_notify_list, time_out_list
 
     async def check_delivery_timing(self, delivery: Delivery):
         courier = await self.courier_repository.get(delivery.courier)
@@ -38,7 +44,7 @@ class NotificationService(SingletonMixin):
         points.append(Location(delivery.consumer_latitude, delivery.consumer_longitude))
 
         calculator = DistanceCalculator()
-        left_distance = await calculator.get_left_distance_between_many_points(courier.location, *points)
+        left_distance = await calculator.calculate_distance(courier.location, *points)
         left_distance_requiring_time = left_distance / calculator.avg_courier_speed
 
         in_time = await self.compare_actual_time_and_estimated_time(left_distance_requiring_time,
