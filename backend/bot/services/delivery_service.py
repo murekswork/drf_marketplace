@@ -1,3 +1,4 @@
+import datetime
 from typing import AsyncGenerator
 
 from kafka_common.receiver import SingletonMixin
@@ -41,9 +42,12 @@ class DeliveryService(SingletonMixin):
             retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
         service = DistanceCalculator()
+        couriers = await self.courier_repository.get_by_kwargs(busy=False)
+        couriers_with_location = [courier for courier in couriers if courier.location is not None]
+
         search_courier_result = await service.get_nearest_free_courier(
             delivery,
-            await self.courier_repository.get_by_kwargs(busy=False)
+            couriers_with_location
         )
 
         if search_courier_result['success']:
@@ -81,7 +85,7 @@ class DeliveryService(SingletonMixin):
     async def close_delivery(self, delivery_id: int, status: int) -> None:
         delivery = await self.delivery_repository.get(delivery_id)
         courier = await self.courier_repository.get(delivery.courier)
-        await self.delivery_repository.update(delivery_id, status=status)
+        await self.delivery_repository.update(delivery_id, status=status, completed_at=datetime.datetime.now())
         busy = status == 0
         await self.courier_repository.update(courier.id, busy=busy)
 
