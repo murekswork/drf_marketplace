@@ -90,7 +90,19 @@ def main() -> None:
             callback=picked_up_delivery_handler,
             filters=Regex('Picked up') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
     )
-    from tasks import job_check_deliveries, job_notify_courier
+    from tasks import (
+        job_check_deliveries,
+        job_get_avg_couriers_speed,
+        job_notify_courier,
+        run_jobs,
+    )
+
+    application.add_handler(
+        CommandHandler(
+            command='runjobs',
+            callback=run_jobs
+        )
+    )
 
     application.add_handler(
         CommandHandler(
@@ -102,6 +114,13 @@ def main() -> None:
         CommandHandler(
             command='starttask',
             callback=job_notify_courier)
+    )
+
+    application.add_handler(
+        CommandHandler(
+            command='avgspeed',
+            callback=job_get_avg_couriers_speed
+        )
     )
 
     application.add_handler(
