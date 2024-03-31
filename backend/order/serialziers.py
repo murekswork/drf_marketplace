@@ -1,4 +1,5 @@
 from api.serializers import UserSerializer
+from delivery.serializers import DeliverySerializer
 from products.models import Product
 from products.serializers import ProductInlineSerializer
 from rest_framework import serializers
@@ -38,6 +39,13 @@ class OrderSerializer(serializers.ModelSerializer, OrderAmountCalculator):
     payment_status = serializers.BooleanField(read_only=True)
     payment_url = serializers.SerializerMethodField()
     lifetime = serializers.DateTimeField(read_only=True)
+    delivery = serializers.SerializerMethodField(read_only=True)
+
+    def get_delivery(self, obj: Order):
+        if obj.payment_status:
+            delivery = DeliverySerializer(obj.delivery.select_related().first())
+            return delivery.data
+        return 'Not paid yet.'
 
     class Meta:
         model = Order

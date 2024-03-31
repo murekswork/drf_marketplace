@@ -1,39 +1,41 @@
 import datetime
 import json
-import math
+import logging
 
+from geopy import distance
 from schemas.schemas import Courier, Delivery, Location
 
 
 class DistanceCalculator:
     earth_radius = 6371
     working_range = 5
-    avg_courier_speed = 10
-    waiting_time = 0.05
+    avg_courier_speed: float = 10  # should be in km/h
+    waiting_time = 0.05  # should be in hours
 
-    async def get_free_courier_and_estimated_delivery_time(
+    @classmethod
+    async def set_avg_courier_speed(cls, new_speed: float) -> None:
+        logging.error(f'Setting avg courier sped to {new_speed}')
+        cls.avg_courier_speed = new_speed
+
+    async def get_courier_etime_distance(
             self,
             pickup_point: Location,
             consumer_point: Location,
             free_couriers: dict[Courier, None],
             priority: int
-    ) -> tuple[Courier, float] | None:
+    ) -> tuple[Courier, float, float] | tuple[None, None, None]:
         """Method to search courier depending on his distance from passed point"""
         nearest_distance = float('inf')
         optimal_courier = None
         for courier in free_couriers:
-            pickup_distance = await self.calculate_distance(courier.location, pickup_point)
-            consumer_distance = await self.calculate_distance(courier.location, consumer_point)
-            total_distance = pickup_distance + consumer_distance
-            if (pickup_distance <= self.working_range + priority
-                    and consumer_distance <= self.working_range + priority  # noqa
-                    and total_distance < nearest_distance):  # noqa
-                nearest_distance = total_distance
+            courier_distance = await self.calculate_distance(courier.location, pickup_point, consumer_point)
+            if courier_distance <= self.working_range * 2:  # noqa
+                nearest_distance = courier_distance
                 optimal_courier = courier
 
             estimated_time = await self.get_estimated_delivery_time(nearest_distance)
-            return optimal_courier, estimated_time
-        return None
+            return optimal_courier, estimated_time, nearest_distance
+        return None, None, None
 
     async def get_estimated_delivery_time(self, distance: float) -> float:
         """Method to calculate estimated delivering time based on distance and avg couriers speed"""
@@ -46,50 +48,34 @@ class DistanceCalculator:
             free_couriers: dict[Courier, None]
     ) -> dict[str, bool | Courier]:
         if free_couriers:
-            courier_and_estimated_time = await self.get_free_courier_and_estimated_delivery_time(
+            courier, estimated_time, distance = await self.get_courier_etime_distance(
                 pickup_point=Location(delivery.latitude, delivery.longitude),
                 consumer_point=Location(delivery.consumer_latitude, delivery.consumer_longitude),
                 free_couriers=free_couriers,
                 priority=delivery.priority
             )
-            if courier_and_estimated_time:
-                delivery.estimated_time = (
-                    datetime.datetime.now() + datetime.timedelta(minutes=courier_and_estimated_time[1]))
-                return {'success': True, 'courier': courier_and_estimated_time[0]}
+            if courier:
+                delivery.estimated_time = datetime.datetime.now() + datetime.timedelta(minutes=estimated_time)  # type: ignore
+                delivery.distance = distance
+                return {'success': True, 'courier': courier}
             delivery.priority += 1
         return {'success': False, 'msg': 'There are no couriers available in current max-range radius'}
 
-    async def calculate_distance(self, point1: Location, point2: Location) -> float:
-        """Calculate distance between two points"""
-        # Convert latitude and longitude from degrees to radians
-        lat1, lon1 = math.radians(point1.lat), math.radians(point1.lon)
-        lat2, lon2 = math.radians(point2.lat), math.radians(point2.lon)
-
-        # Calculate differences
-        dlat, dlon = lat2 - lat1, lon2 - lon1
-
-        # Haversine formula
-        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-        # Calculate distance
-        distance = self.earth_radius * c
-
-        return distance
-
-    async def get_left_distance_between_many_points(self, courier_point: Location, *points: Location) -> float:
-        distance = 0.0
-        calculator = DistanceCalculator()
-        for point in points:
-            distance_between_points = await calculator.calculate_distance(courier_point, point)
-            distance += distance_between_points
-            courier_point = point
-        return distance
+    async def calculate_distance(self, *points: Location) -> float:
+        total_distance = 0
+        for i in range(1, len(points)):
+            total_distance += distance.distance(
+                (points[i - 1].lat, points[i - 1].lon),
+                (points[i].lat, points[i].lon)
+            ).kilometers
+        return total_distance
 
 
 def dict_to_dataclass(dict_: dict, dataclass_: type):
     """Function to convert dict to dataclass by same fields"""
     same_fields = {field: dict_[field] for field in dict_ if field in dataclass_.__annotations__}
+    if 'started_at' in same_fields:
+        same_fields['started_at'] = datetime.datetime.fromisoformat(same_fields['started_at'])
     return dataclass_(**same_fields)
 
 

@@ -1,3 +1,5 @@
+import datetime
+
 from decorators import exception_logging
 from handlers.common_handlers import profile_handler
 from keyboards import CourierReplyMarkups
@@ -69,16 +71,31 @@ async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: De
         delivery.consumer_latitude,
         delivery.consumer_longitude
     )
-    #TODO: BUG HERE IN DELIVERY_INFO.format
-    await context.bot.send_message(chat_id=chat_id,
-                                   text=Replies.DELIVERY_INFO.format(
-                                       delivery.__dict__),
-                                   parse_mode=ParseMode.HTML,
-                                   reply_markup=CourierReplyMarkups.GOT_DELIVERY_MARKUP
-                                   )
+    msg = Replies.DELIVERY_INFO.format(
+        minutes=(delivery.estimated_time - datetime.datetime.now()).total_seconds() / 60,
+        amount=delivery.amount,
+        status=delivery.status,
+        address=delivery.address,
+        estimated_time=delivery.estimated_time
+    )
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=msg,
+        parse_mode=ParseMode.HTML,
+        reply_markup=CourierReplyMarkups.GOT_DELIVERY_MARKUP
+    )
 
 
 @exception_logging
 async def delivery_taking_late_notification(context: CallbackContext, delivery: Delivery):
-    await context.bot.send_message(chat_id=delivery.courier,
-                                   text=Replies.DELIVERY_TAKING_LATE_NOTIFICATION.format(delivery.id, delivery.estimated_time))
+    await context.bot.send_message(
+        chat_id=delivery.courier,
+        text=Replies.DELIVERY_TAKING_LATE_NOTIFICATION.format(delivery.id, (delivery.estimated_time - datetime.datetime.now()).total_seconds() / 360))
+
+
+@exception_logging
+async def delivery_time_out_notification(context: CallbackContext, delivery: Delivery):
+    await context.bot.send_message(
+        chat_id=delivery.courier,
+        text=Replies.DELIVERY_TIME_OUT_NOTIFICATION
+    )

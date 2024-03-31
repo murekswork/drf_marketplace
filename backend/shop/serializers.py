@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-
 from shop.models import ProductUpload, Shop
 
 

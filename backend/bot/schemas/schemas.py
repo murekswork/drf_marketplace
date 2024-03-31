@@ -38,6 +38,7 @@ class Delivery:
     priority: int = 0
     estimated_time: datetime.datetime | None = None
     last_notification_ts: datetime.datetime | None = None
+    distance: float = 0
 
 
 deliveries: dict[Delivery, None] = {}
