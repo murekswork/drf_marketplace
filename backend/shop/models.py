@@ -62,7 +62,6 @@ class ShopStaffGroup(models.Model):
                 return permission_instance[0] in self.permissions.prefetch_related()
         else:
             return permission in self.permissions.prefetch_related()
-        return False
 
     def __str__(self):
         return f'{self.group_name}'
@@ -147,6 +146,3 @@ class Shop(models.Model):
 
     def is_active(self):
         return self.active
-
-
-shop_manager = Shop.objects.prefetch_related('shopmanager_set__user')
