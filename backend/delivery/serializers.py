@@ -16,13 +16,14 @@ class DeliverySerializer(serializers.ModelSerializer):
 
     courier = serializers.SerializerMethodField(read_only=True)
 
-    def get_courier(self, obj):
+    def get_courier(self, obj: Delivery):
         location_tracker = LocationTracker()
-        if obj.courier is not None:
+        if obj.courier:
             location = location_tracker.get_location(str(obj.courier_id))
             serialized_c = CourierSerializer(obj.courier)
-            serialized_c.data['latitude'] = location['lat']
-            serialized_c.data['longitude'] = location['lon']
+            if location:
+                serialized_c.data['latitude'] = location['lat']
+                serialized_c.data['longitude'] = location['lon']
             return serialized_c.data
         return 'No courier'
 
