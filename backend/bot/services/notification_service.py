@@ -15,7 +15,9 @@ class NotificationService(SingletonMixin):
         self.courier_repository = CourierRepository()
 
     async def distribute_notifications(self) -> tuple[list[Delivery], list[Delivery]]:
-        not_picked_up_deliveries = await self.delivery_repository.get_by_kwargs(status=3)
+        not_picked_up_deliveries = await self.delivery_repository.get_by_kwargs(
+            status=3
+        )
         picked_up_deliveries = await self.delivery_repository.get_by_kwargs(status=4)
 
         to_notify_list = []
@@ -29,7 +31,8 @@ class NotificationService(SingletonMixin):
                     continue
 
                 if not delivery.last_notification_ts or (
-                        datetime.datetime.now() - delivery.last_notification_ts) >= datetime.timedelta(minutes=2):
+                    datetime.datetime.now() - delivery.last_notification_ts
+                ) >= datetime.timedelta(minutes=2):
                     delivery.last_notification_ts = datetime.datetime.now()
                     to_notify_list.append(delivery)
 
@@ -47,10 +50,16 @@ class NotificationService(SingletonMixin):
         left_distance = await calculator.calculate_distance(courier.location, *points)
         left_distance_requiring_time = left_distance / calculator.avg_courier_speed
 
-        in_time = await self.compare_actual_time_and_estimated_time(left_distance_requiring_time,
-                                                                    delivery.estimated_time)
+        in_time = await self.compare_actual_time_and_estimated_time(
+            left_distance_requiring_time, delivery.estimated_time
+        )
         logging.warning(f'GOT IN TIME {in_time} FOR DELIVERY {delivery}')
         return in_time
 
-    async def compare_actual_time_and_estimated_time(self, left_time: float, estimated_time: datetime.datetime) -> bool:
-        return datetime.timedelta(hours=left_time) + datetime.datetime.now() <= estimated_time
+    async def compare_actual_time_and_estimated_time(
+        self, left_time: float, estimated_time: datetime.datetime
+    ) -> bool:
+        return (
+            datetime.timedelta(hours=left_time) + datetime.datetime.now()
+            <= estimated_time
+        )

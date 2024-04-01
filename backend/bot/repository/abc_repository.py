@@ -53,8 +53,14 @@ class DictRepositoryImpl(RepositoryAbc):
         return None
 
     async def get_by_kwargs(self, **kwargs):
-        return [obj for obj in self.source.values() if all(hasattr(obj, kwarg) and getattr(obj, kwarg) == value
-                                                           for kwarg, value in kwargs.items())]
+        return [
+            obj
+            for obj in self.source.values()
+            if all(
+                hasattr(obj, kwarg) and getattr(obj, kwarg) == value
+                for kwarg, value in kwargs.items()
+            )
+        ]
 
     async def add(self, obj):
         self.source[obj.id] = obj

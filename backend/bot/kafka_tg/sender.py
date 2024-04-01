@@ -19,10 +19,7 @@ class TgDeliverySender(KafkaSender, SingletonMixin):
 
     def send_delivery_to_django(self, delivery: Delivery):
         try:
-            msg = {
-                'delivery_id': delivery.id,
-                'delivery': asdict(delivery)
-            }
+            msg = {'delivery_id': delivery.id, 'delivery': asdict(delivery)}
             self.send(msg=json.dumps(msg, default=str))
         except Exception as e:
             self.logger.error(f'Could not send delivery to tg coz of {e}')

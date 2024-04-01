@@ -6,7 +6,9 @@ from telegram.ext import CallbackContext
 
 
 @exception_logging
-async def change_delivery_distance_handler(update: Update, context: CallbackContext, distance: int):
+async def change_delivery_distance_handler(
+    update: Update, context: CallbackContext, distance: int
+):
     service = DeliveryService()
     service.change_delivery_distance(distance)
     await update.message.reply_text(text=f'Delivery distance increased by {distance}')

@@ -2,7 +2,8 @@ version: '3.0'
 services:
 
   web:
-    build: .
+    build:
+      dockerfile: marketplace/Dockerfile
     ports:
       - "8000:8000"
     command: sh -c "python manage.py start_listening & python manage.py runserver 0.0.0.0:8000"
@@ -47,7 +48,7 @@ services:
 
   bot:
     build:
-      dockerfile: ./Dockerfile_bot
+      dockerfile: ./bot/Dockerfile
     ports:
       - "8001:8001"
     command: >
@@ -71,9 +72,10 @@ services:
       - net
 
   worker:
-    build: .
+    build:
+      dockerfile: marketplace/Dockerfile
     hostname: worker
-    command: sh -c "celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
+    command: sh -c "cd marketplace && celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker2@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker3@%h & celery -A celery_app.app worker --loglevel=info --concurrency=10 -n worker5@%h & tail -f /dev/null"
     env_file:
       - .env
     networks:
@@ -86,10 +88,11 @@ services:
       - task_data:/app/backend/tasks_data
 
   flower:
-    build: .
+    build:
+      dockerfile: marketplace/Dockerfile
     hostname: flower
     entrypoint: celery
-    command: -A celery_app.app flower
+    command: sh -c "cd marketplace && -A celery_app.app flower"
     env_file:
       - .env
     volumes:
