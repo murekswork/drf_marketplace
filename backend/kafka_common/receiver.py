@@ -1,6 +1,6 @@
 import logging
 import threading
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from os import getenv
 
 from confluent_kafka import Consumer
@@ -16,7 +16,7 @@ class SingletonMixin:
         return cls._instance
 
 
-class KafkaReceiver(SingletonMixin):
+class KafkaReceiver(ABC, SingletonMixin):
     _thread = None
     _topic: str
 

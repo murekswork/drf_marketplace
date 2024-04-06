@@ -15,12 +15,8 @@ class DeliveryService:
             raise DeliveryPickedUpException(
                 "Can not cancel because delivery already picked up!"
             )
-        logging.warning("STARTED TO SENT DEL")
         delivery.status = 0
         delivery.save()
-        topic = DeliveryTopics.TO_CANCEL_DELIVERY
-        sender = producer_factory(topic)
+        sender = producer_factory(DeliveryTopics.TO_CANCEL_DELIVERY)
         msg = DeliveryAdapter.serialize_delivery(delivery)
-        logging.warning("STARTED TO SENT DEL MESS IS {}".format(msg))
         sender.send(msg)
-        logging.warning("SENT MSG {}".format(msg))

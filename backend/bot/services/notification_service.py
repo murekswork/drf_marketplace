@@ -29,9 +29,11 @@ class NotificationService(SingletonMixin):
                     time_out_list.append(delivery)
                     continue
 
-                if not delivery.last_notification_ts or (
+                much_time_left = (
                     datetime.datetime.now() - delivery.last_notification_ts
-                ) >= datetime.timedelta(minutes=2):
+                ) >= datetime.timedelta(minutes=2)
+                
+                if not delivery.last_notification_ts or much_time_left:
                     delivery.last_notification_ts = datetime.datetime.now()
                     to_notify_list.append(delivery)
 

@@ -1,5 +1,5 @@
 import json
-from abc import ABC
+from abc import ABC, abstractmethod
 from csv import DictReader
 
 
@@ -9,6 +9,10 @@ class DataclassFromFileReader(ABC):
         self.file_path = file_path
         self.dataclass = dataclass
         self.output_data: list = []
+
+    @abstractmethod
+    def read(self) -> list:
+        raise NotImplementedError
 
 
 class DataclassFromTxtFileReader(DataclassFromFileReader):
