@@ -1,15 +1,16 @@
 import datetime
 
+from telegram import Update
+from telegram.constants import ParseMode
+from telegram.ext import CallbackContext
+
 from decorators import exception_logging
 from handlers.common_handlers import profile_handler
 from keyboards import CourierReplyMarkups
 from replies import Replies
-from schemas.schemas import Delivery
+from schemas.schemas import Delivery, Courier
 from services.courier_service import CourierService
 from services.delivery_service import DeliveryService
-from telegram import Update
-from telegram.constants import ParseMode
-from telegram.ext import CallbackContext
 
 
 @exception_logging
@@ -91,6 +92,15 @@ async def delivery_taking_late_notification(
             delivery.id,
             (delivery.estimated_time - datetime.datetime.now()).total_seconds() / 360,
         ),
+    )
+
+
+@exception_logging
+async def delivery_cancelled_by_consumer_notification(
+    context: CallbackContext, courier: Courier
+):
+    await context.bot.send_message(
+        chat_id=courier.id, text=Replies.DELIVERY_CANCELLED_BY_CONSUMER_NOTIFICATION
     )
 
 

@@ -1,0 +1,2 @@
+class DeliveryPickedUpException(NotImplementedError):
+    pass

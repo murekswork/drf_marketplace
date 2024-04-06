@@ -10,11 +10,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_category_url(self, obj):
         return reverse(
-            'category-detail',
-            kwargs={'slug': obj.slug},
-            request=self.context.get('request'),
+            "category-detail",
+            kwargs={"slug": obj.slug},
+            request=self.context.get("request"),
         )
 
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = "__all__"

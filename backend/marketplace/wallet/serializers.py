@@ -6,7 +6,7 @@ from .models import Wallet
 def existing_wallet_validator(value):
 
     if Wallet.objects.filter(user=value).exists():
-        raise serializers.ValidationError('You already have an existing wallet')
+        raise serializers.ValidationError("You already have an existing wallet")
     return value
 
 
@@ -19,9 +19,9 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = [
-            'id',
-            'user',
-            'balance',
+            "id",
+            "user",
+            "balance",
         ]
 
     def validate_user(self, user):
@@ -30,8 +30,8 @@ class WalletSerializer(serializers.ModelSerializer):
         return user
 
     def create(self, validated_data):
-        user = self.context.get('request').user
+        user = self.context.get("request").user
 
-        validated_data['user'] = self.validate_user(user)
+        validated_data["user"] = self.validate_user(user)
         wallet = super().create(validated_data)
         return wallet

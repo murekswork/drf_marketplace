@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0002_initial'),
+        ("products", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sale',
-            name='end_date',
+            model_name="sale",
+            name="end_date",
             field=models.DateTimeField(
                 default=datetime.datetime(2024, 3, 15, 14, 42, 54, 487589)
             ),

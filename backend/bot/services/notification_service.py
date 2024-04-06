@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 from kafka_common.receiver import SingletonMixin
 from repository.courier_repository import CourierRepository
@@ -53,7 +52,6 @@ class NotificationService(SingletonMixin):
         in_time = await self.compare_actual_time_and_estimated_time(
             left_distance_requiring_time, delivery.estimated_time
         )
-        logging.warning(f'GOT IN TIME {in_time} FOR DELIVERY {delivery}')
         return in_time
 
     async def compare_actual_time_and_estimated_time(

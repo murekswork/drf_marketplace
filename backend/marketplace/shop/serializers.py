@@ -5,7 +5,7 @@ from shop.models import ProductUpload, Shop
 
 class ShopManagerSerializer(serializers.Serializer):
     username = serializers.PrimaryKeyRelatedField(
-        source='user.username', read_only=True
+        source="user.username", read_only=True
     )
     group = serializers.CharField(max_length=120, read_only=True)
     title = serializers.CharField(max_length=120, read_only=True)
@@ -13,7 +13,7 @@ class ShopManagerSerializer(serializers.Serializer):
 
 class ShopSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        lookup_field='slug', view_name='shop-detail', read_only=True
+        lookup_field="slug", view_name="shop-detail", read_only=True
     )
     managers = serializers.SerializerMethodField(read_only=True)
 
@@ -23,7 +23,7 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ('title', 'description', 'url', 'managers')
+        fields = ("title", "description", "url", "managers")
 
 
 # TODO: Add limit or pagination for products field
@@ -38,22 +38,22 @@ class ShopWithProductsSerializer(ShopSerializer):
 
     class Meta:
         model = Shop
-        fields = ('title', 'description', 'url', 'managers', 'products')
+        fields = ("title", "description", "url", "managers", "products")
 
 
 class ProductUploadSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField(read_only=True)
 
     def get_url(self, obj):
-        request = self.context.get('request')
-        slug = self.context.get('slug')
+        request = self.context.get("request")
+        slug = self.context.get("slug")
         return reverse(
-            'upload-detail', kwargs={'slug': slug, 'pk': obj.pk}, request=request
+            "upload-detail", kwargs={"slug": slug, "pk": obj.pk}, request=request
         )
 
     class Meta:
         model = ProductUpload
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ProductUploadDetailSerializer(serializers.Serializer):
@@ -63,4 +63,4 @@ class ProductUploadDetailSerializer(serializers.Serializer):
     report_download_url = serializers.SerializerMethodField(read_only=True)
 
     def get_report_download_url(self):
-        return 'Fuck off'
+        return "Fuck off"

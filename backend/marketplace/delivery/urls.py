@@ -1,7 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import SimpleRouter
 
-from . import views
+from .views import DeliveryViewSet
+
+delivery_router = SimpleRouter()
+delivery_router.register(prefix="deliveries", viewset=DeliveryViewSet)
+
 
 urlpatterns = [
-    path('<int:pk>/', views.DeliveryApiView.as_view(), name='delivery-detail'),
+    path("", include(delivery_router.urls)),
 ]

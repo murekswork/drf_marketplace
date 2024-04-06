@@ -11,28 +11,28 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Courier',
+            name="Courier",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.IntegerField(primary_key=True, serialize=False, unique=True),
                 ),
                 (
-                    'first_name',
-                    models.CharField(default='Couriers name', max_length=120),
+                    "first_name",
+                    models.CharField(default="Couriers name", max_length=120),
                 ),
                 (
-                    'last_name',
-                    models.CharField(default='Couriers last name', max_length=120),
+                    "last_name",
+                    models.CharField(default="Couriers last name", max_length=120),
                 ),
                 (
-                    'balance',
+                    "balance",
                     models.DecimalField(decimal_places=2, default=0, max_digits=10),
                 ),
-                ('complete_orders', models.IntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ("complete_orders", models.IntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
-                    'rank',
+                    "rank",
                     models.DecimalField(decimal_places=2, default=5, max_digits=3),
                 ),
             ],

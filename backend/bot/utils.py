@@ -1,8 +1,8 @@
 import datetime
-import json
 import logging
 
 from geopy import distance
+
 from schemas.schemas import Courier, Delivery, Location
 
 
@@ -14,18 +14,18 @@ class DistanceCalculator:
 
     @classmethod
     async def set_avg_courier_speed(cls, new_speed: float) -> None:
-        logging.error(f'Setting avg courier sped to {new_speed}')
+        logging.error(f"Setting avg courier sped to {new_speed}")
         cls.avg_courier_speed = new_speed
 
     async def get_courier_etime_distance(
         self,
         pickup_point: Location,
         consumer_point: Location,
-        free_couriers: dict[Courier, None],
+        free_couriers: list[Courier],
         priority: int,
     ) -> tuple[Courier, float, float] | tuple[None, None, None]:
         """Method to search courier depending on his distance from passed point"""
-        nearest_distance = float('inf')
+        nearest_distance = float("inf")
         optimal_courier = None
         for courier in free_couriers:
             courier_distance = await self.calculate_distance(
@@ -47,7 +47,7 @@ class DistanceCalculator:
         return estimated_time_minutes
 
     async def get_nearest_free_courier(
-        self, delivery: Delivery, free_couriers: dict[Courier, None]
+        self, delivery: Delivery, free_couriers: list[Courier] | None
     ) -> dict[str, bool | Courier]:
         if free_couriers:
             courier, estimated_time, distance = await self.get_courier_etime_distance(
@@ -59,13 +59,15 @@ class DistanceCalculator:
                 priority=delivery.priority,
             )
             if courier:
-                delivery.estimated_time = datetime.datetime.now() + datetime.timedelta(minutes=estimated_time)  # type: ignore
+                delivery.estimated_time = datetime.datetime.now() + datetime.timedelta(
+                    minutes=estimated_time
+                )  # type: ignore
                 delivery.distance = distance
-                return {'success': True, 'courier': courier}
+                return {"success": True, "courier": courier}
             delivery.priority += 1
         return {
-            'success': False,
-            'msg': 'There are no couriers available in current max-range radius',
+            "success": False,
+            "msg": "There are no couriers available in current max-range radius",
         }
 
     async def calculate_distance(self, *points: Location) -> float:
@@ -75,23 +77,3 @@ class DistanceCalculator:
                 (points[i - 1].lat, points[i - 1].lon), (points[i].lat, points[i].lon)
             ).kilometers
         return total_distance
-
-
-def dict_to_dataclass(dict_: dict, dataclass_: type):
-    """Function to convert dict to dataclass by same fields"""
-    same_fields = {
-        field: dict_[field] for field in dict_ if field in dataclass_.__annotations__
-    }
-    if 'started_at' in same_fields:
-        same_fields['started_at'] = datetime.datetime.fromisoformat(
-            same_fields['started_at']
-        )
-    return dataclass_(**same_fields)
-
-
-def consume_django_model_to_dataclass(serialized_model: str, dataclass_: type):
-    """Function takes serialized django model and dataclass type and converts it to dataclass object"""
-    deserialized_msg = json.loads(serialized_model)[0]
-    model_dict = deserialized_msg['fields']
-    model_dict['id'] = deserialized_msg.pop('pk')
-    return dict_to_dataclass(model_dict, dataclass_)

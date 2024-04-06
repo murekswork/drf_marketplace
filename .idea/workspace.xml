@@ -5,316 +5,164 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09c28797-b853-4a2e-bfc7-b8a6abbd1aa4" name="Changes" comment="now geopy lib is used to calculate distance between location points + started_at field deserialization in dict_to_dataclass func">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bot/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bot/bot.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bot/replies.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bot/services/metrics_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/bot/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/kafka.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/api/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/api/permissions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/api/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/articles/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0002_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0003_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/articles/serializers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/articles/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/category/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/category/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/category/tests/test_models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/category/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/asgi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/courier/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0003_rename_complete_orders_courier_done_deliveries_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/delivery/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0002_alter_delivery_latitude_alter_delivery_longitude_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0003_alter_delivery_courier_alter_delivery_status.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0004_alter_delivery_status.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/delivery/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0002_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0003_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0004_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0005_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0006_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0007_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0008_alter_order_created_at_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0009_alter_order_created_at_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0010_alter_order_lifetime.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_serializer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/order/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0002_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0003_alter_sale_end_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0004_alter_sale_end_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0005_alter_sale_end_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0006_product_mark_product_sales_count_alter_sale_end_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0007_alter_product_mark_alter_sale_end_date_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/permissions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/services/sale_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/services/validation/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_permissions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_views.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/products/validators.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/search/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/search/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/search/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/search/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/search/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/search/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0002_alter_shop_options_alter_shopmanager_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0003_alter_shop_options.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0004_alter_shop_options_alter_shopstaffgroup_permissions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0005_alter_shop_options_alter_shopstaffgroup_permissions.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0006_alter_shop_options_alter_shopmanager_title_and_more.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0007_alter_shop_user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/product_upload.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/schemas.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/upload_log_exporter_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/upload_log_maker_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/tests/test_models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/utils/location_tracker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/utils/validation/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/wallet/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/wallet/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/wallet/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/wallet/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/marketplace/wallet/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/bot_reqs/requirements.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/bot_reqs/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/lints/requirements.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/lints/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/marketplace_reqs/dev-requirements.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/marketplace_reqs/dev-requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/marketplace_reqs/requirements.in" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/requirements/marketplace_reqs/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/rundjango.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.pre-commit-config.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/logging_/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/test_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/authentication.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/authentication.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/schemas/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/mixins.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/test_kafka_consumer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/permissions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/test_kafka_receiver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/services/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/services/banwords.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/services/banwords.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/services/service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/services/validation/service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/services/validation/service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/tests/test_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/articles/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/bot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/decorators.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/decorators.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/filter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/handlers/common_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/handlers/common_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/handlers/courier_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/handlers/courier_handlers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/handlers/delivery_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/handlers/delivery_handlers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/handlers/root_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/handlers/root_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/kafka_common/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/test_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/kafka_common/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/kafka_common/receiver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/kafka_common/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/kafka_common/sender.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/kafka_tg/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/kafka_tg/receiver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/kafka_tg/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/kafka_tg/sender.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/keyboards.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/keyboards.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/logging_/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/logging_/logger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/managers/courier.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/managers/delivery.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/repository/abc_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/repository/abc_repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/bot/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/bot/replies.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/replies.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/bot/repository/delivery_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/repository/delivery_repository.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/schemas/schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/schemas/schemas.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/services/courier_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/services/courier_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/services/delivery_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/services/delivery_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/bot/services/metrics_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/services/metrics_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/services/notification_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/services/notification_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/bot/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tasks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/bot/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/test_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bot/tests/test_tasks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/kafka_common/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/tests/test_models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/tests/test_serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/tests/test_serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/tests/test_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/tests/test_views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/category/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/celery_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/cfehome/asgi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/cfehome/routers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/routers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/cfehome/settings.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/cfehome/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/cfehome/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/wsgi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/config.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/kafka_/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/migrations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/kafka_/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/receiver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/kafka_/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/sender.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/management/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/management/commands/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/management/commands/run_bot.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/management/commands/start_listening.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/management/commands/start_listening.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/migrations/0002_alter_courier_id.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0002_alter_courier_id.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/migrations/0003_rename_complete_orders_courier_done_deliveries_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/migrations/0004_alter_courier_rank.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0004_alter_courier_rank.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/services/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/service/courier_orm_service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/courier/services.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/services/validation/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/kafka_/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/tests/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/kafka_/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/receiver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/kafka_/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/sender.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/migrations/0002_alter_delivery_latitude_alter_delivery_longitude_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/migrations/0003_alter_delivery_courier_alter_delivery_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/migrations/0004_alter_delivery_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/services/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/migrations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/services/delivery_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/services/delivery_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/delivery/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/manage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/tests/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/mixins.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/serialziers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/serialziers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/services/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/services/order_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/order_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/services/payment/order_payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/payment/order_payment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/services/validation/order_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/validation/order_validation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/tests/test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/tests/test_serializer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/tests/test_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/tests/test_services.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/tests/test_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/validators.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/validators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/order/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/management/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/management/commands/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/services/validation/product_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/services/validation/product_validation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/services/validation/sale_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/services/validation/sale_validation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/management/commands/django-kafka.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/tests/test_models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/tests/test_permissions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/tests/test_serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/tests/test_views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/validators.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/products/viewsets.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/viewsets.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/management/commands/listen-tg.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/search/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/search/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/permissions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/services/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/services/service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/tests/test_models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/throttles.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/throttles.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop_reports/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/services/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop_reports/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop_reports/schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/schema.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop_reports/services/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop_reports/services/periodic_report_creating_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/services/periodic_report_creating_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/shop_reports/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/utils/adapters.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/utils/adapters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/utils/readers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/utils/readers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/utils/validation/badwords_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/utils/validation/badwords_validation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/payment/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/validation/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/tests/test_serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/tests/test_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/wallet/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/kafka_common/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/kafka_common/receiver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/kafka_common/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/kafka_common/sender.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/api/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/api/authentication.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/authentication.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/api/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/mixins.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/api/permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/permissions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/api/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/api/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/api/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0002_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0002_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0003_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/migrations/0003_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/tests/test_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/articles/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/articles/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/tests/test_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/category/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/category/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/celery_app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/cfehome/asgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/asgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/cfehome/routers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/routers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/cfehome/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/cfehome/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/cfehome/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/cfehome/wsgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/receiver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/kafka_/sender.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/management/commands/start_listening.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/management/commands/start_listening.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0002_alter_courier_id.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0002_alter_courier_id.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0003_rename_complete_orders_courier_done_deliveries_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0003_rename_complete_orders_courier_done_deliveries_and_more.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0004_alter_courier_rank.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/migrations/0004_alter_courier_rank.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/courier/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/courier/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/receiver.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/receiver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/sender.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/kafka_/sender.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0002_alter_delivery_latitude_alter_delivery_longitude_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0002_alter_delivery_latitude_alter_delivery_longitude_and_more.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0003_alter_delivery_courier_alter_delivery_status.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0003_alter_delivery_courier_alter_delivery_status.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0004_alter_delivery_status.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/migrations/0004_alter_delivery_status.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/services/delivery_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/services/delivery_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/delivery/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/delivery/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0002_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0002_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0003_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0003_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0004_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0004_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0005_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0005_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0006_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0006_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0007_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0007_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0008_alter_order_created_at_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0008_alter_order_created_at_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0009_alter_order_created_at_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0009_alter_order_created_at_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/migrations/0010_alter_order_lifetime.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/migrations/0010_alter_order_lifetime.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/serialziers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/serialziers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/services/order_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/order_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/services/payment/order_payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/payment/order_payment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/services/validation/order_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/services/validation/order_validation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/tests/test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/tests/test_serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_serializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/tests/test_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/tests/test_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/tests/test_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/validators.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/validators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/order/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/order/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0002_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0002_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0003_alter_sale_end_date.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0003_alter_sale_end_date.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0004_alter_sale_end_date.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0004_alter_sale_end_date.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0005_alter_sale_end_date.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0005_alter_sale_end_date.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0006_product_mark_product_sales_count_alter_sale_end_date.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0006_product_mark_product_sales_count_alter_sale_end_date.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/migrations/0007_alter_product_mark_alter_sale_end_date_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/migrations/0007_alter_product_mark_alter_sale_end_date_and_more.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/services/validation/sale_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/services/validation/sale_validation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/tests/test_permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_permissions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/tests/test_serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/tests/test_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/tests/test_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/validators.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/validators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/products/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/products/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/search/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/search/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/search/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/search/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/search/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/search/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0002_alter_shop_options_alter_shopmanager_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0002_alter_shop_options_alter_shopmanager_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0003_alter_shop_options.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0003_alter_shop_options.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0004_alter_shop_options_alter_shopstaffgroup_permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0004_alter_shop_options_alter_shopstaffgroup_permissions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0005_alter_shop_options_alter_shopstaffgroup_permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0005_alter_shop_options_alter_shopstaffgroup_permissions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0006_alter_shop_options_alter_shopmanager_title_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0006_alter_shop_options_alter_shopmanager_title_and_more.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0007_alter_shop_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/migrations/0007_alter_shop_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/permissions.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/permissions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/product_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/product_upload.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/upload_log_exporter_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/upload_log_exporter_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/upload_log_maker_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/services/product_upload_services/upload_log_maker_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/tests/test_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/throttles.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/throttles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop_reports/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop_reports/schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/schema.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/shop_reports/services/periodic_report_creating_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/shop_reports/services/periodic_report_creating_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/utils/location_tracker.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/utils/location_tracker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/utils/validation/badwords_validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/utils/validation/badwords_validation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/migrations/0001_initial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/tests/test_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/marketplace/wallet/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/marketplace/wallet/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/bot_reqs/requirements.in" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/bot_reqs/requirements.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/bot_reqs/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/bot_reqs/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/marketplace_reqs/dev-requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/marketplace_reqs/dev-requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/rundjango.sh" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -330,6 +178,7 @@
         <option value="HTTP Request" />
         <option value="JavaScript File" />
         <option value="HTML File" />
+        <option value="Python Stub" />
         <option value="Python Script" />
       </list>
     </option>
@@ -399,7 +248,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.django.DjangoModulesConfigurable&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -417,11 +266,11 @@
       <recent name="$PROJECT_DIR$/py_client" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/kafka_common" />
       <recent name="$PROJECT_DIR$/backend/requirements/lints" />
       <recent name="$PROJECT_DIR$/backend/requirements/bot_reqs" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/backend/requirements/marketplace_reqs" />
-      <recent name="$PROJECT_DIR$/backend/markeplace" />
     </key>
   </component>
   <component name="RunAnythingCache">
@@ -598,7 +447,12 @@
       <workItem from="1711909878299" duration="12698000" />
       <workItem from="1711983600864" duration="37000" />
       <workItem from="1711997159783" duration="9661000" />
-      <workItem from="1712009799439" duration="2978000" />
+      <workItem from="1712009799439" duration="5858000" />
+      <workItem from="1712077055611" duration="149000" />
+      <workItem from="1712077256048" duration="307000" />
+      <workItem from="1712077598219" duration="1247000" />
+      <workItem from="1712344943486" duration="16361000" />
+      <workItem from="1712412529959" duration="886000" />
     </task>
     <task id="LOCAL-00141" summary="added status for picked up delivery">
       <option name="closed" value="true" />

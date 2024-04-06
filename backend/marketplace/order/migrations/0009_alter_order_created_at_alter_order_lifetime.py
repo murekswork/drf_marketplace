@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('order', '0008_alter_order_created_at_alter_order_lifetime'),
+        ("order", "0008_alter_order_created_at_alter_order_lifetime"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='order',
-            name='created_at',
+            model_name="order",
+            name="created_at",
             field=models.DateTimeField(auto_now_add=True),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='lifetime',
+            model_name="order",
+            name="lifetime",
             field=models.DateTimeField(
                 default=datetime.datetime(2024, 3, 15, 22, 59, 59, 526203)
             ),

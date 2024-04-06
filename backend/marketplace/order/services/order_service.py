@@ -38,7 +38,7 @@ class SimpleOrderService(AbstractOrderService):
         self.get_order_amount()
         validation = self.validation_service.validate_order()
 
-        if validation != {'success': True}:
+        if validation != {"success": True}:
             return ValidationError()
 
         payment = self.payment_service.pay_order()
@@ -60,7 +60,7 @@ class SaleOrderService(SimpleOrderService):
 
     def get_order_amount(self) -> float:
         sale_validation = self.sale_validation_service.validate_sale_expired()
-        if sale_validation != {'success': True}:
+        if sale_validation != {"success": True}:
             return super().get_order_amount()
 
         product_price_with_sale = self.order.product.price - (
@@ -78,14 +78,14 @@ class OrderAmountCalculator:
         amount = product.price * count
         if sale:
             service = SaleService(sale=sale)
-            if service.validate_sale_expired()['success'] is True:
+            if service.validate_sale_expired()["success"] is True:
                 amount = service.apply_sale(
                     sale_size=float(sale.size), amount=float(amount)
                 )
         return amount
 
     def get_amount(self, order: Order):
-        if order.payment_status != 'paid':
+        if order.payment_status != "paid":
             return self._create_amount(product=order.product, count=order.count)
 
         return order.amount

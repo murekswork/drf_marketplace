@@ -10,19 +10,19 @@ class ArticleModelTestCase(TestCase):
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            username='test', email='test@mail.com'
+            username="test", email="test@mail.com"
         )
         self.shop = Shop.objects.create(
-            user=self.user, title='title', description='description'
+            user=self.user, title="title", description="description"
         )
         self.product = Product.objects.create(
-            shop=self.shop, title='title', public=True, content='content', quantity=5
+            shop=self.shop, title="title", public=True, content="content", quantity=5
         )
         self.order = Order.objects.create(product=self.product, count=3, user=self.user)
         self.article1 = Article.objects.create(
             user=self.user,
-            title='title',
-            article_content='article content',
+            title="title",
+            article_content="article content",
             published=True,
             mark=5,
             order=self.order,
@@ -30,10 +30,10 @@ class ArticleModelTestCase(TestCase):
         )
 
     def test_article_fields_title_after_creation(self):
-        self.assertTrue(self.article1.title == 'title')
+        self.assertTrue(self.article1.title == "title")
 
     def test_article_fields_content_after_creation(self):
-        self.assertTrue(self.article1.article_content == 'article content')
+        self.assertTrue(self.article1.article_content == "article content")
 
     def test_article_fields_user_after_creation(self):
         self.assertTrue(self.article1.user == self.user)
@@ -53,8 +53,8 @@ class ArticleModelTestCase(TestCase):
     def test_article_model_when_second_article_create_then_product_mark_changes(self):
         self.article2 = Article.objects.create(
             user=self.user,
-            title='title',
-            article_content='article content',
+            title="title",
+            article_content="article content",
             published=True,
             mark=1,
             order=self.order,

@@ -1,36 +1,26 @@
 import logging
-from abc import ABC, abstractmethod
 
+from delivery.adapters.delivery_adapters import DeliveryAdapter
+from delivery.exceptions import DeliveryPickedUpException
 from delivery.models import Delivery
+from kafka_common.factories import producer_factory
+from kafka_common.topics import DeliveryTopics
 
 
-class DeliveryFabricServiceABC(ABC):
+class DeliveryService:
 
-    @abstractmethod
-    def create_delivery(self, delivery_data) -> Delivery:
-        raise NotImplementedError
-
-    @abstractmethod
-    def send_delivery(self, delivery: Delivery):
-        raise NotImplementedError
-
-    @abstractmethod
-    def receive_delivery(self):
-        raise NotImplementedError
-
-
-class DeliveryUtils:
-
-    def update_delivery_in_db_from_telegrma(self, delivery_dict: dict) -> Delivery:
-        try:
-            cour_id = delivery_dict.pop('courier')
-            delivery_dict['courier_id'] = cour_id
-            d = Delivery.objects.filter(id=delivery_dict['id']).first()
-            if d:
-                for key, value in delivery_dict.items():
-                    setattr(d, key, value)
-                logging.info('(SUCCESS) Updated delivery in database!')
-                d.save()
-            return d
-        except Exception as e:
-            logging.error(f'Could not update delivery in db coz of {e}', exc_info=True)
+    def cancel_by_customer(self, delivery: Delivery):
+        if delivery.status > 3:
+            # if delivery already picked up by courier
+            raise DeliveryPickedUpException(
+                "Can not cancel because delivery already picked up!"
+            )
+        logging.warning("STARTED TO SENT DEL")
+        delivery.status = 0
+        delivery.save()
+        topic = DeliveryTopics.TO_CANCEL_DELIVERY
+        sender = producer_factory(topic)
+        msg = DeliveryAdapter.serialize_delivery(delivery)
+        logging.warning("STARTED TO SENT DEL MESS IS {}".format(msg))
+        sender.send(msg)
+        logging.warning("SENT MSG {}".format(msg))

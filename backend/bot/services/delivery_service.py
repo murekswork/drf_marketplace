@@ -1,11 +1,14 @@
 import datetime
+import json
+import logging
 from typing import AsyncGenerator
 
+from kafka_common.factories import producer_factory
 from kafka_common.receiver import SingletonMixin
-from kafka_tg.sender import TgDeliverySender
+from kafka_common.topics import DeliveryTopics
 from repository.courier_repository import CourierRepository
 from repository.delivery_repository import DeliveryRepository
-from schemas.schemas import Courier, Delivery
+from schemas.schemas import Courier, Delivery, cancelled_deliveries
 from utils import DistanceCalculator
 
 
@@ -17,7 +20,7 @@ class DeliveryService(SingletonMixin):
         self.delivery_repository = DeliveryRepository()
         self.courier_repository = CourierRepository()
 
-        self._kafka_delivery_service = TgDeliverySender()
+        self._kafka_delivery_service = producer_factory(topic=DeliveryTopics.DELIVERED)
 
     async def __lock_service(self):
         self.__service_lock = True
@@ -48,8 +51,8 @@ class DeliveryService(SingletonMixin):
             delivery, couriers_with_location
         )
 
-        if search_courier_result['success']:
-            courier: Courier = search_courier_result['courier']
+        if search_courier_result["success"]:
+            courier: Courier = search_courier_result["courier"]
             await self.delivery_repository.update(
                 id=delivery.id, courier=courier.id, status=3
             )
@@ -57,23 +60,26 @@ class DeliveryService(SingletonMixin):
                 id=courier.id, current_delivery_id=delivery.id, busy=True
             )
 
-            self._kafka_delivery_service.send_delivery_to_django(delivery=delivery)
+            delivery_msg = json.dumps(delivery.__dict__, default=str)
+            self._kafka_delivery_service.send(delivery_msg)
 
-            return {'success': True, 'courier': courier, 'delivery': delivery}
+            return {"success": True, "courier": courier, "delivery": delivery}
 
         else:
             if retries < 5:
                 return await self.open_delivery(delivery, k + 1, retries + 1)
             else:
                 await self.__lock_service()
-                return {'success': False, 'msg': 'Too many retries to find courier!'}
+                return {"success": False, "msg": "Too many retries to find courier!"}
 
     async def picked_up_delivery(self, courier_id: int) -> Delivery:
         delivery = await self.get_couriers_delivery(courier_id)
         if delivery:
             delivery.status = 4
-        kafka_ = self._kafka_delivery_service
-        kafka_.send_delivery_to_django(delivery)
+
+        msg = json.dumps(delivery.__dict__, default=str)
+        self._kafka_delivery_service.send(msg)
+
         return delivery
 
     async def get_couriers_delivery(self, courier_id: int) -> Delivery | None:
@@ -94,11 +100,8 @@ class DeliveryService(SingletonMixin):
         await self.courier_repository.update(courier.id, busy=busy)
 
     async def _check_service_lock_status(self) -> bool:
-        # Firstly check if service is locked then ++ counterer and return True if it is and lock_counterer < 5
         if self.__service_lock is True and self.__lock_counter < 5:
             self.__lock_counter += 1
-        # Check if service is locked then if lock counterer return True > 5 then verify couriers busy
-        # status and unlock if any couriers is free
         elif self.__service_lock is True and self.__lock_counter > 5:
             await self.__verify_service()
         else:
@@ -125,22 +128,22 @@ class DeliveryService(SingletonMixin):
         calculate_service.working_range += distance
 
 
-class DeliveryClosingService:
+class DeliveryCancellationService(SingletonMixin):
 
     def __init__(self):
-        self.courier_service = CourierRepository()
-        self.delivery_service = DeliveryRepository()
+        self.delivery_service = DeliveryService()
+        self.cancelled_delivery_repository = DeliveryRepository(
+            source=cancelled_deliveries
+        )
 
-    async def close_success_delivery(self, delivery: Delivery):
-        await self.delivery_service.finish_delivery(delivery.id, status=5)
-        await self.courier_service.unlock_courier(delivery.courier)
-
-    async def close_not_success_delivery(self, delivery: Delivery):
-        await self.delivery_service.finish_delivery(delivery.id, status=0)
-
-    async def close_delivery(self, delivery_id: int, status: int):
-        d: Delivery = await self.delivery_service.get_delivery(delivery_id)
-        if status == 5:
-            await self.close_success_delivery(d)
-        else:
-            await self.close_not_success_delivery(d)
+    async def check_cancelled_deliveries(self) -> AsyncGenerator[Courier, None] | None:
+        deliveries = await self.cancelled_delivery_repository.get_all()
+        if deliveries:
+            for delivery in deliveries:
+                await self.delivery_service.delivery_repository.delete(delivery.id)
+                await self.cancelled_delivery_repository.delete(delivery.id)
+                courier = await self.delivery_service.courier_repository.update(
+                    delivery.courier, busy=False, current_delivery_id=None
+                )
+                if courier:
+                    yield courier

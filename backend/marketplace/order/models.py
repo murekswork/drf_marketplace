@@ -12,7 +12,7 @@ from products.models import Product
 class OrderQuerySet(models.QuerySet):
 
     def paid_orders(self):
-        qs = self.filter(payment_status=True).order_by('-created_at')
+        qs = self.filter(payment_status=True).order_by("-created_at")
         return qs
 
 
@@ -46,7 +46,7 @@ class Order(models.Model):
         Product,
         blank=False,
         null=True,
-        related_name='orders',
+        related_name="orders",
         on_delete=models.SET_NULL,
     )
     count = models.IntegerField(
@@ -69,7 +69,7 @@ class Order(models.Model):
         return self.amount
 
     def __str__(self):
-        return f'Order #{self.id}'
+        return f"Order #{self.id}"
 
 
 @receiver(pre_save, sender=Order)
