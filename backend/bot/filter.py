@@ -6,6 +6,7 @@ class _CouriersFilter(MessageFilter):
 
     def filter(self, message: Message) -> bool:
         from schemas.schemas import couriers
+
         return message.chat.id in couriers
 
 
@@ -13,7 +14,12 @@ class _OnlineCourierFirstLocationMsgFilter(_Location, _CouriersFilter):
 
     def filter(self, message: Message) -> bool:
         from schemas.schemas import couriers
-        return super().filter(message) and message.chat.id in couriers and couriers[message.chat.id].location is None
+
+        return (
+            super().filter(message)
+            and message.chat.id in couriers
+            and couriers[message.chat.id].location is None
+        )
 
 
 class _OnlineCouriersLocationFilter(_Location, _CouriersFilter):
@@ -28,6 +34,7 @@ class _OnlineCourierMessageFilter(MessageFilter):
 
     def filter(self, message: Message) -> bool:
         from schemas.schemas import couriers
+
         return message.chat.id in couriers
 
 
@@ -35,13 +42,18 @@ class _OnlineNotLocationCourierMessageFilter(_OnlineCourierMessageFilter):
 
     def filter(self, message: Message):
         from schemas.schemas import couriers
-        return message.chat.username in couriers and couriers[message.chat.id].location is None
+
+        return (
+            message.chat.username in couriers
+            and couriers[message.chat.id].location is None
+        )
 
 
 class _NoActiveDeliveryFilter(_CouriersFilter):
 
     def filter(self, message: Message) -> bool:
         from schemas.schemas import couriers
+
         active_delivery = couriers.get(message.chat.id).busy
         return super().filter(message) and not active_delivery
 
@@ -50,6 +62,7 @@ class _ActiveDeliveryFilter(_CouriersFilter):
 
     def filter(self, message: Message) -> bool:
         from schemas.schemas import couriers
+
         is_courier = super().filter(message)
         if is_courier:
             return couriers.get(message.chat.id).busy
@@ -63,11 +76,22 @@ class _NotOnlineCourierFilter(_CouriersFilter):
 
 
 class CourierFilters:
-    NOT_ONLINE_COURIER_MESSAGE_FILTER = _NotOnlineCourierFilter(name='not_online_courier')
-    ONLINE_COURIER_LOCATION_FILTER = _OnlineCouriersLocationFilter(name='courier_location')
-    ONLINE_COURIER_FIRST_LOCATION_FILTER = _OnlineCourierFirstLocationMsgFilter(name='first_courier_location')
+    NOT_ONLINE_COURIER_MESSAGE_FILTER = _NotOnlineCourierFilter(
+        name='not_online_courier'
+    )
+    ONLINE_COURIER_LOCATION_FILTER = _OnlineCouriersLocationFilter(
+        name='courier_location'
+    )
+    ONLINE_COURIER_FIRST_LOCATION_FILTER = _OnlineCourierFirstLocationMsgFilter(
+        name='first_courier_location'
+    )
     ONLINE_COURIER_NOT_LOCATION_MESSAGE_FILTER = _OnlineNotLocationCourierMessageFilter(
-        name='courier_not_location_filter')
+        name='courier_not_location_filter'
+    )
     ONLINE_COURIER_MESSAGE_FILTER = _OnlineCourierMessageFilter(name='courier_filter')
-    ONLINE_COURIER_NOT_ACTIVE_DELIVERY_FILTER = _NoActiveDeliveryFilter(name='courier_not_active_delivery')
-    ONLINE_COURIER_ACTIVE_DELIVERY_FILTER = _ActiveDeliveryFilter(name='courier_active_delivery')
+    ONLINE_COURIER_NOT_ACTIVE_DELIVERY_FILTER = _NoActiveDeliveryFilter(
+        name='courier_not_active_delivery'
+    )
+    ONLINE_COURIER_ACTIVE_DELIVERY_FILTER = _ActiveDeliveryFilter(
+        name='courier_active_delivery'
+    )

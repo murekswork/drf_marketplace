@@ -36,24 +36,26 @@ class DeliveryService(SingletonMixin):
         await self.__unlock_service()
 
     async def open_delivery(
-            self,
-            delivery: Delivery,
-            k: int = 5,
-            retries: int = 0
+        self, delivery: Delivery, k: int = 5, retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
         service = DistanceCalculator()
         couriers = await self.courier_repository.get_by_kwargs(busy=False)
-        couriers_with_location = [courier for courier in couriers if courier.location is not None]
+        couriers_with_location = [
+            courier for courier in couriers if courier.location is not None
+        ]
 
         search_courier_result = await service.get_nearest_free_courier(
-            delivery,
-            couriers_with_location
+            delivery, couriers_with_location
         )
 
         if search_courier_result['success']:
             courier: Courier = search_courier_result['courier']
-            await self.delivery_repository.update(id=delivery.id, courier=courier.id, status=3)
-            await self.courier_repository.update(id=courier.id, current_delivery_id=delivery.id, busy=True)
+            await self.delivery_repository.update(
+                id=delivery.id, courier=courier.id, status=3
+            )
+            await self.courier_repository.update(
+                id=courier.id, current_delivery_id=delivery.id, busy=True
+            )
 
             self._kafka_delivery_service.send_delivery_to_django(delivery=delivery)
 
@@ -85,7 +87,9 @@ class DeliveryService(SingletonMixin):
     async def close_delivery(self, delivery_id: int, status: int) -> None:
         delivery = await self.delivery_repository.get(delivery_id)
         courier = await self.courier_repository.get(delivery.courier)
-        await self.delivery_repository.update(delivery_id, status=status, completed_at=datetime.datetime.now())
+        await self.delivery_repository.update(
+            delivery_id, status=status, completed_at=datetime.datetime.now()
+        )
         busy = status == 0
         await self.courier_repository.update(courier.id, busy=busy)
 

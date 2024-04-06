@@ -31,64 +31,71 @@ def main() -> None:
     application.add_handler(
         MessageHandler(
             callback=track_location_handler,
-            filters=CourierFilters.ONLINE_COURIER_LOCATION_FILTER)
+            filters=CourierFilters.ONLINE_COURIER_LOCATION_FILTER,
+        )
     )
 
     application.add_handler(
         MessageHandler(
-            callback=lambda update, context: track_location_handler(update, context, True),
-            filters=CourierFilters.ONLINE_COURIER_FIRST_LOCATION_FILTER)
-
+            callback=lambda update, context: track_location_handler(
+                update, context, True
+            ),
+            filters=CourierFilters.ONLINE_COURIER_FIRST_LOCATION_FILTER,
+        )
     )
 
     application.add_handler(
         MessageHandler(
             callback=courier_stop_carrying_handler,
-            filters=Regex('Stop carrying') & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER
+            filters=Regex('Stop carrying')
+            & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
     application.add_handler(
         MessageHandler(
             callback=courier_start_carrying_handler,
-            filters=Regex(pattern='Start carrying') & CourierFilters.NOT_ONLINE_COURIER_MESSAGE_FILTER)
-    )
-
-    application.add_handler(
-        CommandHandler(
-            command='start',
-            callback=start_bot
+            filters=Regex(pattern='Start carrying')
+            & CourierFilters.NOT_ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
+    application.add_handler(CommandHandler(command='start', callback=start_bot))
+
     application.add_handler(
-        CommandHandler(
-            command='check_couriers',
-            callback=get_couriers_on_line)
+        CommandHandler(command='check_couriers', callback=get_couriers_on_line)
     )
 
     application.add_handler(
         MessageHandler(
             callback=show_couriers_delivery,
-            filters=Regex('Show delivery') & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER)
+            filters=Regex('Show delivery')
+            & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
+        )
     )
 
     application.add_handler(
         MessageHandler(
             callback=lambda update, context: close_delivery(update, context, 5),
-            filters=Regex('Delivered!') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
+            filters=Regex('Delivered!')
+            & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
+        )
     )
 
     application.add_handler(
         MessageHandler(
             callback=lambda update, context: close_delivery(update, context, 0),
-            filters=Regex('Cancel delivery') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
+            filters=Regex('Cancel delivery')
+            & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
+        )
     )
 
     application.add_handler(
         MessageHandler(
             callback=picked_up_delivery_handler,
-            filters=Regex('Picked up') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER)
+            filters=Regex('Picked up')
+            & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
+        )
     )
     from tasks import (
         job_check_deliveries,
@@ -97,55 +104,48 @@ def main() -> None:
         run_jobs,
     )
 
+    application.add_handler(CommandHandler(command='runjobs', callback=run_jobs))
+
     application.add_handler(
-        CommandHandler(
-            command='runjobs',
-            callback=run_jobs
-        )
+        CommandHandler(command='start_task', callback=job_check_deliveries)
     )
 
     application.add_handler(
-        CommandHandler(
-            command='start_task',
-            callback=job_check_deliveries)
+        CommandHandler(command='starttask', callback=job_notify_courier)
     )
 
     application.add_handler(
-        CommandHandler(
-            command='starttask',
-            callback=job_notify_courier)
-    )
-
-    application.add_handler(
-        CommandHandler(
-            command='avgspeed',
-            callback=job_get_avg_couriers_speed
-        )
+        CommandHandler(command='avgspeed', callback=job_get_avg_couriers_speed)
     )
 
     application.add_handler(
         MessageHandler(
             callback=profile_handler,
-            filters=Regex(pattern='Show profile') & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER
+            filters=Regex(pattern='Show profile')
+            & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
     application.add_handler(
         CommandHandler(
             command='add_distance',
-            callback=lambda update, context: change_delivery_distance_handler(update, context, 3))
+            callback=lambda update, context: change_delivery_distance_handler(
+                update, context, 3
+            ),
+        )
     )
 
     application.add_handler(
         CommandHandler(
             command='sub_distance',
-            callback=lambda update, context: change_delivery_distance_handler(update, context, 3))
+            callback=lambda update, context: change_delivery_distance_handler(
+                update, context, 3
+            ),
+        )
     )
 
     application.add_handler(
-        CommandHandler(
-            command='deliveries',
-            callback=show_all_deliveries)
+        CommandHandler(command='deliveries', callback=show_all_deliveries)
     )
 
     application.run_polling()
@@ -172,4 +172,6 @@ if __name__ == '__main__':
         listen_for_delivery()
         main()
     except Exception as e:
-        logging.error(f'Could not start bot or tg listeners! {e}, {e.args}', exc_info=True)
+        logging.error(
+            f'Could not start bot or tg listeners! {e}, {e.args}', exc_info=True
+        )

@@ -22,7 +22,11 @@ async def distribute_deliveries_periodic_task(context: CallbackContext):
         async for delivery in deliveries_:
             logger.info(f'Got delivery {delivery} for delivering')
             if delivery['success']:
-                await send_delivery_info_msg(context, chat_id=delivery['courier'].id, delivery=delivery['delivery'])
+                await send_delivery_info_msg(
+                    context,
+                    chat_id=delivery['courier'].id,
+                    delivery=delivery['delivery'],
+                )
             else:
                 logger.warning('No free couriers!')
     else:
@@ -39,7 +43,9 @@ async def delivery_notification_periodic_task(context: CallbackContext):
 
 
 async def job_check_deliveries(update: Update, context: CallbackContext):
-    await update.message.reply_text(text='Select action', reply_markup=CourierReplyMarkups.COURIER_MAIN_MARKUP)
+    await update.message.reply_text(
+        text='Select action', reply_markup=CourierReplyMarkups.COURIER_MAIN_MARKUP
+    )
     job_queue = context.job_queue
     job_queue.run_repeating(distribute_deliveries_periodic_task, interval=5, first=0)
 

@@ -17,7 +17,8 @@ async def track_location_handler(update: Update, context: CallbackContext, first
     if first:
         await msg.reply_text(
             text=Replies.COURIER_SENT_LOCATION_INFO,
-            reply_markup=CourierReplyMarkups.COURIER_MAIN_MARKUP)
+            reply_markup=CourierReplyMarkups.COURIER_MAIN_MARKUP,
+        )
 
 
 @exception_logging
@@ -29,7 +30,8 @@ async def courier_start_carrying_handler(update: Update, context: CallbackContex
     await msg.reply_text(
         text=Replies.COURIER_START_CARRYING_INFO,
         parse_mode=ParseMode.HTML,
-        reply_markup=CourierReplyMarkups.COURIER_RECEIVE_LOCATION_MARKUP)
+        reply_markup=CourierReplyMarkups.COURIER_RECEIVE_LOCATION_MARKUP,
+    )
 
 
 @exception_logging
@@ -38,6 +40,7 @@ async def courier_stop_carrying_handler(update: Update, context: CallbackContext
     user = msg.chat
     service = CourierService()
     service.courier_stop_carrying(user)
-    await msg.reply_text(Replies.STOP_CARRYING_INFO,
-                         reply_markup=CourierReplyMarkups.NOT_CARRYING_MARKUP)
+    await msg.reply_text(
+        Replies.STOP_CARRYING_INFO, reply_markup=CourierReplyMarkups.NOT_CARRYING_MARKUP
+    )
     await profile_handler(update, context)

@@ -14,7 +14,7 @@ class CourierService:
             'id': user.id,
             'username': user.username,
             'first_name': user.first_name,
-            'last_name': user.last_name
+            'last_name': user.last_name,
         }
 
         kafka_ = CourierProfileAsker()
@@ -35,6 +35,7 @@ class CourierService:
 
     async def close_delivery(self, cour_id: int, status: int) -> Delivery:
         from services.delivery_service import DeliveryService
+
         service = DeliveryService()
         delivery = await service.get_couriers_delivery(cour_id)
         delivery.status = status
