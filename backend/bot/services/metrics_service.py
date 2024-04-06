@@ -22,9 +22,6 @@ class AvgCourierSpeedProvider:
         for delivery in deliveries:
             distances += delivery.distance
             times += delivery.completed_at - delivery.started_at
-        logging.warning(
-            f'CALCULATED DISTANCES AND TIMES ITS {distances}, {times}'
-        )
         return distances, times
 
     async def clear_deliveries_from_storage(self, deliveries: list[Delivery]):
@@ -40,11 +37,7 @@ class AvgCourierSpeedProvider:
                 )
                 avg_speed = distances / (times.total_seconds() / 3600)
                 await self.clear_deliveries_from_storage(completed_deliveries)
-                logging.error(
-                    f'Successfuly calculated avg speed and speed is {avg_speed}'
-                )
                 return avg_speed
-            logging.error('No new completed deliveries found')
         except Exception as e:
             logging.error(
                 f'Some error in calculating avg courier speed {e}', exc_info=e
