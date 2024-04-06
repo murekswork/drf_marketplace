@@ -30,9 +30,11 @@ class NotificationService(SingletonMixin):
                     time_out_list.append(delivery)
                     continue
 
-                if not delivery.last_notification_ts or (
+                much_time_left = (
                     datetime.datetime.now() - delivery.last_notification_ts
-                ) >= datetime.timedelta(minutes=2):
+                ) >= datetime.timedelta(minutes=2)
+                
+                if not delivery.last_notification_ts or much_time_left:
                     delivery.last_notification_ts = datetime.datetime.now()
                     to_notify_list.append(delivery)
 
@@ -53,7 +55,6 @@ class NotificationService(SingletonMixin):
         in_time = await self.compare_actual_time_and_estimated_time(
             left_distance_requiring_time, delivery.estimated_time
         )
-        logging.warning(f'GOT IN TIME {in_time} FOR DELIVERY {delivery}')
         return in_time
 
     async def compare_actual_time_and_estimated_time(
