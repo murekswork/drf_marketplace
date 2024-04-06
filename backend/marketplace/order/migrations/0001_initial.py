@@ -15,10 +15,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -28,23 +28,23 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    'count',
+                    "count",
                     models.IntegerField(
                         blank=True,
                         default=1,
                         validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
-                    'amount',
+                    "amount",
                     models.DecimalField(
                         decimal_places=2, default=0.0, max_digits=15, null=True
                     ),
                 ),
-                ('payment_status', models.BooleanField(default=False)),
+                ("payment_status", models.BooleanField(default=False)),
                 (
-                    'lifetime',
+                    "lifetime",
                     models.DateTimeField(
                         default=datetime.datetime(2024, 3, 8, 14, 44, 44, 169050)
                     ),

@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Run kafka message listeners'
+    help = "Run kafka message listeners"
 
     def handle(self, *args, **options):
         from courier.kafka_.receiver import (

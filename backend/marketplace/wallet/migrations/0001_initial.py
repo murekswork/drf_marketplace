@@ -17,10 +17,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Wallet',
+            name="Wallet",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.UUIDField(
                         default=uuid.uuid4,
                         editable=False,
@@ -30,11 +30,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    'balance',
+                    "balance",
                     models.DecimalField(decimal_places=4, default=0, max_digits=50),
                 ),
                 (
-                    'user',
+                    "user",
                     models.OneToOneField(
                         blank=True,
                         null=True,

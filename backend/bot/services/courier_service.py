@@ -1,7 +1,8 @@
 import json
 from dataclasses import asdict
 
-from kafka_tg.sender import CourierLocationSender, CourierProfileAsker, TgDeliverySender
+from kafka_common.factories import producer_factory
+from kafka_common.topics import CourierTopics, DeliveryTopics
 from schemas.schemas import Delivery, Location, couriers
 from telegram._chat import Chat
 from telegram._message import Message
@@ -11,14 +12,14 @@ class CourierService:
 
     async def courier_start_carrying(self, user: Chat):
         courier = {
-            'id': user.id,
-            'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
         }
 
-        kafka_ = CourierProfileAsker()
-        kafka_.send(json.dumps(courier))
+        sender = producer_factory(CourierTopics.COURIER_PROFILE)
+        sender.send(json.dumps(courier))
 
     async def courier_stop_carrying(self, user: Chat):
         courier = couriers.pop(user.id)
@@ -29,9 +30,9 @@ class CourierService:
 
         couriers[user.id].location = loc
 
-        msg = {'courier_id': user.id, 'location': asdict(loc)}
-        kafka_ = CourierLocationSender()
-        kafka_.send(json.dumps(msg))
+        msg = {"courier_id": user.id, "location": asdict(loc)}
+        sender = producer_factory(CourierTopics.COURIER_LOCATION)
+        sender.send(json.dumps(msg))
 
     async def close_delivery(self, cour_id: int, status: int) -> Delivery:
         from services.delivery_service import DeliveryService
@@ -42,6 +43,8 @@ class CourierService:
         if delivery:
             await service.close_delivery(delivery.id, status)
 
-            kafka_ = TgDeliverySender()
-            kafka_.send_delivery_to_django(delivery)
+            sender = producer_factory(DeliveryTopics.DELIVERED)
+            msg = json.dumps(delivery.__dict__, default=str)
+            sender.send(msg)
+
         return delivery

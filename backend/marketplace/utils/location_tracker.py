@@ -3,7 +3,7 @@ import logging
 
 from redis import Redis
 
-redis_locator = Redis(host='redis', port=6379)
+redis_locator = Redis(host="redis", port=6379)
 
 
 class LocationTracker:
@@ -19,5 +19,5 @@ class LocationTracker:
             location = self.redis.get(courier_id)
             return json.loads(location)
         except TypeError as e:
-            logging.error(f'Could not fetch courier location {e}')
+            logging.error(f"Could not fetch courier location {e}")
             return None

@@ -22,11 +22,11 @@ class DeliverySerializer(serializers.ModelSerializer):
             location = location_tracker.get_location(str(obj.courier_id))
             serialized_c = CourierSerializer(obj.courier)
             if location:
-                serialized_c.data['latitude'] = location['lat']
-                serialized_c.data['longitude'] = location['lon']
+                serialized_c.data["latitude"] = location["lat"]
+                serialized_c.data["longitude"] = location["lon"]
             return serialized_c.data
-        return 'No courier'
+        return "No courier"
 
     class Meta:
         model = Delivery
-        fields = '__all__'
+        fields = "__all__"

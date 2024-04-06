@@ -8,7 +8,7 @@ from .serializers import CategorySerializer
 
 class CategoryDetailView(ListAPIView):
 
-    lookup_field = 'slug'
+    lookup_field = "slug"
     serializer_class = ProductSerializer
 
     # def get(self, request, *args, **kwargs):
@@ -17,7 +17,7 @@ class CategoryDetailView(ListAPIView):
     #     return Response(serializer.data)
 
     def get_object(self):
-        return Category.objects.filter(slug=self.kwargs['slug']).first()
+        return Category.objects.filter(slug=self.kwargs["slug"]).first()
 
     def get_queryset(self):
         return Product.objects.filter(category=self.get_object())

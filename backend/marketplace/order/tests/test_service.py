@@ -18,19 +18,19 @@ class OrderValidationServiceTestCase(TestCase):
 
     def setUp(self):
         self.user_seller = get_user_model().objects.create_user(
-            username='seller', email='seller_mail@mail.com'
+            username="seller", email="seller_mail@mail.com"
         )
 
         self.user_buyer = get_user_model().objects.create_user(
-            username='buyer', email='buyer_mail@mail.com'
+            username="buyer", email="buyer_mail@mail.com"
         )
 
         self.shop = Shop.objects.create(
-            title='Shop', description='Shop description', user=self.user_seller
+            title="Shop", description="Shop description", user=self.user_seller
         )
 
         self.product = Product.objects.create(
-            title='Product', content='Product description', shop=self.shop
+            title="Product", content="Product description", shop=self.shop
         )
 
         self.order = Order.objects.create(
@@ -48,7 +48,7 @@ class OrderValidationServiceTestCase(TestCase):
         result = service._validate_product_quantity()
         self.assertEqual(
             result,
-            {'success': False, 'message': 'Product does not have enough quantity now!'},
+            {"success": False, "message": "Product does not have enough quantity now!"},
         )
 
     def test_order_validation_service_validate_product_quantity_when_quantity_more_than_count(
@@ -60,7 +60,7 @@ class OrderValidationServiceTestCase(TestCase):
         self.order.save()
         service = OrderValidationService(order=self.order)
         result = service._validate_product_quantity()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service_validate_product_quantity_when_quantity_equal_to_count(
         self,
@@ -71,7 +71,7 @@ class OrderValidationServiceTestCase(TestCase):
         self.order.save()
         service = OrderValidationService(order=self.order)
         result = service._validate_product_quantity()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service_validate_users_wallet_when_wallet_does_not_exist(
         self,
@@ -79,14 +79,14 @@ class OrderValidationServiceTestCase(TestCase):
         service = OrderValidationService(order=self.order)
         result = service._validate_users_wallet()
         self.assertEqual(
-            result, {'success': False, 'message': 'Customer does not have wallet!'}
+            result, {"success": False, "message": "Customer does not have wallet!"}
         )
 
     def test_order_validation_service_validate_users_wallet_when_wallet_exist(self):
         Wallet.objects.create(user=self.user_buyer, balance=0)
         service = OrderValidationService(order=self.order)
         result = service._validate_users_wallet()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service__validate_user_has_enough_money_when_does_not_have_enough_money(
         self,
@@ -97,7 +97,7 @@ class OrderValidationServiceTestCase(TestCase):
         result = service._validate_user_has_enough_money()
         self.assertEqual(
             result,
-            {'success': False, 'message': 'Customer does not have enough money!'},
+            {"success": False, "message": "Customer does not have enough money!"},
         )
 
     def test_order_validation_service__validate_user_has_enough_money_when_have_enough_money(
@@ -107,7 +107,7 @@ class OrderValidationServiceTestCase(TestCase):
         Wallet.objects.create(user=self.user_buyer, balance=101)
         service = OrderValidationService(order=self.order)
         result = service._validate_user_has_enough_money()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service__validate_user_has_enough_money_when_have_equal_money(
         self,
@@ -116,7 +116,7 @@ class OrderValidationServiceTestCase(TestCase):
         Wallet.objects.create(user=self.user_buyer, balance=100)
         service = OrderValidationService(order=self.order)
         result = service._validate_user_has_enough_money()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service__validate_order_positive_amount_when_order_amount_is_positive(
         self,
@@ -125,7 +125,7 @@ class OrderValidationServiceTestCase(TestCase):
         Wallet.objects.create(user=self.user_buyer, balance=100)
         service = OrderValidationService(order=self.order)
         result = service._validate_order_positive_amount()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service__validate_order_positive_amount_when_order_amount_is_negative(
         self,
@@ -136,7 +136,7 @@ class OrderValidationServiceTestCase(TestCase):
         result = service._validate_order_positive_amount()
         self.assertEqual(
             result,
-            {'success': False, 'message': 'Order amount could not be less than 0!'},
+            {"success": False, "message": "Order amount could not be less than 0!"},
         )
 
     def test_order_validation_service_validate_order_when_all_ok(self):
@@ -146,7 +146,7 @@ class OrderValidationServiceTestCase(TestCase):
         self.order.amount = 100
         service = OrderValidationService(order=self.order)
         result = service.validate_order()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service_validate_order_is_not_paid_when_order_is_not_paid(
         self,
@@ -154,7 +154,7 @@ class OrderValidationServiceTestCase(TestCase):
         self.order.payment_status = False
         service = OrderValidationService(order=self.order)
         result = service._validate_order_is_not_paid()
-        self.assertEqual(result, {'success': True})
+        self.assertEqual(result, {"success": True})
 
     def test_order_validation_service_validate_order_is_not_paid_when_order_is_paid(
         self,
@@ -163,7 +163,7 @@ class OrderValidationServiceTestCase(TestCase):
         service = OrderValidationService(order=self.order)
         result = service._validate_order_is_not_paid()
         self.assertEqual(
-            result, {'success': False, 'message': 'Order is already paid!'}
+            result, {"success": False, "message": "Order is already paid!"}
         )
 
 
@@ -171,19 +171,19 @@ class SimpleOrderServiceTestCase(TestCase):
 
     def setUp(self):
         self.user_seller = get_user_model().objects.create_user(
-            username='seller', email='seller_mail@mail.com'
+            username="seller", email="seller_mail@mail.com"
         )
 
         self.user_buyer = get_user_model().objects.create_user(
-            username='buyer', email='buyer_mail@mail.com'
+            username="buyer", email="buyer_mail@mail.com"
         )
 
         self.shop = Shop.objects.create(
-            title='Shop', description='Shop description', user=self.user_seller
+            title="Shop", description="Shop description", user=self.user_seller
         )
 
         self.product = Product.objects.create(
-            title='Product', content='Product description', shop=self.shop
+            title="Product", content="Product description", shop=self.shop
         )
 
         self.order = Order.objects.create(
@@ -212,26 +212,26 @@ class SimpleOrderServiceTestCase(TestCase):
         Wallet.objects.create(user=self.user_buyer, balance=500)
         service = SimpleOrderService(order=self.order, user=self.user_buyer)
         result = service.pay_order()
-        self.assertTrue(result, 'payment completed')
+        self.assertTrue(result, "payment completed")
 
 
 class SaleOrderServiceTestCase(TestCase):
 
     def setUp(self):
         self.user_seller = get_user_model().objects.create_user(
-            username='seller', email='seller_mail@mail.com'
+            username="seller", email="seller_mail@mail.com"
         )
 
         self.user_buyer = get_user_model().objects.create_user(
-            username='buyer', email='buyer_mail@mail.com'
+            username="buyer", email="buyer_mail@mail.com"
         )
 
         self.shop = Shop.objects.create(
-            title='Shop', description='Shop description', user=self.user_seller
+            title="Shop", description="Shop description", user=self.user_seller
         )
 
         self.product = Product.objects.create(
-            title='Product', content='Product description', shop=self.shop
+            title="Product", content="Product description", shop=self.shop
         )
 
         self.order = Order.objects.create(

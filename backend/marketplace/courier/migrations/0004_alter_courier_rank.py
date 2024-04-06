@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('courier', '0003_rename_complete_orders_courier_done_deliveries_and_more'),
+        ("courier", "0003_rename_complete_orders_courier_done_deliveries_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='courier',
-            name='rank',
+            model_name="courier",
+            name="rank",
             field=models.FloatField(default=5, max_length=5),
         ),
     ]

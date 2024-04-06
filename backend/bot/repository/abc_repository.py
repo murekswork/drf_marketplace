@@ -72,5 +72,5 @@ class DictRepositoryImpl(RepositoryAbc):
             obj.__dict__.update(**kwargs)
         return obj
 
-    async def delete(self, id):
-        return self.source.pop(id)
+    async def delete(self, id: int):
+        return self.source.pop(int(id))

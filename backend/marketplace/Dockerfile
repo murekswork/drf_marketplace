@@ -9,4 +9,5 @@ COPY marketplace /marketplace/
 COPY requirements/marketplace_reqs/requirements.txt /marketplace/requirements.txt
 COPY ./kafka_common /marketplace/kafka_common
 
-RUN pip --default-timeout=2000 install -r requirements.txt
+RUN pip install pip-tools
+RUN pip-sync requirements.txt

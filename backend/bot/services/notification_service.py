@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 from kafka_common.receiver import SingletonMixin
 from repository.courier_repository import CourierRepository

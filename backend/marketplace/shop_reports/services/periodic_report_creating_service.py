@@ -27,16 +27,16 @@ class ReportCreator:
     def _get_shop_header_data(self) -> ShopPeriodicSalesReportHeader:
         header = ShopPeriodicSalesReportHeader()
         header.shop_sales_count = self._period_sales.count()
-        header.profit = self._period_sales.aggregate(Sum('amount'))['amount__sum']
+        header.profit = self._period_sales.aggregate(Sum("amount"))["amount__sum"]
         try:
             previous_period_profit = self._previous_period_sales.aggregate(
-                Sum('amount')
-            )['amount__sum']
+                Sum("amount")
+            )["amount__sum"]
             header.profit_gain = (
                 (header.profit - previous_period_profit) / previous_period_profit
             ) * 100
         except Exception as e:
-            logging.warning(f'Could not calculate profit in header due to {e}')
+            logging.warning(f"Could not calculate profit in header due to {e}")
             header.profit_gain = 0
         return header
 
@@ -45,19 +45,19 @@ class ReportCreator:
         product_report.product = product
         product_sales = self._period_sales.filter(**product)
         product_report.sales_count = product_sales.count()
-        product_report.sales_quantity = self._period_sales.aggregate(Sum('count'))[
-            'count__sum'
+        product_report.sales_quantity = self._period_sales.aggregate(Sum("count"))[
+            "count__sum"
         ]
-        product_report.profit = product_sales.aggregate(Sum('amount'))['amount__sum']
+        product_report.profit = product_sales.aggregate(Sum("amount"))["amount__sum"]
 
         previous_period_product_sales = self._previous_period_sales.filter(**product)
         previous_period_sales_count = previous_period_product_sales.count()
         previous_period_sales_quantity = previous_period_product_sales.aggregate(
-            Sum('count')
-        )['count__sum']
+            Sum("count")
+        )["count__sum"]
         previous_period_sales_profit = previous_period_product_sales.aggregate(
-            Sum('amount')
-        )['amount__sum']
+            Sum("amount")
+        )["amount__sum"]
 
         try:
             product_report.profit_gain = (
@@ -66,7 +66,7 @@ class ReportCreator:
             ) * 100
         except Exception as e:
             logging.warning(
-                f'Could not calculate profit in product {product} due to {e}'
+                f"Could not calculate profit in product {product} due to {e}"
             )
             product_report.profit_gain = 0
         try:
@@ -76,7 +76,7 @@ class ReportCreator:
             ) * 100
         except Exception as e:
             logging.warning(
-                f'Could not calculate profit in sales_count in {product} due to {e}'
+                f"Could not calculate profit in sales_count in {product} due to {e}"
             )
             product_report.sales_count_gain = 0
         try:
@@ -85,7 +85,7 @@ class ReportCreator:
                 / previous_period_sales_quantity
             ) * 100
         except Exception as e:
-            logging.warning(f'Could not calculate sales quantity {product} due to {e}')
+            logging.warning(f"Could not calculate sales quantity {product} due to {e}")
             product_report.sales_quantity_gain = 0
         return product_report
 
@@ -94,7 +94,7 @@ class ReportCreator:
             product__shop=self.shop,
             payment_status=True,
             created_at__gt=timezone.now() - timedelta(days=self.period),
-        ).select_related('product')
+        ).select_related("product")
         return shop_period_sales
 
     def _get_previous_period_sales(self):
@@ -112,7 +112,7 @@ class ReportCreator:
 
         self._report.header = self._get_shop_header_data()
 
-        for product in self._period_sales.values('product').distinct():
+        for product in self._period_sales.values("product").distinct():
             self._report.data.append(self._get_product_period_data(product))
 
     def get_report(self) -> ShopPeriodicReport:

@@ -11,35 +11,35 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Article',
+            name="Article",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
-                ('title', models.CharField(default='Article title', max_length=120)),
+                ("title", models.CharField(default="Article title", max_length=120)),
                 (
-                    'article_content',
+                    "article_content",
                     models.TextField(
-                        blank=True, default='Article body', max_length=512, null=True
+                        blank=True, default="Article body", max_length=512, null=True
                     ),
                 ),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('published', models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("published", models.BooleanField(default=False)),
                 (
-                    'mark',
+                    "mark",
                     models.IntegerField(
                         choices=[
-                            (1, 'Awfull'),
-                            (2, 'Bad'),
-                            (3, 'Not bad'),
-                            (4, 'Good'),
-                            (5, 'Excellent'),
+                            (1, "Awfull"),
+                            (2, "Bad"),
+                            (3, "Not bad"),
+                            (4, "Good"),
+                            (5, "Excellent"),
                         ],
                         default=5,
                     ),

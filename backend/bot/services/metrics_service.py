@@ -40,5 +40,5 @@ class AvgCourierSpeedProvider:
                 return avg_speed
         except Exception as e:
             logging.error(
-                f'Some error in calculating avg courier speed {e}', exc_info=e
+                f"Some error in calculating avg courier speed {e}", exc_info=e
             )

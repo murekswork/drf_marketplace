@@ -1,12 +1,16 @@
+import logging
+
 from courier.models import Courier
 from django.db import models
 from django.utils import timezone
+
+from kafka_common.topics import DeliveryTopics
 from order.models import Order
 
 
 class Delivery(models.Model):
     order_id = models.ForeignKey(
-        Order, on_delete=models.PROTECT, related_name='delivery'
+        Order, on_delete=models.PROTECT, related_name="delivery"
     )
     address = models.CharField(max_length=120)
     latitude = models.FloatField(blank=False, null=False)
@@ -23,24 +27,30 @@ class Delivery(models.Model):
         blank=False,
         null=False,
         choices=(
-            (1, 'In-process'),
-            (2, 'Searching'),
-            (3, 'Delivering'),
-            (4, 'Picked Up'),
-            (5, 'Delivered'),
-            (0, 'Canceled'),
+            (1, "In-process"),
+            (2, "Searching"),
+            (3, "Delivering"),
+            (4, "Picked Up"),
+            (5, "Delivered"),
+            (0, "Canceled"),
         ),
         default=1,
     )
 
     def __str__(self):
-        return f'{self.order_id} - {self.status}'
+        return f"{self.order_id} - {self.status}"
 
     def save(self, *args, **kwargs):
-        from .kafka_.sender import send_delivery_to_tg
-
+        # TODO: REMOVE THIS FROM DATABASE LAYER
         if self.status == 1:
-            send_delivery_to_tg(self)
+            from kafka_common.factories import producer_factory
+            from delivery.adapters.delivery_adapters import DeliveryAdapter
+
+            sender = producer_factory(topic=DeliveryTopics.TO_DELIVER)
+            msg = DeliveryAdapter.serialize_delivery(self)
+            sender.send(msg)
+            logging.warning("Sent delivery to telegram !")
+
         elif self.status == 5:
             self.completed_at = timezone.now()
         super().save(*args, **kwargs)

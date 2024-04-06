@@ -9,6 +9,6 @@ def exception_logging(func):
         try:
             return await func(*args, **kwargs)
         except Exception as e:
-            logger.warning(f'Exception occurred {func.__name__}: {e}')
+            logger.warning(f"Exception occurred {func.__name__}: {e}")
 
     return wrapper

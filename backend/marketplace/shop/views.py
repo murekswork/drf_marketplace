@@ -24,19 +24,19 @@ from shop.throttles import OncePerHourThrottleForPost
 class ShopDetailAPIView(RetrieveAPIView):
     serializer_class = ShopWithProductsSerializer
     queryset = Shop.objects.all().prefetch_related(
-        'shopmanager_set',
-        'shopmanager_set__group',
-        'shopmanager_set__user',
-        'products',
-        'products__sales',
+        "shopmanager_set",
+        "shopmanager_set__group",
+        "shopmanager_set__user",
+        "products",
+        "products__sales",
     )
-    lookup_field = 'slug'
+    lookup_field = "slug"
 
 
 class ShopListAPIView(ListAPIView):
     serializer_class = ShopSerializer
     queryset = Shop.objects.all().prefetch_related(
-        'shopmanager_set', 'shopmanager_set__group', 'shopmanager_set__user'
+        "shopmanager_set", "shopmanager_set__group", "shopmanager_set__user"
     )
 
 
@@ -58,23 +58,23 @@ class UploadCSVProductsAPIView(
         if not self.has_shop_permission(
             request, shop, ShopPermissions.CREATE_PRODUCT_UPLOAD
         ):
-            return Response('Its not your shop!', status=status.HTTP_403_FORBIDDEN)
+            return Response("Its not your shop!", status=status.HTTP_403_FORBIDDEN)
 
-        file = request.data.get('file', None)
+        file = request.data.get("file", None)
         if file is not None:
             upload = ProductUpload.objects.create(
-                user=self.request.user, file_name=f'{time.time()}_{self.request.user}'
+                user=self.request.user, file_name=f"{time.time()}_{self.request.user}"
             )
             chain(
                 upload_products_task.s(
-                    file.read().decode('utf-8').splitlines(), shop.id
+                    file.read().decode("utf-8").splitlines(), shop.id
                 ),
                 create_product_upload_report.s(upload.id),
             ).delay()
-            msg = 'Started to uploading provided csv file'
+            msg = "Started to uploading provided csv file"
         else:
-            msg = 'No file provided'
-        return Response({'message': msg})
+            msg = "No file provided"
+        return Response({"message": msg})
 
     def get(self, request, slug: str, pk: int):
         shop = get_object_or_404(Shop, slug=slug)
@@ -82,18 +82,18 @@ class UploadCSVProductsAPIView(
         if not self.has_shop_permission(
             request, shop, ShopPermissions.READ_PRODUCT_UPLOAD
         ):
-            return Response('Its not your shop!', status=status.HTTP_403_FORBIDDEN)
+            return Response("Its not your shop!", status=status.HTTP_403_FORBIDDEN)
 
         obj = get_object_or_404(ProductUpload, pk=pk)
-        file = f'backend/tasks_data/{obj.file_name}.csv'
+        file = f"backend/tasks_data/{obj.file_name}.csv"
         try:
             response = FileResponse(
-                open(file, mode='rb'), as_attachment=True, filename='upload_results.csv'
+                open(file, mode="rb"), as_attachment=True, filename="upload_results.csv"
             )
             return response
         except Exception as e:
             return Response(
-                f'Your products are not uploaded yet! {e}',
+                f"Your products are not uploaded yet! {e}",
                 status=status.HTTP_425_TOO_EARLY,
             )
 
@@ -111,6 +111,6 @@ class UploadsAPIVIew(UserQuerySetMixin, APIView):
     def get(self, request, slug, *args, **kwargs):
         queryset = ProductUpload.objects.filter(user=request.user)
         serializer = self.serializer_class(
-            queryset, many=True, context={'request': request, 'slug': slug}
+            queryset, many=True, context={"request": request, "slug": slug}
         )
         return Response(serializer.data)

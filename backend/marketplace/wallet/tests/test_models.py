@@ -8,20 +8,20 @@ class WalletModelTestCase(TestCase):
 
     def setUp(self):
         self.user1 = get_user_model().objects.create_user(
-            username='user1', email='user1@mail'
+            username="user1", email="user1@mail"
         )
-        self.user1.set_password('0xABAD1DEA')
+        self.user1.set_password("0xABAD1DEA")
         self.user2 = get_user_model().objects.create_user(
-            username='user2', email='user2@mail'
+            username="user2", email="user2@mail"
         )
-        self.user2.set_password('0xABAD1DEA')
+        self.user2.set_password("0xABAD1DEA")
 
         self.wallet1 = Wallet.objects.create(user=self.user1)
         self.wallet2 = Wallet.objects.create(user=self.user2, balance=1000)
 
     def test_wallet_str(self):
-        self.assertEqual(self.wallet1.__str__(), 'user1s wallet')
-        self.assertEqual(self.wallet2.__str__(), 'user2s wallet')
+        self.assertEqual(self.wallet1.__str__(), "user1s wallet")
+        self.assertEqual(self.wallet2.__str__(), "user2s wallet")
 
     def test_wallet_balance(self):
         self.assertEqual(self.wallet1.balance, 0)
