@@ -4,21 +4,6 @@ from abc import ABC, abstractmethod
 from delivery.models import Delivery
 
 
-class DeliveryFabricServiceABC(ABC):
-
-    @abstractmethod
-    def create_delivery(self, delivery_data) -> Delivery:
-        raise NotImplementedError
-
-    @abstractmethod
-    def send_delivery(self, delivery: Delivery):
-        raise NotImplementedError
-
-    @abstractmethod
-    def receive_delivery(self):
-        raise NotImplementedError
-
-
 class DeliveryUtils:
 
     def update_delivery_in_db_from_telegrma(self, delivery_dict: dict) -> Delivery:
