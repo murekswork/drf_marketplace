@@ -9,27 +9,27 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("products", "0001_initial"),
-        ("shop", "0001_initial"),
+        ('products', '0001_initial'),
+        ('shop', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="product",
-            name="shop",
+            model_name='product',
+            name='shop',
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="products",
-                to="shop.shop",
+                related_name='products',
+                to='shop.shop',
             ),
         ),
         migrations.AddField(
-            model_name="sale",
-            name="product",
+            model_name='sale',
+            name='product',
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="sales",
-                to="products.product",
+                related_name='sales',
+                to='products.product',
             ),
         ),
     ]

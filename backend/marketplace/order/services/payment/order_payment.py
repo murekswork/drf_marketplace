@@ -23,10 +23,10 @@ class OrderPaymentService:
         self.order.product.shop.user.wallet.save()
         self.order.save()
 
-        return {"success": True}
+        return {'success': True}
 
     def pay_order(self) -> dict[str, str | bool]:
         try:
             return self._make_payment_transaction(float(self.order.amount))
         except Exception as e:
-            return {"success": False, "message": f"Some troubles with transaction! {e}"}
+            return {'success': False, 'message': f'Some troubles with transaction! {e}'}

@@ -11,4 +11,3 @@ COPY ./kafka_common /app/bot/kafka_common
 
 RUN pip install pip-tools
 RUN pip-sync requirements.txt
-

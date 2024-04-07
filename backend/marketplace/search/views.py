@@ -15,8 +15,8 @@ class SearchListView(UserQuerySetMixin, generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset()
-        q = self.request.GET.get("search")
+        q = self.request.GET.get('search')
         result = Product.objects.none()
         if q is not None:
             result = qs.search(q)
-        return result.prefetch_related("articles", "sales", "orders", "shop")
+        return result.prefetch_related('articles', 'sales', 'orders', 'shop')

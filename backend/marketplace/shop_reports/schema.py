@@ -10,7 +10,7 @@ class ShopPeriodicSalesReportHeader:
 
 @dataclass
 class ProductPeriodicReport:
-    product: str = "Product"
+    product: str = 'Product'
     sales_count: int = 0
     sales_count_gain: float = 0
     sales_quantity: int = 0

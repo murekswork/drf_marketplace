@@ -1,16 +1,15 @@
 import datetime
 
-from telegram import Update, Location
-from telegram.constants import ParseMode
-from telegram.ext import CallbackContext
-
 from decorators import exception_logging
 from handlers.common_handlers import profile_handler
 from keyboards import CourierReplyMarkups
 from replies import Replies
-from schemas.schemas import Delivery, Courier
+from schemas.schemas import Courier, Delivery
 from services.courier_service import CourierService
 from services.delivery_service import DeliveryService, DeliveryValidationService
+from telegram import Location, Update
+from telegram.constants import ParseMode
+from telegram.ext import CallbackContext
 
 
 @exception_logging

@@ -16,7 +16,7 @@ class CourierLocationReceiver(KafkaReceiver):
     def post_consume_action(self, msg: str):
         msg_dict = json.loads(msg)
         self.location_tracker.set_location(
-            courier_id=msg_dict["courier_id"], location=msg_dict["location"]
+            courier_id=msg_dict['courier_id'], location=msg_dict['location']
         )
 
 

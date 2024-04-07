@@ -10,30 +10,30 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("auth", "0012_alter_user_first_name_max_length"),
+        ('auth', '0012_alter_user_first_name_max_length'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="ProductUpload",
+            name='ProductUpload',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("products_count", models.IntegerField(default=0)),
-                ("success_count", models.IntegerField(default=0)),
-                ("failed_count", models.IntegerField(default=0)),
-                ("file_name", models.CharField(blank=True, max_length=250, null=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('products_count', models.IntegerField(default=0)),
+                ('success_count', models.IntegerField(default=0)),
+                ('failed_count', models.IntegerField(default=0)),
+                ('file_name', models.CharField(blank=True, max_length=250, null=True)),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
@@ -43,58 +43,58 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name="Shop",
+            name='Shop',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(default="Shop Title", max_length=120)),
+                ('title', models.CharField(default='Shop Title', max_length=120)),
                 (
-                    "description",
-                    models.TextField(default="Shop Description", max_length=500),
+                    'description',
+                    models.TextField(default='Shop Description', max_length=500),
                 ),
-                ("active", models.BooleanField(default=True)),
-                ("slug", models.SlugField(editable=False, max_length=500, unique=True)),
+                ('active', models.BooleanField(default=True)),
+                ('slug', models.SlugField(editable=False, max_length=500, unique=True)),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="shop_owned",
+                        related_name='shop_owned',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
         ),
         migrations.CreateModel(
-            name="ShopManager",
+            name='ShopManager',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(max_length=120, null="Role title")),
+                ('title', models.CharField(max_length=120, null='Role title')),
                 (
-                    "shop",
+                    'shop',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="shop.shop",
+                        to='shop.shop',
                     ),
                 ),
                 (
-                    "user",
+                    'user',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
@@ -104,51 +104,51 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.AddField(
-            model_name="shop",
-            name="managers",
+            model_name='shop',
+            name='managers',
             field=models.ManyToManyField(
-                through="shop.ShopManager", to=settings.AUTH_USER_MODEL
+                through='shop.ShopManager', to=settings.AUTH_USER_MODEL
             ),
         ),
         migrations.CreateModel(
-            name="ShopStaffGroup",
+            name='ShopStaffGroup',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("group_name", models.CharField(default="Group name", max_length=120)),
+                ('group_name', models.CharField(default='Group name', max_length=120)),
                 (
-                    "permissions",
+                    'permissions',
                     models.ManyToManyField(
                         blank=True,
                         limit_choices_to={
-                            "codename__in": [
-                                "add_product",
-                                "delete_product",
-                                "delete_sale",
-                                "change_product",
-                                "change_sale",
-                                "add_sale",
+                            'codename__in': [
+                                'add_product',
+                                'delete_product',
+                                'delete_sale',
+                                'change_product',
+                                'change_sale',
+                                'add_sale',
                             ]
                         },
-                        to="auth.permission",
+                        to='auth.permission',
                     ),
                 ),
             ],
         ),
         migrations.AddField(
-            model_name="shopmanager",
-            name="group",
+            model_name='shopmanager',
+            name='group',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to="shop.shopstaffgroup",
+                to='shop.shopstaffgroup',
             ),
         ),
     ]

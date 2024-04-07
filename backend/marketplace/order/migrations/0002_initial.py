@@ -10,25 +10,25 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("order", "0001_initial"),
-        ("products", "0001_initial"),
+        ('order', '0001_initial'),
+        ('products', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="order",
-            name="product",
+            model_name='order',
+            name='product',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="orders",
-                to="products.product",
+                related_name='orders',
+                to='products.product',
             ),
         ),
         migrations.AddField(
-            model_name="order",
-            name="user",
+            model_name='order',
+            name='user',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,

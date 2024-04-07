@@ -12,10 +12,10 @@ class CourierService:
 
     async def courier_start_carrying(self, user: Chat):
         courier = {
-            "id": user.id,
-            "username": user.username,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
+            'id': user.id,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
         }
 
         msg = json.dumps(courier)
@@ -30,7 +30,7 @@ class CourierService:
 
         couriers[user.id].location = loc
 
-        msg = {"courier_id": user.id, "location": asdict(loc)}
+        msg = {'courier_id': user.id, 'location': asdict(loc)}
         await async_send_kafka_msg(json.dumps(msg), CourierTopics.COURIER_LOCATION)
 
     async def close_delivery(self, cour_id: int, status: int) -> Delivery:

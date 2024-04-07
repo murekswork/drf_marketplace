@@ -23,29 +23,29 @@ class Replies:
     <b>estimated_time:</b> {estimated_time} 🕒"""
 
     COURIER_START_CARRYING_INFO = (
-        "<b>Send your LIVE location now, so i will check for orders beside you!📍</b>"
+        '<b>Send your LIVE location now, so i will check for orders beside you!📍</b>'
     )
 
-    COURIER_SENT_LOCATION_INFO = "<b>Successfully received location and added you to line. Stay tuned for deliveries!🚴</b>"
+    COURIER_SENT_LOCATION_INFO = '<b>Successfully received location and added you to line. Stay tuned for deliveries!🚴</b>'
 
     PICKED_UP_DELIVERY_INFO = (
-        "Nice job! Now you should bring picked up goods to client in location below"
+        'Nice job! Now you should bring picked up goods to client in location below'
     )
 
-    PICKUP_MSG_INFO = "You should pick up goods on point on to from this msg"
+    PICKUP_MSG_INFO = 'You should pick up goods on point on to from this msg'
 
-    CLOSED_DELIVERY_INFO = "Delivery closed with status {}!"
+    CLOSED_DELIVERY_INFO = 'Delivery closed with status {}!'
 
-    STOP_CARRYING_INFO = "Your work is over, thanks! See you next time!"
+    STOP_CARRYING_INFO = 'Your work is over, thanks! See you next time!'
 
-    CURRENT_DELIVERY_INFO = "Your current delivery is {}"
+    CURRENT_DELIVERY_INFO = 'Your current delivery is {}'
 
-    DELIVERY_TAKING_LATE_NOTIFICATION = "🚴 You should hurry up! You current delivery: {} should be bringed in {} minutes!"
+    DELIVERY_TAKING_LATE_NOTIFICATION = '🚴 You should hurry up! You current delivery: {} should be bringed in {} minutes!'
 
-    DELIVERY_TIME_OUT_NOTIFICATION = "🕒 Your delivery time is over! Now you have to bring package in 5 minutes, otherwise we will have to fine you!"
+    DELIVERY_TIME_OUT_NOTIFICATION = '🕒 Your delivery time is over! Now you have to bring package in 5 minutes, otherwise we will have to fine you!'
 
     DELIVERY_CANCELLED_BY_CONSUMER_NOTIFICATION = (
-        " Unfortunately your delivery was cancelled by consumer!"
+        ' Unfortunately your delivery was cancelled by consumer!'
     )
 
-    DELIVERY_COURIER_NOT_ON_REQUIRED_POINT_ANSWER = "You cant mark your delivery as picked up or delivered because you are not on required location!"
+    DELIVERY_COURIER_NOT_ON_REQUIRED_POINT_ANSWER = 'You cant mark your delivery as picked up or delivered because you are not on required location!'

@@ -11,15 +11,15 @@ class OrderModelTestCase(TestCase):
 
     def setUp(self):
         self.user = get_user_model().objects.create(
-            username="test", email="test@test.com"
+            username='test', email='test@test.com'
         )
-        self.user.set_password("0xABAD1DEA")
+        self.user.set_password('0xABAD1DEA')
         self.user_wallet = Wallet.objects.create(user=self.user, balance=100000)
         self.shop = Shop.objects.create(
-            user=self.user, title="shoptitle", description="shopdescription"
+            user=self.user, title='shoptitle', description='shopdescription'
         )
         self.order_product = Product.objects.create(
-            shop=self.shop, title="product", price=100
+            shop=self.shop, title='product', price=100
         )
         self.order = Order.objects.create(
             user=self.user, product=self.order_product, count=5
@@ -58,13 +58,13 @@ class OrderModelSaveMethodTestCase(TestCase):
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            username="test", email="test@mail.com"
+            username='test', email='test@mail.com'
         )
         self.shop = Shop.objects.create(
-            user=self.user, title="title", description="description"
+            user=self.user, title='title', description='description'
         )
         self.product = Product.objects.create(
-            shop=self.shop, title="title", public=True, content="content", quantity=5
+            shop=self.shop, title='title', public=True, content='content', quantity=5
         )
         self.order = Order.objects.create(product=self.product, count=3, user=self.user)
 

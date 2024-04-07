@@ -11,29 +11,29 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Category",
+            name='Category',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
                 (
-                    "title",
+                    'title',
                     models.CharField(
-                        default="Category Name", max_length=120, unique=True
+                        default='Category Name', max_length=120, unique=True
                     ),
                 ),
                 (
-                    "description",
+                    'description',
                     models.TextField(blank=True, max_length=500, null=True),
                 ),
                 (
-                    "slug",
+                    'slug',
                     models.SlugField(
                         blank=True, max_length=120, null=True, unique=True
                     ),

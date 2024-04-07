@@ -11,7 +11,7 @@ async def async_send_kafka_msg(msg: str, topic: str) -> None:
         producer = producer_factory(topic)
         producer.send(msg)
     else:
-        raise ValueError("Invalid message type for kafka producer!")
+        raise ValueError('Invalid message type for kafka producer!')
 
 
 def send_kafka_msg(msg: str, topic: str) -> None:
@@ -19,4 +19,4 @@ def send_kafka_msg(msg: str, topic: str) -> None:
         producer = producer_factory(topic)
         producer.send(msg)
     else:
-        raise ValueError("Invalid message type for kafka producer!")
+        raise ValueError('Invalid message type for kafka producer!')

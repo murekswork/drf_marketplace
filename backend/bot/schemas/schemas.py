@@ -34,7 +34,7 @@ class Delivery:
     status: int = 1
     started_at: datetime.datetime | str = datetime.datetime.now()
     completed_at: datetime.datetime | None = None
-    address: str = ""
+    address: str = ''
     priority: int = 0
     estimated_time: datetime.datetime | None = None
     last_notification_ts: datetime.datetime | None = None

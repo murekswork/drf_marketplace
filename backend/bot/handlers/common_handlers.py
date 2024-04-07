@@ -17,5 +17,5 @@ async def profile_handler(update: Update, context: CallbackContext):
 @exception_logging
 async def start_bot(update: Update, context: CallbackContext):
     await update.message.reply_text(
-        text="Welcome!", reply_markup=CommonMarkups.MAIN_MARKUP
+        text='Welcome!', reply_markup=CommonMarkups.MAIN_MARKUP
     )

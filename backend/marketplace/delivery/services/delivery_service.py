@@ -1,5 +1,3 @@
-import logging
-
 from delivery.adapters.delivery_adapters import DeliveryAdapter
 from delivery.exceptions import DeliveryPickedUpException
 from delivery.models import Delivery
@@ -13,7 +11,7 @@ class DeliveryService:
         if delivery.status > 3:
             # if delivery already picked up by courier
             raise DeliveryPickedUpException(
-                "Can not cancel because delivery already picked up!"
+                'Can not cancel because delivery already picked up!'
             )
         delivery.status = 0
         delivery.save()

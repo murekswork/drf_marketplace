@@ -10,7 +10,7 @@ admin.site.register(ProductUpload)
 
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "description", "slug", "active")
+    list_display = ('id', 'title', 'description', 'slug', 'active')
 
 
 # Register your models here.

@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("order", "0002_initial"),
+        ('order', '0002_initial'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="order",
-            name="lifetime",
+            model_name='order',
+            name='lifetime',
             field=models.DateTimeField(
                 default=datetime.datetime(2024, 3, 8, 14, 44, 54, 490915)
             ),

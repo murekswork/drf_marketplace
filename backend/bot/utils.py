@@ -1,7 +1,6 @@
 import datetime
 
 from geopy import distance
-
 from kafka_common.receiver import SingletonMixin
 from schemas.schemas import Courier, Delivery, Location
 
@@ -44,7 +43,7 @@ class DistanceCalculator(SingletonMixin):
             priority: int,
     ) -> tuple[Courier, float, float] | tuple[None, None, None]:
         """Method to search courier depending on his distance from passed point"""
-        nearest_distance = float("inf")
+        nearest_distance = float('inf')
         optimal_courier = None
         for courier in free_couriers:
             courier_distance = await self.calculate_distance(
@@ -61,8 +60,8 @@ class DistanceCalculator(SingletonMixin):
     async def get_estimated_delivery_time(self, distance: float) -> float:
         """Method to calculate estimated delivering time based on distance and avg couriers speed"""
         estimated_time_minutes = (
-                                         (distance / self.avg_courier_speed) + self.waiting_time
-                                 ) * 60
+            (distance / self.avg_courier_speed) + self.waiting_time
+        ) * 60
         return estimated_time_minutes
 
     async def get_nearest_free_courier(
@@ -81,11 +80,11 @@ class DistanceCalculator(SingletonMixin):
                 delivery.estimated_time = datetime.datetime.now() + datetime.timedelta(
                     minutes=estimated_time)  # type: ignore
                 delivery.distance = distance
-                return {"success": True, "courier": courier}
+                return {'success': True, 'courier': courier}
             delivery.priority += 1
         return {
-            "success": False,
-            "msg": "There are no couriers available in current max-range radius",
+            'success': False,
+            'msg': 'There are no couriers available in current max-range radius',
         }
 
     async def calculate_distance(self, *points: Location) -> float:

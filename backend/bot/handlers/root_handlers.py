@@ -11,12 +11,12 @@ async def change_delivery_distance_handler(
 ):
     service = DeliveryService()
     await service.change_delivery_distance(distance)
-    await update.message.reply_text(text=f"Delivery distance increased by {distance}")
+    await update.message.reply_text(text=f'Delivery distance increased by {distance}')
 
 
 @exception_logging
 async def show_all_deliveries(update: Update, context: CallbackContext):
-    await update.message.reply_text(text=f"All deliveries: {deliveries}")
+    await update.message.reply_text(text=f'All deliveries: {deliveries}')
 
 
 @exception_logging

@@ -10,8 +10,8 @@ from .validators import english_words_validator
 
 product_title_content_validator = validators.UniqueTogetherValidator(
     queryset=Product.objects.all(),
-    fields=("title", "content"),
-    message="Fields title and content must be unique together for Products!",
+    fields=('title', 'content'),
+    message='Fields title and content must be unique together for Products!',
 )
 
 
@@ -23,18 +23,18 @@ class ProductInlineSerializer(serializers.Serializer):
     title = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     price = serializers.DecimalField(read_only=True, max_digits=15, decimal_places=2)
-    shop = serializers.CharField(source="shop.title", read_only=True)
+    shop = serializers.CharField(source='shop.title', read_only=True)
 
     def get_url(self, obj):
-        request = self.context.get("request", None)
+        request = self.context.get('request', None)
         if request is None:
             return None
-        return reverse("product-detail", kwargs={"pk": obj.id}, request=request)
+        return reverse('product-detail', kwargs={'pk': obj.id}, request=request)
 
 
 class ProductSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name="product-detail", lookup_field="pk", read_only=True
+        view_name='product-detail', lookup_field='pk', read_only=True
     )
     sales_count = serializers.IntegerField(read_only=True)
     sale = serializers.SerializerMethodField(read_only=True)
@@ -47,15 +47,15 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_seller(self, obj):
         return reverse(
-            "shop-detail",
-            kwargs={"slug": obj.shop.slug},
-            request=self.context.get("request"),
+            'shop-detail',
+            kwargs={'slug': obj.shop.slug},
+            request=self.context.get('request'),
         )
 
     def get_fields(self):
         fields = super().get_fields()
-        if self.context.get("request", None) is not None:
-            user = self.context.get("request").user
+        if self.context.get('request', None) is not None:
+            user = self.context.get('request').user
             if user.is_authenticated:
                 shops = Shop.objects.filter(
                     Q(user=user)
@@ -64,14 +64,14 @@ class ProductSerializer(serializers.ModelSerializer):
                         shopmanager__group__permissions=ShopPermissions.CREATE_PRODUCT,
                     )
                 ).distinct()
-                fields["shop"].queryset = shops
+                fields['shop'].queryset = shops
 
         return fields
 
     def create(self, validated_data):
-        user = self.context.get("request").user
+        user = self.context.get('request').user
         if not user:
-            raise serializers.ValidationError("User is not authenticated")
+            raise serializers.ValidationError('User is not authenticated')
         obj = super().create(validated_data)
         check_badwords_product.delay(obj.id)
         return obj
@@ -90,17 +90,17 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = (
-            "title",
-            "content",
-            "price",
-            "seller",
-            "quantity",
-            "sale",
-            "sales_count",
-            "sale_price",
-            "url",
-            "shop",
-            "mark",
+            'title',
+            'content',
+            'price',
+            'seller',
+            'quantity',
+            'sale',
+            'sales_count',
+            'sale_price',
+            'url',
+            'shop',
+            'mark',
         )
 
 
@@ -112,28 +112,28 @@ class ProductCreateSerializer(ProductSerializer):
     class Meta:
         model = Product
         fields = (
-            "title",
-            "content",
-            "price",
-            "seller",
-            "sale",
-            "sales_count",
-            "sale_price",
-            "url",
-            "shop_id",
-            "mark",
+            'title',
+            'content',
+            'price',
+            'seller',
+            'sale',
+            'sales_count',
+            'sale_price',
+            'url',
+            'shop_id',
+            'mark',
         )
 
 
 class ProductUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ("title", "content", "price", "quantity")
+        fields = ('title', 'content', 'price', 'quantity')
 
     def update(self, instance, validated_data):
-        user = self.context.get("request").user
+        user = self.context.get('request').user
         if not user:
-            raise serializers.ValidationError("User is not authenticated")
+            raise serializers.ValidationError('User is not authenticated')
         obj = super().update(instance, validated_data)
         check_badwords_product.delay(obj.id)
         return obj
@@ -145,7 +145,7 @@ class ProductSerializerFull(ProductSerializer):
         validators=[english_words_validator], max_length=120, required=True
     )
     category = serializers.SerializerMethodField(read_only=True)
-    reviews = ArticleInlineSerializer(source="articles", many=True, read_only=True)
+    reviews = ArticleInlineSerializer(source='articles', many=True, read_only=True)
 
     def get_category(self, obj):
         category = obj.category.all()
@@ -164,30 +164,30 @@ class ProductSerializerFull(ProductSerializer):
     class Meta:
         model = Product
         fields = (
-            "title",
-            "content",
-            "price",
-            "sale",
-            "sales_count",
-            "sale_price",
-            "url",
-            "reviews",
-            "category",
-            "edit_url",
-            "mark",
-            "seller",
-            "shop",
+            'title',
+            'content',
+            'price',
+            'sale',
+            'sales_count',
+            'sale_price',
+            'url',
+            'reviews',
+            'category',
+            'edit_url',
+            'mark',
+            'seller',
+            'shop',
         )
         validators = [product_title_content_validator]
 
     def update(self, instance, validated_data):
-        instance.title = validated_data.get("title", instance.title)
-        instance.content = validated_data.get("content", instance.content)
-        instance.price = validated_data.get("price", instance.price)
+        instance.title = validated_data.get('title', instance.title)
+        instance.content = validated_data.get('content', instance.content)
+        instance.price = validated_data.get('price', instance.price)
         return instance
 
     def get_edit_url(self, obj):
-        request = self.context.get("request", None)
+        request = self.context.get('request', None)
         if request is None:
             return None
-        return reverse("product-update", kwargs={"pk": obj.pk}, request=request)
+        return reverse('product-update', kwargs={'pk': obj.pk}, request=request)

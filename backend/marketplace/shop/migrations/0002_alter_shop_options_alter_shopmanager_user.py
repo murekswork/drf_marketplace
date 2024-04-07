@@ -8,36 +8,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("shop", "0001_initial"),
+        ('shop', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name="shop",
+            name='shop',
             options={
-                "permissions": [
-                    ("cread_update_delete_shop_product", "Can manage shop products"),
+                'permissions': [
+                    ('cread_update_delete_shop_product', 'Can manage shop products'),
                     (
-                        "create_update_shop_product",
-                        "Can only create or update shop products",
+                        'create_update_shop_product',
+                        'Can only create or update shop products',
                     ),
                     (
-                        "create_update_shop_sales",
-                        "Can only create or update shop sales",
+                        'create_update_shop_sales',
+                        'Can only create or update shop sales',
                     ),
-                    ("shop_owner", "Full permissions for shop management"),
-                    ("manage_shop_sales", "Can manage shop sales"),
+                    ('shop_owner', 'Full permissions for shop management'),
+                    ('manage_shop_sales', 'Can manage shop sales'),
                 ]
             },
         ),
         migrations.AlterField(
-            model_name="shopmanager",
-            name="user",
+            model_name='shopmanager',
+            name='user',
             field=models.ForeignKey(
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="manager_roles",
+                related_name='manager_roles',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),

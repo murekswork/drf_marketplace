@@ -7,7 +7,7 @@ from kafka_common.receiver import SingletonMixin
 from kafka_common.topics import DeliveryTopics
 from repository.courier_repository import CourierRepository
 from repository.delivery_repository import DeliveryRepository
-from schemas.schemas import Courier, Delivery, cancelled_deliveries, Location
+from schemas.schemas import Courier, Delivery, Location, cancelled_deliveries
 from utils import DistanceCalculator
 
 
@@ -59,8 +59,8 @@ class DeliveryService(SingletonMixin):
             delivery, couriers_with_location
         )
 
-        if search_courier_result["success"]:
-            courier: Courier = search_courier_result["courier"]
+        if search_courier_result['success']:
+            courier: Courier = search_courier_result['courier']
             await self.delivery_repository.update(
                 id=delivery.id, courier=courier.id, status=3
             )
@@ -71,14 +71,14 @@ class DeliveryService(SingletonMixin):
             msg = json.dumps(delivery.__dict__, default=str)
             await async_send_kafka_msg(msg, DeliveryTopics.DELIVERED)
 
-            return {"success": True, "courier": courier, "delivery": delivery}
+            return {'success': True, 'courier': courier, 'delivery': delivery}
 
         else:
             if retries < 5:
                 return await self.open_delivery(delivery, k + 1, retries + 1)
             else:
                 self.lock = True
-                return {"success": False, "msg": "Too many retries to find courier!"}
+                return {'success': False, 'msg': 'Too many retries to find courier!'}
 
     async def picked_up_delivery(self, courier_id: int) -> Delivery:
         delivery = await self.get_couriers_delivery(courier_id)

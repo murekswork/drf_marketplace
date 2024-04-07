@@ -26,7 +26,7 @@ class Wallet(models.Model):
     balance = models.DecimalField(max_digits=50, decimal_places=4, default=0)
 
     def __str__(self):
-        return f"{self.user}s wallet"
+        return f'{self.user}s wallet'
 
 
 # Create your models here.

@@ -6,28 +6,28 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("shop", "0002_alter_shop_options_alter_shopmanager_user"),
+        ('shop', '0002_alter_shop_options_alter_shopmanager_user'),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name="shop",
+            name='shop',
             options={
-                "permissions": [
-                    ("cread_update_delete_shop_product", "Can manage shop products"),
+                'permissions': [
+                    ('cread_update_delete_shop_product', 'Can manage shop products'),
                     (
-                        "create_update_shop_product",
-                        "Can only create or update shop products",
+                        'create_update_shop_product',
+                        'Can only create or update shop products',
                     ),
                     (
-                        "create_update_shop_sales",
-                        "Can only create or update shop sales",
+                        'create_update_shop_sales',
+                        'Can only create or update shop sales',
                     ),
-                    ("shop_owner", "Full permissions for shop management"),
-                    ("manage_shop_sales", "Can manage shop sales"),
+                    ('shop_owner', 'Full permissions for shop management'),
+                    ('manage_shop_sales', 'Can manage shop sales'),
                     (
-                        "can_manage_shop_managers",
-                        "Can grant shop permission to other users",
+                        'can_manage_shop_managers',
+                        'Can grant shop permission to other users',
                     ),
                 ]
             },

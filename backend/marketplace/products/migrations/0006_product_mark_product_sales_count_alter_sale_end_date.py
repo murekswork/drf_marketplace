@@ -8,23 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("products", "0005_alter_sale_end_date"),
+        ('products', '0005_alter_sale_end_date'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="product",
-            name="mark",
+            model_name='product',
+            name='mark',
             field=models.DecimalField(decimal_places=2, default=0, max_digits=4),
         ),
         migrations.AddField(
-            model_name="product",
-            name="sales_count",
+            model_name='product',
+            name='sales_count',
             field=models.IntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name="sale",
-            name="end_date",
+            model_name='sale',
+            name='end_date',
             field=models.DateTimeField(
                 default=datetime.datetime(2024, 3, 18, 15, 51, 11, 477014)
             ),

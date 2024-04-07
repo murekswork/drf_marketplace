@@ -11,7 +11,7 @@ class ArticleListView(UserQuerySetMixin, generics.ListCreateAPIView):
     serializer_class = ArticleSerializer
 
     def get_queryset(self):
-        qs = Article.objects.published().select_related("product")
+        qs = Article.objects.published().select_related('product')
         return qs
 
     def create(self, request, *args, **kwargs):
@@ -20,7 +20,7 @@ class ArticleListView(UserQuerySetMixin, generics.ListCreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(
-            "Your article is on review. Thanks!",
+            'Your article is on review. Thanks!',
             status=status.HTTP_201_CREATED,
             headers=headers,
         )

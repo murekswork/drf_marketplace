@@ -1,6 +1,6 @@
 import logging
 import threading
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from os import getenv
 
 from confluent_kafka import Consumer
@@ -23,13 +23,13 @@ class KafkaReceiver(ABC, SingletonMixin):
     def __init__(self):
         self.consumer = Consumer(
             {
-                "bootstrap.servers": f'{getenv("KAFKA_HOST")}:{getenv("KAFKA_PORT")}',
-                "group.id": "my-consumer-group",
-                "auto.offset.reset": "earliest",
+                'bootstrap.servers': f'{getenv("KAFKA_HOST")}:{getenv("KAFKA_PORT")}',
+                'group.id': 'my-consumer-group',
+                'auto.offset.reset': 'earliest',
             }
         )
         self.logger = logging.getLogger(
-            name=f"Consumer of topic: {self._topic.upper()}"
+            name=f'Consumer of topic: {self._topic.upper()}'
         )
 
     def _consume(self):
@@ -45,14 +45,14 @@ class KafkaReceiver(ABC, SingletonMixin):
             if message.error():
                 logging.error(message.error())
                 continue
-            msg = message.value().decode("utf-8")
-            self.logger.info(f"Got incoming message {msg} with topic: {self._topic}!")
+            msg = message.value().decode('utf-8')
+            self.logger.info(f'Got incoming message {msg} with topic: {self._topic}!')
 
             try:
                 self.post_consume_action(msg)
             except Exception as e:
                 self.logger.error(
-                    f"Could not complete post consume action! {e}", exc_info=True
+                    f'Could not complete post consume action! {e}', exc_info=True
                 )
 
         self.consumer.close()

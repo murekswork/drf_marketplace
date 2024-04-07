@@ -6,29 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("delivery", "0001_initial"),
+        ('delivery', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="delivery",
-            name="latitude",
+            model_name='delivery',
+            name='latitude',
             field=models.FloatField(),
         ),
         migrations.AlterField(
-            model_name="delivery",
-            name="longitude",
+            model_name='delivery',
+            name='longitude',
             field=models.FloatField(),
         ),
         migrations.AlterField(
-            model_name="delivery",
-            name="status",
+            model_name='delivery',
+            name='status',
             field=models.CharField(
                 choices=[
-                    ("searching", "Searching"),
-                    ("in-process", "In-process"),
-                    ("delivered", "Delivered"),
-                    ("canceled", "Canceled"),
+                    ('searching', 'Searching'),
+                    ('in-process', 'In-process'),
+                    ('delivered', 'Delivered'),
+                    ('canceled', 'Canceled'),
                 ],
                 max_length=10,
             ),

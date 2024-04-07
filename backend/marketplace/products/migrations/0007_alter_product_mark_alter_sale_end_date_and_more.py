@@ -8,25 +8,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("products", "0006_product_mark_product_sales_count_alter_sale_end_date"),
-        ("shop", "0007_alter_shop_user"),
+        ('products', '0006_product_mark_product_sales_count_alter_sale_end_date'),
+        ('shop', '0007_alter_shop_user'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="product",
-            name="mark",
+            model_name='product',
+            name='mark',
             field=models.DecimalField(decimal_places=2, default=5, max_digits=4),
         ),
         migrations.AlterField(
-            model_name="sale",
-            name="end_date",
+            model_name='sale',
+            name='end_date',
             field=models.DateTimeField(
                 default=datetime.datetime(2024, 3, 24, 20, 46, 31, 755211)
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="product",
-            unique_together={("shop", "title", "content")},
+            name='product',
+            unique_together={('shop', 'title', 'content')},
         ),
     ]

@@ -10,25 +10,25 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("category", "0001_initial"),
+        ('category', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Sale",
+            name='Sale',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("size", models.DecimalField(decimal_places=2, max_digits=4)),
+                ('size', models.DecimalField(decimal_places=2, max_digits=4)),
                 (
-                    "end_date",
+                    'end_date',
                     models.DateTimeField(
                         default=datetime.datetime(2024, 3, 15, 14, 42, 44, 165969)
                     ),
@@ -36,32 +36,32 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name="Product",
+            name='Product',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("title", models.CharField(max_length=120)),
-                ("content", models.TextField(blank=True, null=True)),
+                ('title', models.CharField(max_length=120)),
+                ('content', models.TextField(blank=True, null=True)),
                 (
-                    "price",
+                    'price',
                     models.DecimalField(decimal_places=2, default=99.99, max_digits=15),
                 ),
-                ("public", models.BooleanField(default=False)),
-                ("quantity", models.IntegerField(default=0)),
+                ('public', models.BooleanField(default=False)),
+                ('quantity', models.IntegerField(default=0)),
                 (
-                    "category",
+                    'category',
                     models.ManyToManyField(
                         blank=True,
                         null=True,
-                        related_name="products",
-                        to="category.category",
+                        related_name='products',
+                        to='category.category',
                     ),
                 ),
             ],

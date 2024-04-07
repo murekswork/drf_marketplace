@@ -3,9 +3,6 @@ import threading
 import time
 from os import getenv
 
-from telegram.ext import Application, CommandHandler, MessageHandler
-from telegram.ext.filters import Regex
-
 from filter import CourierFilters
 from handlers.common_handlers import profile_handler, start_bot
 from handlers.courier_handlers import (
@@ -23,6 +20,8 @@ from handlers.root_handlers import (
     get_couriers_on_line,
     show_all_deliveries,
 )
+from telegram.ext import Application, CommandHandler, MessageHandler
+from telegram.ext.filters import Regex
 
 
 def main() -> None:
@@ -48,54 +47,48 @@ def main() -> None:
     application.add_handler(
         MessageHandler(
             callback=courier_stop_carrying_handler,
-            filters=Regex("Stop carrying")
-            & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
+            filters=Regex('Stop carrying') & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
     application.add_handler(
         MessageHandler(
             callback=courier_start_carrying_handler,
-            filters=Regex(pattern="Start carrying")
-            & CourierFilters.NOT_ONLINE_COURIER_MESSAGE_FILTER,
+            filters=Regex(pattern='Start carrying') & CourierFilters.NOT_ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
-    application.add_handler(CommandHandler(command="start", callback=start_bot))
+    application.add_handler(CommandHandler(command='start', callback=start_bot))
 
     application.add_handler(
-        CommandHandler(command="check_couriers", callback=get_couriers_on_line)
+        CommandHandler(command='check_couriers', callback=get_couriers_on_line)
     )
 
     application.add_handler(
         MessageHandler(
             callback=show_couriers_delivery,
-            filters=Regex("Show delivery")
-            & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
+            filters=Regex('Show delivery') & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
     application.add_handler(
         MessageHandler(
             callback=lambda update, context: close_delivery(update, context, 5),
-            filters=Regex("Delivered!")
-            & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
+            filters=Regex('Delivered!') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
         )
     )
 
     application.add_handler(
         MessageHandler(
             callback=lambda update, context: close_delivery(update, context, 0),
-            filters=Regex("Cancel delivery")
-            & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
+            filters=Regex('Cancel delivery') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
         )
     )
 
     application.add_handler(
         MessageHandler(
             callback=picked_up_delivery_handler,
-            filters=Regex("Picked up")
-            & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
+            filters=Regex('Picked up') & CourierFilters.ONLINE_COURIER_ACTIVE_DELIVERY_FILTER,
         )
     )
     from tasks import (
@@ -105,31 +98,30 @@ def main() -> None:
         run_jobs,
     )
 
-    application.add_handler(CommandHandler(command="runjobs", callback=run_jobs))
+    application.add_handler(CommandHandler(command='runjobs', callback=run_jobs))
 
     application.add_handler(
-        CommandHandler(command="start_task", callback=job_check_deliveries)
+        CommandHandler(command='start_task', callback=job_check_deliveries)
     )
 
     application.add_handler(
-        CommandHandler(command="starttask", callback=job_notify_courier)
+        CommandHandler(command='starttask', callback=job_notify_courier)
     )
 
     application.add_handler(
-        CommandHandler(command="avgspeed", callback=job_get_avg_couriers_speed)
+        CommandHandler(command='avgspeed', callback=job_get_avg_couriers_speed)
     )
 
     application.add_handler(
         MessageHandler(
             callback=profile_handler,
-            filters=Regex(pattern="Show profile")
-            & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
+            filters=Regex(pattern='Show profile') & CourierFilters.ONLINE_COURIER_MESSAGE_FILTER,
         )
     )
 
     application.add_handler(
         CommandHandler(
-            command="add_distance",
+            command='add_distance',
             callback=lambda update, context: change_delivery_distance_handler(
                 update, context, 3
             ),
@@ -138,7 +130,7 @@ def main() -> None:
 
     application.add_handler(
         CommandHandler(
-            command="sub_distance",
+            command='sub_distance',
             callback=lambda update, context: change_delivery_distance_handler(
                 update, context, 3
             ),
@@ -146,12 +138,10 @@ def main() -> None:
     )
 
     application.add_handler(
-        CommandHandler(command="deliveries", callback=show_all_deliveries)
+        CommandHandler(command='deliveries', callback=show_all_deliveries)
     )
 
     application.run_polling()
-
-
 
 
 def listen_for_courier_profile():
@@ -172,7 +162,7 @@ def listen_for_cancelled_deliveries():
     listener.start_listening()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     from kafka_tg.receiver import (
         CourierProfileReceiver,
         TgDeliveryReceiver,
@@ -187,5 +177,5 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         logging.error(
-            f"Could not start bot or tg listeners! {e}, {e.args}", exc_info=True
+            f'Could not start bot or tg listeners! {e}, {e.args}', exc_info=True
         )

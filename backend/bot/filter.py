@@ -77,21 +77,21 @@ class _NotOnlineCourierFilter(_CouriersFilter):
 
 class CourierFilters:
     NOT_ONLINE_COURIER_MESSAGE_FILTER = _NotOnlineCourierFilter(
-        name="not_online_courier"
+        name='not_online_courier'
     )
     ONLINE_COURIER_LOCATION_FILTER = _OnlineCouriersLocationFilter(
-        name="courier_location"
+        name='courier_location'
     )
     ONLINE_COURIER_FIRST_LOCATION_FILTER = _OnlineCourierFirstLocationMsgFilter(
-        name="first_courier_location"
+        name='first_courier_location'
     )
     ONLINE_COURIER_NOT_LOCATION_MESSAGE_FILTER = _OnlineNotLocationCourierMessageFilter(
-        name="courier_not_location_filter"
+        name='courier_not_location_filter'
     )
-    ONLINE_COURIER_MESSAGE_FILTER = _OnlineCourierMessageFilter(name="courier_filter")
+    ONLINE_COURIER_MESSAGE_FILTER = _OnlineCourierMessageFilter(name='courier_filter')
     ONLINE_COURIER_NOT_ACTIVE_DELIVERY_FILTER = _NoActiveDeliveryFilter(
-        name="courier_not_active_delivery"
+        name='courier_not_active_delivery'
     )
     ONLINE_COURIER_ACTIVE_DELIVERY_FILTER = _ActiveDeliveryFilter(
-        name="courier_active_delivery"
+        name='courier_active_delivery'
     )

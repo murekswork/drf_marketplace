@@ -1,8 +1,8 @@
 import logging
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
-logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger('httpx').setLevel(logging.WARNING)
 
-logger = logging.getLogger("HANDLERS_LOGGER")
+logger = logging.getLogger('HANDLERS_LOGGER')

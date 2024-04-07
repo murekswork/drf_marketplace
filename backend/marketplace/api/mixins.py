@@ -24,7 +24,7 @@ class StaffEditorPermissionMixin:
 
 
 class UserQuerySetMixin:
-    user_field = "user"
+    user_field = 'user'
     allow_staff_view = False
     allow_superuser_view = True
 

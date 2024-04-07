@@ -30,7 +30,7 @@ class CsvUploadResultExporter(UploadResultsExporter):
 
     def export(self) -> None:
         """Method to export csv file from list of task result dataclass"""
-        with open(f"{self.output_file_path}", "w", newline="") as csvfile:
+        with open(f'{self.output_file_path}', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
 
             writer.writerow(self.report_result[0].__annotations__.keys())
@@ -44,7 +44,7 @@ class DataclassUploadResultExporter(UploadResultsExporter):
     def __init__(
         self,
         input_report_result: list[ProductUploadResultExportDTO],
-        output_source: str = "",
+        output_source: str = '',
     ) -> None:
         self.input_report_result = input_report_result
         self.output_source: str = output_source

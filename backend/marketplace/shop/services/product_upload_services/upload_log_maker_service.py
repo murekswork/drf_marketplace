@@ -44,22 +44,22 @@ class UploadLogMaker:
             )
             if task_result.task_id is None:
                 self.error_count += 1
-                upload_log.result, upload_log.success = task_result.error, "error"
+                upload_log.result, upload_log.success = task_result.error, 'error'
             else:
                 a_res = AsyncResult(task_result.task_id).result
                 try:
-                    if "was published" in a_res.get("result", ""):
+                    if 'was published' in a_res.get('result', ''):
                         self.success_count += 1
-                        upload_log.success, upload_log.result = "success", "published"
+                        upload_log.success, upload_log.result = 'success', 'published'
                     else:
                         upload_log.success, upload_log.result = (
-                            "error",
-                            "not published bad words",
+                            'error',
+                            'not published bad words',
                         )
                         self.error_count += 1
                 except Exception as e:
                     self.error_count += 1
-                    upload_log.success, upload_log.result = "error", f"{e}"
+                    upload_log.success, upload_log.result = 'error', f'{e}'
 
             report_result.append(upload_log)
             self.products_count += 1
@@ -88,10 +88,10 @@ class UploadLogMaker:
                 if errors_counter < 0:
                     self.error_count += 1
                     self._fill_upload_data()
-                with open("create_report_method_logs.txt", "a+") as f:
+                with open('create_report_method_logs.txt', 'a+') as f:
                     f.write(str(e))
 
             return logs
 
         else:
-            raise Exception("Tasks are not completed yet")
+            raise Exception('Tasks are not completed yet')

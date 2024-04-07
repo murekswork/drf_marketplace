@@ -9,56 +9,56 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("courier", "0004_alter_courier_rank"),
-        ("order", "0009_alter_order_created_at_alter_order_lifetime"),
+        ('courier', '0004_alter_courier_rank'),
+        ('order', '0009_alter_order_created_at_alter_order_lifetime'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Delivery",
+            name='Delivery',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("address", models.CharField(max_length=120)),
-                ("latitude", models.FloatField(max_length=15)),
-                ("longitude", models.FloatField(max_length=15)),
+                ('address', models.CharField(max_length=120)),
+                ('latitude', models.FloatField(max_length=15)),
+                ('longitude', models.FloatField(max_length=15)),
                 (
-                    "status",
+                    'status',
                     models.CharField(
                         choices=[
-                            ("PENDING", "Pending"),
-                            ("searching", "Searching"),
-                            ("in-process", "In Process"),
-                            ("delivered", "Delivered"),
-                            ("canceled", "Canceled"),
+                            ('PENDING', 'Pending'),
+                            ('searching', 'Searching'),
+                            ('in-process', 'In Process'),
+                            ('delivered', 'Delivered'),
+                            ('canceled', 'Canceled'),
                         ],
                         max_length=10,
                     ),
                 ),
-                ("amount", models.FloatField(max_length=6)),
-                ("started_at", models.DateTimeField(auto_now_add=True)),
-                ("completed_at", models.DateTimeField(blank=True, null=True)),
+                ('amount', models.FloatField(max_length=6)),
+                ('started_at', models.DateTimeField(auto_now_add=True)),
+                ('completed_at', models.DateTimeField(blank=True, null=True)),
                 (
-                    "courier",
+                    'courier',
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to="courier.courier",
+                        to='courier.courier',
                     ),
                 ),
                 (
-                    "order_id",
+                    'order_id',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.PROTECT,
-                        related_name="delivery",
-                        to="order.order",
+                        related_name='delivery',
+                        to='order.order',
                     ),
                 ),
             ],

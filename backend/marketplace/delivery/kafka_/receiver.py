@@ -19,4 +19,4 @@ class DjangoDeliveryReceiver(KafkaReceiver):
         c_service = CourierDeliveryService()
         courier_db = c_service.close_delivery(delivery_db)
         if delivery_db.status == 5:
-            send_courier_profile_from_django_to_telegram({"id": courier_db.id})
+            send_courier_profile_from_django_to_telegram({'id': courier_db.id})

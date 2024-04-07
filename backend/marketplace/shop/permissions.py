@@ -35,9 +35,9 @@ class ShopStaffPermissionsMixin:
 class ProductShopStaffPermission(permissions.BasePermission, ShopStaffPermissionsMixin):
 
     def has_object_permission(self, request, view, obj):
-        if request.method in ("PUT", "PATCH"):
+        if request.method in ('PUT', 'PATCH'):
             required_permission = ShopPermissions.UPDATE_PRODUCT
-        elif request.method in ("DELETE",):
+        elif request.method in ('DELETE',):
             required_permission = ShopPermissions.DELETE_PRODUCT
         else:
             return True

@@ -3,14 +3,14 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup
 
 class CourierReplyMarkups:
     GOT_DELIVERY_MARKUP = ReplyKeyboardMarkup(
-        [["Show delivery", "Picked up delivery", "Show profile", "Cancel delivery"]],
+        [['Show delivery', 'Picked up delivery', 'Show profile', 'Cancel delivery']],
         one_time_keyboard=False,
     )
 
     COURIER_MAIN_MARKUP = ReplyKeyboardMarkup(
         [
             [
-                "Show profile",
+                'Show profile',
             ]
         ],
         one_time_keyboard=True,
@@ -20,7 +20,7 @@ class CourierReplyMarkups:
         [
             [
                 KeyboardButton(
-                    "GOT IT!",
+                    'GOT IT!',
                 )
             ]
         ],
@@ -28,15 +28,15 @@ class CourierReplyMarkups:
     )
 
     CARRYING_NOT_DELIVERY_MARKUP = ReplyKeyboardMarkup(
-        [["Show profile", "Stop carrying"]], one_time_keyboard=True
+        [['Show profile', 'Stop carrying']], one_time_keyboard=True
     )
 
     NOT_CARRYING_MARKUP = ReplyKeyboardMarkup(
-        [["Show profile", "Start carrying"]], one_time_keyboard=True
+        [['Show profile', 'Start carrying']], one_time_keyboard=True
     )
 
     PICKED_UP_DELIVERY_MARKUP = ReplyKeyboardMarkup(
-        [["Show delivery", "Delivered!", "Show profile"]], one_time_keyboard=False
+        [['Show delivery', 'Delivered!', 'Show profile']], one_time_keyboard=False
     )
 
 
@@ -45,7 +45,7 @@ class CommonMarkups:
         [
             # ['Start carrying', 'Become courier', ]
             [
-                "Start carrying",
+                'Start carrying',
             ]
         ]
     )

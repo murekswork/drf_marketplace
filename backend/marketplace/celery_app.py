@@ -4,16 +4,16 @@ import os
 from celery import Celery, shared_task
 from cfehome.settings import CELERY_BROKER_URL
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cfehome.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cfehome.settings')
 
-app = Celery("service")
-app.config_from_object("django.conf:settings")
+app = Celery('service')
+app.config_from_object('django.conf:settings')
 app.conf.broker_url = CELERY_BROKER_URL
 app.conf.result_backend = CELERY_BROKER_URL
 app.conf.update(CELERY_WORKER_CONCURRENCY=4)
 app.autodiscover_tasks()
 
-task_logger = logging.getLogger(name="CELERY TASKS LOGGER")
+task_logger = logging.getLogger(name='CELERY TASKS LOGGER')
 
 
 @shared_task(bind=True, default_retry_delay=10, max_retries=3)
@@ -27,11 +27,11 @@ def check_badwords_article(self, article_id):
         result = service.validate()
         if result is True:
             service.publish()
-            task_logger.info("Article published")
+            task_logger.info('Article published')
         else:
-            task_logger.info("Article with bad words was not published!")
+            task_logger.info('Article with bad words was not published!')
     except Exception as e:
-        task_logger.error(f"Article check task was not completed! {e}", exc_info=True)
+        task_logger.error(f'Article check task was not completed! {e}', exc_info=True)
 
 
 @shared_task(bind=True, default_retry_delay=10, max_retries=5)
@@ -47,17 +47,17 @@ def check_badwords_product(self, product_id):
         result = service.validate()
         if result is True:
             service.publish()
-            return {"result": f"{product.title} was published"}
+            return {'result': f'{product.title} was published'}
         else:
             service.unpublish()
             return {
-                "result": f"{product.title} was not published because it has bad words"
+                'result': f'{product.title} was not published because it has bad words'
             }
     except Exception as e:
-        logging.warning(f"Task did not started because of {e}")
+        logging.warning(f'Task did not started because of {e}')
         self.retry(exc=e)
     else:
-        return {"result": "Product was not published"}
+        return {'result': 'Product was not published'}
 
 
 @shared_task(bind=True, default_retry_delay=30, max_retries=5)
@@ -75,12 +75,12 @@ def create_product_upload_report(self, tasks_file_name: str, upload_id: str):
         logger = UploadLogMaker(task_results_filename=tasks_file_name, upload=upload)
         result = logger.create_report()
         output_logs = CsvUploadResultExporter(
-            output_source=f"backend/tasks_data/{upload.file_name}.csv",
+            output_source=f'backend/tasks_data/{upload.file_name}.csv',
             input_report_result=result,
         )
         output_logs.export()
     except Exception as e:
-        task_logger.critical(f"{self.__name__} was not completed! {e}", exc_info=True)
+        task_logger.critical(f'{self.__name__} was not completed! {e}', exc_info=True)
         # if _retry_count < 5:
         self.retry(exc=e)
 
@@ -97,5 +97,5 @@ def upload_products_task(self, file, shop_id):
         upload_service.save_tasks()
         return upload_service.get_tasks_filename()
     except Exception as e:
-        task_logger.critical(f"{self.__name__} was not completed! {e}", exc_info=True)
+        task_logger.critical(f'{self.__name__} was not completed! {e}', exc_info=True)
         self.retry(exc=e)

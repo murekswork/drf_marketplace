@@ -9,14 +9,14 @@ class KafkaSender:
     def __init__(self, topic: str):
         self.topic = topic
         self.config = {
-            "bootstrap.servers": "kafka:9092",
-            "group.id": "my-group",
-            "auto.offset.reset": "earliest",
+            'bootstrap.servers': 'kafka:9092',
+            'group.id': 'my-group',
+            'auto.offset.reset': 'earliest',
         }
         self.producer = Producer(self.config)
         self.send_thread = None
         self.logger = logging.getLogger(
-            f"{self.topic.upper()}: {self.__class__.__name__}"
+            f'{self.topic.upper()}: {self.__class__.__name__}'
         )
 
     def _send_message(self, msg: str):
@@ -25,10 +25,10 @@ class KafkaSender:
         # msg here shud be jsonified !!!
         def msg_callback(err, msg):
             if err is not None:
-                self.logger.error(f"{msg.topic()} delivery failed {err}")
+                self.logger.error(f'{msg.topic()} delivery failed {err}')
             else:
                 self.logger.info(
-                    f"Message from {self.__class__} with {msg.value()} topic {msg.topic()}!"
+                    f'Message from {self.__class__} with {msg.value()} topic {msg.topic()}!'
                 )
 
         if not self.send_thread or not self.send_thread.is_alive():
@@ -41,11 +41,11 @@ class KafkaSender:
     def _msg_wrapper(self, msg: str, callback):
         """Wrapper for sending a message via the producer"""
         try:
-            self.producer.produce(self.topic, msg.encode("utf-8"), callback=callback)
+            self.producer.produce(self.topic, msg.encode('utf-8'), callback=callback)
             self.producer.flush()
         except Exception:
             self.logger.error(
-                f"Sending message {msg} with {self.topic.upper()}", exc_info=True
+                f'Sending message {msg} with {self.topic.upper()}', exc_info=True
             )
 
     def send(self, msg: str):
@@ -54,5 +54,5 @@ class KafkaSender:
             self._send_message(msg)
         except Exception:
             self.logger.error(
-                f"Could not send msg <{msg}> with {self.topic.upper()}", exc_info=True
+                f'Could not send msg <{msg}> with {self.topic.upper()}', exc_info=True
             )
