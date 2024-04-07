@@ -1,28 +1,47 @@
 import datetime
-import logging
 
 from geopy import distance
 
+from kafka_common.receiver import SingletonMixin
 from schemas.schemas import Courier, Delivery, Location
 
 
-class DistanceCalculator:
+class DistanceCalculator(SingletonMixin):
     earth_radius = 6371
-    working_range = 5
-    avg_courier_speed: float = 10  # should be in km/h
-    waiting_time = 0.05  # should be in hours
+    __working_range = 5
+    __avg_courier_speed: float = 10  # should be in km/h
+    __waiting_time = 0.05  # should be in hours
 
-    @classmethod
-    async def set_avg_courier_speed(cls, new_speed: float) -> None:
-        logging.error(f"Setting avg courier sped to {new_speed}")
-        cls.avg_courier_speed = new_speed
+    @property
+    def avg_courier_speed(self):
+        return self.__avg_courier_speed
+
+    @avg_courier_speed.setter
+    def avg_courier_speed(self, value):
+        self.__avg_courier_speed = value
+
+    @property
+    def waiting_time(self) -> float:
+        return self.__waiting_time
+
+    @waiting_time.setter
+    def waiting_time(self, value: float) -> None:
+        self.__waiting_time = value
+
+    @property
+    def working_range(self) -> float:
+        return self.__working_range
+
+    @working_range.setter
+    def working_range(self, value: float) -> None:
+        self.__working_range = value
 
     async def get_courier_etime_distance(
-        self,
-        pickup_point: Location,
-        consumer_point: Location,
-        free_couriers: list[Courier],
-        priority: int,
+            self,
+            pickup_point: Location,
+            consumer_point: Location,
+            free_couriers: list[Courier],
+            priority: int,
     ) -> tuple[Courier, float, float] | tuple[None, None, None]:
         """Method to search courier depending on his distance from passed point"""
         nearest_distance = float("inf")
@@ -42,12 +61,12 @@ class DistanceCalculator:
     async def get_estimated_delivery_time(self, distance: float) -> float:
         """Method to calculate estimated delivering time based on distance and avg couriers speed"""
         estimated_time_minutes = (
-            (distance / self.avg_courier_speed) + self.waiting_time
-        ) * 60
+                                         (distance / self.avg_courier_speed) + self.waiting_time
+                                 ) * 60
         return estimated_time_minutes
 
     async def get_nearest_free_courier(
-        self, delivery: Delivery, free_couriers: list[Courier] | None
+            self, delivery: Delivery, free_couriers: list[Courier] | None
     ) -> dict[str, bool | Courier]:
         if free_couriers:
             courier, estimated_time, distance = await self.get_courier_etime_distance(
@@ -60,8 +79,7 @@ class DistanceCalculator:
             )
             if courier:
                 delivery.estimated_time = datetime.datetime.now() + datetime.timedelta(
-                    minutes=estimated_time
-                )  # type: ignore
+                    minutes=estimated_time)  # type: ignore
                 delivery.distance = distance
                 return {"success": True, "courier": courier}
             delivery.priority += 1

@@ -3,7 +3,7 @@ import json
 import logging
 from typing import AsyncGenerator
 
-from kafka_common.factories import producer_factory
+from kafka_common.factories import async_send_kafka_msg
 from kafka_common.receiver import SingletonMixin
 from kafka_common.topics import DeliveryTopics
 from repository.courier_repository import CourierRepository
@@ -20,23 +20,32 @@ class DeliveryService(SingletonMixin):
         self.delivery_repository = DeliveryRepository()
         self.courier_repository = CourierRepository()
 
-        self._kafka_delivery_service = producer_factory(topic=DeliveryTopics.DELIVERED)
+    @property
+    def lock(self):
+        return self.__service_lock
 
-    async def __lock_service(self):
-        self.__service_lock = True
+    @lock.setter
+    def lock(self, new_lock: bool) -> None:
+        self.__service_lock = new_lock
 
-    async def __unlock_service(self):
-        self.__service_lock = False
+    @property
+    def lock_counter(self):
+        return self.__lock_counter
 
-    async def __verify_service(self):
+    @lock_counter.setter
+    def lock_counter(self, new_counter: int) -> None:
+        self.__lock_counter = new_counter
+
+    async def _verify_service(self):
         free_couriers = await self.courier_repository.get_by_kwargs(busy=False)
         if free_couriers:
-            self.__service_lock = False
-        self.__lock_counter = 0
+            self.lock = False
+            self.lock_counter = 0
 
     async def add_courier_to_line(self, courier: Courier):
         await self.courier_repository.add(courier)
-        await self.__unlock_service()
+        self.lock = False
+        self.lock_counter = 0
 
     async def open_delivery(
         self, delivery: Delivery, k: int = 5, retries: int = 0
@@ -60,8 +69,8 @@ class DeliveryService(SingletonMixin):
                 id=courier.id, current_delivery_id=delivery.id, busy=True
             )
 
-            delivery_msg = json.dumps(delivery.__dict__, default=str)
-            self._kafka_delivery_service.send(delivery_msg)
+            msg = json.dumps(delivery.__dict__, default=str)
+            await async_send_kafka_msg(msg, DeliveryTopics.DELIVERED)
 
             return {"success": True, "courier": courier, "delivery": delivery}
 
@@ -69,7 +78,7 @@ class DeliveryService(SingletonMixin):
             if retries < 5:
                 return await self.open_delivery(delivery, k + 1, retries + 1)
             else:
-                await self.__lock_service()
+                self.lock = True
                 return {"success": False, "msg": "Too many retries to find courier!"}
 
     async def picked_up_delivery(self, courier_id: int) -> Delivery:
@@ -78,17 +87,17 @@ class DeliveryService(SingletonMixin):
             delivery.status = 4
 
         msg = json.dumps(delivery.__dict__, default=str)
-        self._kafka_delivery_service.send(msg)
+        await async_send_kafka_msg(msg, DeliveryTopics.DELIVERED)
 
         return delivery
 
     async def get_couriers_delivery(self, courier_id: int) -> Delivery | None:
-        c = await self.courier_repository.get(courier_id)
-        d = None
-        if c:
-            d_id = c.current_delivery_id
-            d = await self.delivery_repository.get(d_id)
-        return d
+        courier = await self.courier_repository.get(courier_id)
+        delivery = None
+        if courier:
+            d_id = courier.current_delivery_id
+            delivery = await self.delivery_repository.get(d_id)
+        return delivery
 
     async def close_delivery(self, delivery_id: int, status: int) -> None:
         delivery = await self.delivery_repository.get(delivery_id)
@@ -99,17 +108,20 @@ class DeliveryService(SingletonMixin):
         busy = status == 0
         await self.courier_repository.update(courier.id, busy=busy)
 
-    async def _check_service_lock_status(self) -> bool:
-        if self.__service_lock is True and self.__lock_counter < 5:
-            self.__lock_counter += 1
-        elif self.__service_lock is True and self.__lock_counter > 5:
-            await self.__verify_service()
+    async def check_service_lock(self) -> bool:
+        if self.lock and self.lock_counter < 5:
+            self.lock_counter += 1
+
+        elif self.lock and self.lock_counter > 5:
+            await self._verify_service()
+
         else:
             return False
+
         return True
 
     async def start_delivering(self) -> AsyncGenerator | None:
-        lock_status = await self._check_service_lock_status()
+        lock_status = await self.check_service_lock()
         if lock_status is False:
             return self._distribute_deliveries()
         return None

@@ -1,3 +1,6 @@
+import asyncio
+import threading
+
 from telegram import Update
 from telegram.ext import CallbackContext
 
@@ -72,7 +75,7 @@ async def collect_speed_metrics(update):
     metrics_collector = AvgCourierSpeedProvider()
     speed = await metrics_collector.get_avg_couriers_speed()
     if speed:
-        await DistanceCalculator.set_avg_courier_speed(speed)
+        DistanceCalculator.avg_courier_speed = speed
 
 
 async def job_get_avg_couriers_speed(update: Update, context: CallbackContext):
@@ -81,7 +84,17 @@ async def job_get_avg_couriers_speed(update: Update, context: CallbackContext):
 
 
 async def run_jobs(update: Update, context: CallbackContext):
-    await job_get_avg_couriers_speed(update, context)
-    await job_notify_courier(update, context)
-    await job_check_deliveries(update, context)
-    await job_check_cancelled_deliveries(update, context)
+    jobs = (job_get_avg_couriers_speed,
+            job_notify_courier,
+            job_check_deliveries,
+            job_check_cancelled_deliveries,)
+
+    def between_callback(func, *args):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(func(*args))
+        loop.close()
+
+    for job in jobs:
+        thread = threading.Thread(target=between_callback, args=(job, update, context,))
+        thread.start()

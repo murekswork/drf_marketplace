@@ -11,4 +11,5 @@ class DeliveryTopics:
 @dataclass
 class CourierTopics:
     COURIER_LOCATION = "courier_location"
-    COURIER_PROFILE = "ask_courier_profile"
+    COURIER_PROFILE_ASK = "ask_courier_profile"
+    COURIER_PROFILE = 'courier_profile'
