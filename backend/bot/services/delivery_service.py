@@ -1,6 +1,5 @@
 import datetime
 import json
-import logging
 from typing import AsyncGenerator
 
 from kafka_common.factories import async_send_kafka_msg
@@ -8,7 +7,7 @@ from kafka_common.receiver import SingletonMixin
 from kafka_common.topics import DeliveryTopics
 from repository.courier_repository import CourierRepository
 from repository.delivery_repository import DeliveryRepository
-from schemas.schemas import Courier, Delivery, cancelled_deliveries
+from schemas.schemas import Courier, Delivery, cancelled_deliveries, Location
 from utils import DistanceCalculator
 
 
@@ -48,7 +47,7 @@ class DeliveryService(SingletonMixin):
         self.lock_counter = 0
 
     async def open_delivery(
-        self, delivery: Delivery, k: int = 5, retries: int = 0
+            self, delivery: Delivery, k: int = 5, retries: int = 0
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
         service = DistanceCalculator()
         couriers = await self.courier_repository.get_by_kwargs(busy=False)
@@ -138,6 +137,26 @@ class DeliveryService(SingletonMixin):
     async def change_delivery_distance(self, distance: int) -> None:
         calculate_service = DistanceCalculator()
         calculate_service.working_range += distance
+
+
+class DeliveryValidationService:
+    __acceptable_distance_difference = 0.2  # kilometers
+
+    def __init__(self, courier_id: int):
+        self.distance_calculator = DistanceCalculator()
+        self.delivery_repository = DeliveryRepository()
+        self.courier_repository = CourierRepository()
+        self.courier_id = courier_id
+
+    async def validate_courier_on_point(self):
+        courier = await self.courier_repository.get(self.courier_id)
+        delivery = await self.delivery_repository.get(courier.current_delivery_id)
+        if delivery.status == 3:
+            point = Location(delivery.latitude, delivery.longitude)
+        else:
+            point = Location(delivery.consumer_latitude, delivery.consumer_longitude)
+        distance = await self.distance_calculator.calculate_distance(courier.location, point)
+        return distance <= self.__acceptable_distance_difference
 
 
 class DeliveryCancellationService(SingletonMixin):

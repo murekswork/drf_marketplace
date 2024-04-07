@@ -1,5 +1,5 @@
 from articles.models import Article
-from utils.validation.badwords_validation import EntityBadWordsValidationService
+from utils_.validation.badwords_validation import EntityBadWordsValidationService
 
 
 class ArticleBadwordsValidationService(EntityBadWordsValidationService):

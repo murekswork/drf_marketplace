@@ -1,5 +1,5 @@
 from products.models import Product
-from utils.validation.badwords_validation import EntityBadWordsValidationService
+from utils_.validation.badwords_validation import EntityBadWordsValidationService
 
 
 class ProductEntityBadWordsValidateService(EntityBadWordsValidationService):

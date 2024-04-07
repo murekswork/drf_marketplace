@@ -2,11 +2,12 @@ import json
 
 from courier.kafka_.sender import send_courier_profile_from_django_to_telegram
 from kafka_common.receiver import KafkaReceiver
-from utils.location_traker import LocationTracker
+from kafka_common.topics import CourierTopics
+from utils_.location_tracker import LocationTracker
 
 
 class CourierLocationReceiver(KafkaReceiver):
-    _topic = "courier_location"
+    _topic = CourierTopics.COURIER_LOCATION
 
     def __init__(self):
         super().__init__()
@@ -20,7 +21,7 @@ class CourierLocationReceiver(KafkaReceiver):
 
 
 class CourierProfileAskReceiver(KafkaReceiver):
-    _topic = "ask_courier_profile"
+    _topic = CourierTopics.COURIER_PROFILE_ASK
 
     def post_consume_action(self, msg: str):
         msg = json.loads(msg)

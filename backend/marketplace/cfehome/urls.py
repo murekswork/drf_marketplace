@@ -26,6 +26,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),
     path("api/search", include("search.urls")),
-    path("api/v2/", include("cfehome.routers")),
     path("__debug__/", include("debug_toolbar.urls")),
 ]

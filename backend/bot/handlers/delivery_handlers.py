@@ -1,6 +1,6 @@
 import datetime
 
-from telegram import Update
+from telegram import Update, Location
 from telegram.constants import ParseMode
 from telegram.ext import CallbackContext
 
@@ -10,12 +10,21 @@ from keyboards import CourierReplyMarkups
 from replies import Replies
 from schemas.schemas import Delivery, Courier
 from services.courier_service import CourierService
-from services.delivery_service import DeliveryService
+from services.delivery_service import DeliveryService, DeliveryValidationService
 
 
 @exception_logging
 async def picked_up_delivery_handler(update: Update, context: CallbackContext):
     courier_id = update.message.chat.id
+
+    validation_service = DeliveryValidationService(courier_id)
+    if validation_service.validate_courier_on_point() is not True:
+        await context.bot.send_message(
+            chat_id=courier_id,
+            text=Replies.DELIVERY_COURIER_NOT_ON_REQUIRED_POINT_ANSWER
+        )
+        return
+
     service = DeliveryService()
     delivery = await service.picked_up_delivery(courier_id)
 
@@ -33,9 +42,18 @@ async def picked_up_delivery_handler(update: Update, context: CallbackContext):
 
 @exception_logging
 async def close_delivery(update: Update, context: CallbackContext, status: int):
-    cour_id = update.message.chat.id
+    courier_id = update.message.chat.id
+
+    validation_service = DeliveryValidationService(courier_id)
+    if validation_service.validate_courier_on_point() is not True:
+        await context.bot.send_message(
+            chat_id=courier_id,
+            text=Replies.DELIVERY_COURIER_NOT_ON_REQUIRED_POINT_ANSWER
+        )
+        return
+
     service = CourierService()
-    delivery = await service.close_delivery(cour_id, status)
+    delivery = await service.close_delivery(courier_id, status)
     await update.message.reply_text(
         Replies.CLOSED_DELIVERY_INFO.format(delivery.status),
         reply_markup=CourierReplyMarkups.COURIER_MAIN_MARKUP,
@@ -57,8 +75,14 @@ async def send_delivery_pickup_point_msg(context: CallbackContext, chat_id, lat,
 async def show_couriers_delivery(update: Update, context: CallbackContext):
     chat = update.message.chat
     service = DeliveryService()
-    d = await service.get_couriers_delivery(chat.id)
-    await update.message.reply_text(Replies.CURRENT_DELIVERY_INFO.format(d))
+    delivery = await service.get_couriers_delivery(chat.id)
+    if delivery.status == 3:
+        point = Location(delivery.longitude, delivery.latitude)
+    else:
+        point = Location(delivery.consumer_longitude, delivery.consumer_latitude)
+
+    await update.message.reply_location(point.latitude, point.longitude)
+    await update.message.reply_text(Replies.CURRENT_DELIVERY_INFO.format(delivery))
 
 
 @exception_logging
@@ -67,8 +91,9 @@ async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: De
         context, chat_id, delivery.consumer_latitude, delivery.consumer_longitude
     )
     msg = Replies.DELIVERY_INFO.format(
-        minutes=(delivery.estimated_time - datetime.datetime.now()).total_seconds()
-        / 60,
+        minutes=round(
+            (delivery.estimated_time - datetime.datetime.now()).total_seconds() / 60, 2
+        ),
         amount=delivery.amount,
         status=delivery.status,
         address=delivery.address,
@@ -84,20 +109,20 @@ async def send_delivery_info_msg(context: CallbackContext, chat_id, delivery: De
 
 @exception_logging
 async def delivery_taking_late_notification(
-    context: CallbackContext, delivery: Delivery
+        context: CallbackContext, delivery: Delivery
 ):
     await context.bot.send_message(
         chat_id=delivery.courier,
         text=Replies.DELIVERY_TAKING_LATE_NOTIFICATION.format(
             delivery.id,
-            (delivery.estimated_time - datetime.datetime.now()).total_seconds() / 360,
+            round((delivery.estimated_time - datetime.datetime.now()).total_seconds() / 60, 2)
         ),
     )
 
 
 @exception_logging
 async def delivery_cancelled_by_consumer_notification(
-    context: CallbackContext, courier: Courier
+        context: CallbackContext, courier: Courier
 ):
     await context.bot.send_message(
         chat_id=courier.id, text=Replies.DELIVERY_CANCELLED_BY_CONSUMER_NOTIFICATION

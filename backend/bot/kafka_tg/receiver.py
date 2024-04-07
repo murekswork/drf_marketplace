@@ -1,6 +1,6 @@
 from adapters import consume_django_model_to_dataclass
 from kafka_common.receiver import KafkaReceiver
-from kafka_common.topics import DeliveryTopics
+from kafka_common.topics import DeliveryTopics, CourierTopics
 from schemas.schemas import (
     Courier,
     Delivery,
@@ -11,7 +11,7 @@ from schemas.schemas import (
 
 
 class CourierProfileReceiver(KafkaReceiver):
-    _topic = "courier_profile"
+    _topic = CourierTopics.COURIER_PROFILE
 
     def post_consume_action(self, msg: str) -> None:
         """Method to deserialize incoming message from to courier and adds courier profile to line"""

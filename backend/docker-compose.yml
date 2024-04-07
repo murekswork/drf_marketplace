@@ -62,7 +62,7 @@ services:
     networks:
       - kafkanet
     volumes:
-      - ./bot_volume:/bot
+      - ./bot:/bot
 
   redis:
     image: redis:latest

@@ -4,7 +4,7 @@ from shop.services.product_upload_services.schemas import (
     ProductUploadResultExportDTO,
     ProductUploadTaskStateDTO,
 )
-from utils.readers import DataclassFromTxtFileReader
+from utils_.readers import DataclassFromTxtFileReader
 
 
 class UploadLogMaker:

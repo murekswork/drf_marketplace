@@ -7,7 +7,7 @@ ENV PYTHONBUFFERED 1
 
 COPY requirements/marketplace_reqs/requirements.txt .
 
-RUN pip install pip-tools
+RUN pip --default-timeout=2000 install pip-tools
 RUN pip-sync requirements.txt
 
 

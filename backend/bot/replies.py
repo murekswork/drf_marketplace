@@ -47,3 +47,5 @@ class Replies:
     DELIVERY_CANCELLED_BY_CONSUMER_NOTIFICATION = (
         " Unfortunately your delivery was cancelled by consumer!"
     )
+
+    DELIVERY_COURIER_NOT_ON_REQUIRED_POINT_ANSWER = "You cant mark your delivery as picked up or delivered because you are not on required location!"

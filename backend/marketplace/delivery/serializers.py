@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from utils.location_tracker import LocationTracker
+from utils_.location_tracker import LocationTracker
 
 from .models import Delivery
 

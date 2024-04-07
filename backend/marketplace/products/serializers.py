@@ -157,7 +157,7 @@ class ProductSerializerFull(ProductSerializer):
     # def get_similar_products(self, obj):
     #     qs = Product.objects.search(obj.title).exclude(id=obj.id)
     #     return ProductInlineSerializer(qs, many=True, context=self.context).data
-    
+
     # def get_reviews(self, obj):
     #     return ArticleInlineSerializer(obj.articles.filter(published=True), many=True).data
 

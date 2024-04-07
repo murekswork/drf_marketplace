@@ -43,12 +43,11 @@ class Delivery(models.Model):
     def save(self, *args, **kwargs):
         # TODO: REMOVE THIS FROM DATABASE LAYER
         if self.status == 1:
-            from kafka_common.factories import producer_factory
+            from kafka_common.factories import send_kafka_msg
             from delivery.adapters.delivery_adapters import DeliveryAdapter
 
-            sender = producer_factory(topic=DeliveryTopics.TO_DELIVER)
             msg = DeliveryAdapter.serialize_delivery(self)
-            sender.send(msg)
+            send_kafka_msg(msg, DeliveryTopics.TO_DELIVER)
             logging.warning("Sent delivery to telegram !")
 
         elif self.status == 5:
