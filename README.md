@@ -12,6 +12,27 @@
 
 Для админов вебсокет соединение для отслеживания местоположения курьеров
 
+# Запуск проекта
+
+Для запуска необходим Docker
+
+1. Склонировать репозиторий
+```
+git clone https://github.com/murekswork/velociped
+```
+2. Перейти в директорию проекта
+```
+cd velociped/backend
+```
+3. Запустить контейнеры
+```
+docker compose up --build 
+```
+4. Добавить топик в кафку: дождаться запуска кафки и в отдельном терминале ввести
+```
+docker compose exec kafka sh
+kafka-topics --create --zookeeper zookeeper:2181 --topic __consumer_offsets --replication-factor 1 --partitions 50
+```
 
 
 ## Функционал
