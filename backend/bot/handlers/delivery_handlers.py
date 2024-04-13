@@ -18,7 +18,7 @@ async def picked_up_delivery_handler(update: Update, context: CallbackContext):
     user = update.message.chat
 
     validation_service = DeliveryValidationService(user.id)
-    if await validation_service.validate_courier_on_point() is not True:
+    if not await validation_service.validate_courier_on_point():
         await context.bot.send_message(
             chat_id=user.id,
             text=Replies.DELIVERY_COURIER_NOT_ON_REQUIRED_POINT_ANSWER
