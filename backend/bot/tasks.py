@@ -73,13 +73,15 @@ async def job_notify_courier(update: Update, context: CallbackContext):
 async def collect_speed_metrics(update):
     metrics_collector = AvgCourierSpeedProvider()
     speed = await metrics_collector.get_avg_couriers_speed()
+    logger.warning('CALCULATED AVG COURIERS SPEED: {}'.format(speed))
     if speed:
         DistanceCalculator.avg_courier_speed = speed
 
 
 async def job_get_avg_couriers_speed(update: Update, context: CallbackContext):
     job_queue = context.job_queue
-    job_queue.run_repeating(collect_speed_metrics, interval=360, first=0)
+    # TODO: CHANGE INTERVAL FOR ABOUT 360 SECS!
+    job_queue.run_repeating(collect_speed_metrics, interval=20, first=0)
 
 
 async def run_jobs(update: Update, context: CallbackContext):

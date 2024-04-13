@@ -13,7 +13,7 @@ class CourierReplyMarkups:
                 'Show profile',
             ]
         ],
-        one_time_keyboard=True,
+        one_time_keyboard=False,
     )
 
     COURIER_RECEIVE_LOCATION_MARKUP = ReplyKeyboardMarkup(
@@ -24,15 +24,15 @@ class CourierReplyMarkups:
                 )
             ]
         ],
-        one_time_keyboard=True,
+        one_time_keyboard=False,
     )
 
     CARRYING_NOT_DELIVERY_MARKUP = ReplyKeyboardMarkup(
-        [['Show profile', 'Stop carrying']], one_time_keyboard=True
+        [['Show profile', 'Stop carrying']], one_time_keyboard=False
     )
 
     NOT_CARRYING_MARKUP = ReplyKeyboardMarkup(
-        [['Show profile', 'Start carrying']], one_time_keyboard=True
+        [['Show profile', 'Start carrying']], one_time_keyboard=False
     )
 
     PICKED_UP_DELIVERY_MARKUP = ReplyKeyboardMarkup(

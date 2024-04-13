@@ -3,7 +3,7 @@ import logging
 from courier.models import Courier
 from django.db import models
 from django.utils import timezone
-from kafka_common.topics import DeliveryTopics
+# from kafka_common.topics import DeliveryTopics
 from order.models import Order
 
 
@@ -39,16 +39,17 @@ class Delivery(models.Model):
     def __str__(self):
         return f'{self.order_id} - {self.status}'
 
-    def save(self, *args, **kwargs):
-        # TODO: REMOVE THIS FROM DATABASE LAYER
-        if self.status == 1:
-            from delivery.adapters.delivery_adapters import DeliveryAdapter
-            from kafka_common.factories import send_kafka_msg
-
-            msg = DeliveryAdapter.serialize_delivery(self)
-            send_kafka_msg(msg, DeliveryTopics.TO_DELIVER)
-            logging.warning('Sent delivery to telegram !')
-
-        elif self.status == 5:
-            self.completed_at = timezone.now()
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     # TODO: REMOVE THIS FROM DATABASE LAYER
+    #     super().save(*args, **kwargs)
+    #     if self.status == 1:
+    #         from delivery.adapters.delivery_adapters import DeliveryAdapter
+    #         from kafka_common.factories import send_kafka_msg
+    #
+    #         msg = DeliveryAdapter.serialize_delivery(self)
+    #         send_kafka_msg(msg, DeliveryTopics.TO_DELIVER)
+    #         logging.warning('Sent delivery to telegram !')
+    #
+    #     elif self.status == 5:
+    #         self.completed_at = timezone.now()
+    #         super().save(*args, **kwargs)

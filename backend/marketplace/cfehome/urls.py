@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -25,6 +26,9 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('', include('observation.urls')),
     path('api/search', include('search.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
 ]
+
+urlpatterns += staticfiles_urlpatterns()

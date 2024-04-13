@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     path('auth/', obtain_auth_token, name='token-auth'),
     path('', views.api_home),
-    path('deliveries/', include('delivery.urls')),
+    # path('deliveries/', include('delivery.urls')),
     path('categories/', include('category.urls')),
     path('products/', include('products.urls')),
     path('articles/', include('articles.urls')),

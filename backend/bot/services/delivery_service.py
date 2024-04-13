@@ -47,20 +47,21 @@ class DeliveryService(SingletonMixin):
         self.lock_counter = 0
 
     async def open_delivery(
-            self, delivery: Delivery, k: int = 5, retries: int = 0
+            self, delivery: Delivery
     ) -> dict[str, Courier | Delivery | bool] | dict[str, str | bool]:
         service = DistanceCalculator()
         couriers = await self.courier_repository.get_by_kwargs(busy=False)
+
         couriers_with_location = [
             courier for courier in couriers if courier.location is not None
         ]
 
-        search_courier_result = await service.get_nearest_free_courier(
+        nearest_courier_search = await service.get_nearest_free_courier(
             delivery, couriers_with_location
         )
 
-        if search_courier_result['success']:
-            courier: Courier = search_courier_result['courier']
+        if nearest_courier_search['success']:
+            courier: Courier = nearest_courier_search['courier']
             await self.delivery_repository.update(
                 id=delivery.id, courier=courier.id, status=3
             )
@@ -74,17 +75,12 @@ class DeliveryService(SingletonMixin):
             return {'success': True, 'courier': courier, 'delivery': delivery}
 
         else:
-            if retries < 5:
-                return await self.open_delivery(delivery, k + 1, retries + 1)
-            else:
-                self.lock = True
-                return {'success': False, 'msg': 'Too many retries to find courier!'}
+            return {'success': False, 'msg': 'Could not find appropriate courier!'}
 
     async def picked_up_delivery(self, courier_id: int) -> Delivery:
         delivery = await self.get_couriers_delivery(courier_id)
         if delivery:
-            delivery.status = 4
-
+            await self.courier_repository.update(delivery.id, status=4)
         msg = json.dumps(delivery.__dict__, default=str)
         await async_send_kafka_msg(msg, DeliveryTopics.DELIVERED)
 
@@ -94,8 +90,7 @@ class DeliveryService(SingletonMixin):
         courier = await self.courier_repository.get(courier_id)
         delivery = None
         if courier:
-            d_id = courier.current_delivery_id
-            delivery = await self.delivery_repository.get(d_id)
+            delivery = await self.delivery_repository.get(courier.current_delivery_id)
         return delivery
 
     async def close_delivery(self, delivery_id: int, status: int) -> None:
@@ -111,7 +106,7 @@ class DeliveryService(SingletonMixin):
         if self.lock and self.lock_counter < 5:
             self.lock_counter += 1
 
-        elif self.lock and self.lock_counter > 5:
+        elif self.lock and self.lock_counter >= 5:
             await self._verify_service()
 
         else:

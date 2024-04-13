@@ -1,14 +1,23 @@
 import json
 from dataclasses import asdict
 
-from kafka_common.factories import async_send_kafka_msg
-from kafka_common.topics import CourierTopics, DeliveryTopics
-from schemas.schemas import Delivery, Location, couriers
 from telegram._chat import Chat
 from telegram._message import Message
 
+from kafka_common.factories import async_send_kafka_msg
+from kafka_common.topics import CourierTopics, DeliveryTopics
+from repository.courier_repository import CourierRepository
+from schemas.schemas import Delivery, Location, couriers, Courier
+
 
 class CourierService:
+
+    def __init__(self):
+        self.courier_repository = CourierRepository()
+
+    async def get_courier_profile(self, id: int) -> Courier:
+        courier = await self.courier_repository.get(id)
+        return courier
 
     async def courier_start_carrying(self, user: Chat):
         courier = {

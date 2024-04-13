@@ -1,4 +1,4 @@
-from adapters import consume_django_model_to_dataclass
+from adapters import django_model_to_dataclass
 from kafka_common.receiver import KafkaReceiver
 from kafka_common.topics import CourierTopics, DeliveryTopics
 from schemas.schemas import (
@@ -15,7 +15,7 @@ class CourierProfileReceiver(KafkaReceiver):
 
     def post_consume_action(self, msg: str) -> None:
         """Method to deserialize incoming message from to courier and adds courier profile to line"""
-        courier_dataclass = consume_django_model_to_dataclass(msg, Courier)
+        courier_dataclass = django_model_to_dataclass(msg, Courier)
         courier_dict = courier_dataclass.__dict__
 
         if courier_dict['id'] not in couriers:
@@ -31,7 +31,7 @@ class TgDeliveryReceiver(KafkaReceiver):
 
     def post_consume_action(self, msg: str):
         """Method to deserialize incoming message in delivery and add delivery to queue"""
-        delivery_dataclass = consume_django_model_to_dataclass(msg, Delivery)
+        delivery_dataclass = django_model_to_dataclass(msg, Delivery)
         deliveries[delivery_dataclass.id] = delivery_dataclass
 
 
@@ -40,5 +40,5 @@ class TgDeliveryToCancelReceiver(KafkaReceiver):
 
     def post_consume_action(self, msg: str) -> None:
 
-        delivery_dataclass = consume_django_model_to_dataclass(msg, Delivery)
+        delivery_dataclass = django_model_to_dataclass(msg, Delivery)
         cancelled_deliveries[delivery_dataclass.id] = delivery_dataclass

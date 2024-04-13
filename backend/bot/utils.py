@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from geopy import distance
 from kafka_common.receiver import SingletonMixin
@@ -93,4 +94,5 @@ class DistanceCalculator(SingletonMixin):
             total_distance += distance.distance(
                 (points[i - 1].lat, points[i - 1].lon), (points[i].lat, points[i].lon)
             ).kilometers
+        logging.error(f'CALCULATED DISTANCE BETWEEN POINTS IS {total_distance}')
         return total_distance

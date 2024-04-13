@@ -8,3 +8,7 @@ requests
 confluent-kafka
 django-debug-toolbar
 drf-yasg
+channels>4
+daphne
+channels_redis
+gunicorn

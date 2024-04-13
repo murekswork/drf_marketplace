@@ -15,17 +15,18 @@ class _OnlineCourierFirstLocationMsgFilter(_Location, _CouriersFilter):
     def filter(self, message: Message) -> bool:
         from schemas.schemas import couriers
 
-        return (
-            super().filter(message)
-            and message.chat.id in couriers
-            and couriers[message.chat.id].location is None
-        )
+        res = _Location.filter(self, message) and _CouriersFilter.filter(self, message) and couriers.get(
+            message.chat.id).location is None
+        return res
 
 
 class _OnlineCouriersLocationFilter(_Location, _CouriersFilter):
 
     def filter(self, message: Message) -> bool:
-        res = _Location.filter(self, message) and _CouriersFilter.filter(self, message)
+        from schemas.schemas import couriers
+
+        res = _Location.filter(self, message) and _CouriersFilter.filter(self, message) and couriers.get(
+            message.chat.id).location is not None
         return res
         # return message.chat.username in couriers.keys() and super().filter(message)
 
@@ -44,8 +45,8 @@ class _OnlineNotLocationCourierMessageFilter(_OnlineCourierMessageFilter):
         from schemas.schemas import couriers
 
         return (
-            message.chat.username in couriers
-            and couriers[message.chat.id].location is None
+                message.chat.username in couriers
+                and couriers[message.chat.id].location is None
         )
 
 
@@ -95,3 +96,5 @@ class CourierFilters:
     ONLINE_COURIER_ACTIVE_DELIVERY_FILTER = _ActiveDeliveryFilter(
         name='courier_active_delivery'
     )
+
+

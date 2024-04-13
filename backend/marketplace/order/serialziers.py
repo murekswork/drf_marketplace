@@ -1,5 +1,5 @@
 from api.serializers import UserSerializer
-from delivery.serializers import DeliverySerializer
+# from delivery.serializers import DeliverySerializer
 from products.models import Product
 from products.serializers import ProductInlineSerializer
 from rest_framework import serializers

@@ -6,7 +6,8 @@ services:
       dockerfile: marketplace/Dockerfile
     ports:
       - "8000:8000"
-    command: sh -c "python manage.py start_listening & python manage.py runserver 0.0.0.0:8000"
+      - "8001:8001"
+    command: sh -c "python manage.py start_listening & python manage.py run_servers"
     depends_on:
       db:
         condition: service_started
@@ -50,7 +51,7 @@ services:
     build:
       dockerfile: ./bot/Dockerfile
     ports:
-      - "8001:8001"
+      - "8002:8002"
     command: >
       sh -c "python bot/bot.py"
     env_file:

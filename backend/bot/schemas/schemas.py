@@ -42,6 +42,5 @@ class Delivery:
 
 
 deliveries: dict[Delivery, None] = {}
-delivering: dict[Delivery, None] = {}
 couriers: dict[Courier, None] = {}
 cancelled_deliveries: dict[Delivery, None] = {}

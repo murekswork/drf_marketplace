@@ -1,5 +1,4 @@
 import logging
-import threading
 import time
 from os import getenv
 
@@ -144,29 +143,11 @@ def main() -> None:
     application.run_polling()
 
 
-def listen_for_courier_profile():
-    threading.get_ident()
-    receiver = CourierProfileReceiver()
-    receiver.start_listening()
-
-
-def listen_for_delivery():
-    threading.get_ident()
-    listener = TgDeliveryReceiver()
-    listener.start_listening()
-
-
-def listen_for_cancelled_deliveries():
-    threading.get_ident()
-    listener = TgDeliveryToCancelReceiver()
-    listener.start_listening()
-
-
 if __name__ == '__main__':
-    from kafka_tg.receiver import (
-        CourierProfileReceiver,
-        TgDeliveryReceiver,
-        TgDeliveryToCancelReceiver,
+    from kafka_tg.listeners import (
+        listen_for_delivery,
+        listen_for_courier_profile,
+        listen_for_cancelled_deliveries
     )
 
     time.sleep(10)
