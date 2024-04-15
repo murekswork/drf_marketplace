@@ -1,6 +1,7 @@
-from adapters import django_model_to_dataclass
 from kafka_common.receiver import KafkaReceiver
 from kafka_common.topics import CourierTopics, DeliveryTopics
+
+from adapters import django_model_to_dataclass
 from schemas.schemas import (
     Courier,
     Delivery,
@@ -10,7 +11,7 @@ from schemas.schemas import (
 )
 
 
-class CourierProfileReceiver(KafkaReceiver):
+class TgCourierProfileReceiver(KafkaReceiver):
     _topic = CourierTopics.COURIER_PROFILE
 
     def post_consume_action(self, msg: str) -> None:
@@ -39,6 +40,5 @@ class TgDeliveryToCancelReceiver(KafkaReceiver):
     _topic = DeliveryTopics.TO_CANCEL_DELIVERY
 
     def post_consume_action(self, msg: str) -> None:
-
         delivery_dataclass = django_model_to_dataclass(msg, Delivery)
         cancelled_deliveries[delivery_dataclass.id] = delivery_dataclass

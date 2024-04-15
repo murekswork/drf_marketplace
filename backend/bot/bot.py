@@ -2,6 +2,9 @@ import logging
 import time
 from os import getenv
 
+from telegram.ext import Application, CommandHandler, MessageHandler
+from telegram.ext.filters import Regex
+
 from filter import CourierFilters
 from handlers.common_handlers import profile_handler, start_bot
 from handlers.courier_handlers import (
@@ -19,12 +22,9 @@ from handlers.root_handlers import (
     get_couriers_on_line,
     show_all_deliveries,
 )
-from telegram.ext import Application, CommandHandler, MessageHandler
-from telegram.ext.filters import Regex
 
 
 def main() -> None:
-    """Run the bot."""
     application = Application.builder().token(f'{getenv("BOT_TOKEN")}').build()
 
     application.add_handler(
@@ -143,18 +143,23 @@ def main() -> None:
     application.run_polling()
 
 
-if __name__ == '__main__':
-    from kafka_tg.listeners import (
-        listen_for_delivery,
-        listen_for_courier_profile,
-        listen_for_cancelled_deliveries
+def run_listeners():
+    from kafka_tg.listeners import listener_factory
+    from kafka_tg.receiver import (
+        TgDeliveryToCancelReceiver,
+        TgDeliveryReceiver,
+        TgCourierProfileReceiver
     )
+    listener_factory(TgDeliveryReceiver)
+    listener_factory(TgDeliveryToCancelReceiver)
+    listener_factory(TgCourierProfileReceiver)
+
+
+if __name__ == '__main__':
 
     time.sleep(10)
     try:
-        listen_for_courier_profile()
-        listen_for_delivery()
-        listen_for_cancelled_deliveries()
+        run_listeners()
         main()
     except Exception as e:
         logging.error(
