@@ -3,13 +3,11 @@ import logging
 
 from redis import Redis
 
-redis_locator = Redis(host='redis', port=6379)
-
 
 class LocationTracker:
 
     def __init__(self):
-        self.redis: Redis = redis_locator
+        self.redis: Redis = Redis(host='redis', port=6379)
 
     def set_location(self, courier_id: str, location: dict[str, str]):
         self.redis.set(courier_id, json.dumps(location))
@@ -25,9 +23,9 @@ class LocationTracker:
     def get_all_locations(self) -> dict[int, dict[str, str]]:
         pattern = "?????????"
         cursor, keys = self.redis.scan(match=pattern)
+        cursor2, keys2 = self.redis.scan(match=pattern + '?')
         result = {}
-        for key in keys:
+        for key in keys + keys2:
             location = self.get_location(key)
             result[int(key)] = location
-        print(f'Got locations from redis: {result}')
         return result
